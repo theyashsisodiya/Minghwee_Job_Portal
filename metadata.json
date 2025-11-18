@@ -1,0 +1,8 @@
+{
+  "name": "MingHwee Job Portal",
+  "description": "A comprehensive job portal for connecting blue-collar workers with employers in Singapore and the Philippines, featuring dashboards for candidates, employers, and administrators.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
