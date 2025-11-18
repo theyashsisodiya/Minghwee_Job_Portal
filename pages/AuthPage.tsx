@@ -22,7 +22,11 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialCountry, onAuthSuccess, navi
         // Mocking successful registration for a new employer
         onAuthSuccess(UserType.Employer, fullName || 'New Employer');
     } else {
-        if (userType === UserType.Employer && email === '1' && otp === '1') {
+        const isSalesLogin = userType === UserType.Employer &&
+                             ((email === 'sale' && otp === 'sale') ||
+                              (email === 'yash@gmail.com' && otp === '12345'));
+                              
+        if (isSalesLogin) {
             onAuthSuccess(UserType.Sales, 'Sales Team');
         } else if (email === '0' && otp === '0') {
             onAuthSuccess(UserType.Admin, 'Admin');
@@ -103,13 +107,13 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialCountry, onAuthSuccess, navi
                     )}
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="email">
-                        Email
+                        Email or Username
                         </label>
                         <input
                         className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         id="email"
-                        type="email"
-                        placeholder="Enter your email"
+                        type="text"
+                        placeholder="Enter your email or username"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required

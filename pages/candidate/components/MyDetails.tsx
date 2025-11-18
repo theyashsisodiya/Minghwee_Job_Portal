@@ -134,96 +134,102 @@ const MyDetails: React.FC<MyDetailsProps> = ({ addNotification }) => {
                     </div>
                 </div>
 
-                <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Profile Information */}
-                    <div className="bg-white p-6 rounded-lg shadow-sm">
-                        <div className="flex justify-between items-center pb-4 border-b border-gray-200">
-                            <h3 className="text-lg font-semibold text-gray-900">Profile Information</h3>
-                            <button onClick={() => setIsEditingProfile(!isEditingProfile)} className="px-4 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors">{isEditingProfile ? 'Cancel' : 'Edit'}</button>
-                        </div>
-                        <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6">
-                            <div><label className="text-sm text-gray-500">Full Name</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.fullName}</p></div>
-                            <div><label className="text-sm text-gray-500">Date of Birth</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.dob}</p></div>
-                            <div><label className="text-sm text-gray-500">Nationality</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.nationality}</p></div>
-                            <div><label className="text-sm text-gray-500">Gender</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.gender}</p></div>
-                            <div><label className="text-sm text-gray-500">Current Location</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.location}</p></div>
-                            <div><label className="text-sm text-gray-500">Contact</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.contact}</p></div>
-                            <div className="col-span-2"><label className="text-sm text-gray-500">Email</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.email}</p></div>
-                        </div>
-                    </div>
-
-                    {/* Employment & Preferences */}
-                    <div className="bg-white p-6 rounded-lg shadow-sm">
-                        <div className="flex justify-between items-center pb-4 border-b border-gray-200">
-                            <h3 className="text-lg font-semibold text-gray-900">Employment & Preferences</h3>
-                            <button onClick={() => setIsEditingPreferences(!isEditingPreferences)} className="px-4 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors">{isEditingPreferences ? 'Cancel' : 'Edit'}</button>
-                        </div>
-                        <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6">
-                            <div><label className="text-sm text-gray-500">Current Role</label><p className="mt-1 font-semibold text-gray-900">{employmentInfo.role}</p></div>
-                            <div><label className="text-sm text-gray-500">Years of Experience</label><p className="mt-1 font-semibold text-gray-900">{employmentInfo.experience}</p></div>
-                            <div className="col-span-2">
-                                <label className="text-sm text-gray-500">Desired Job Categories</label>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                    {employmentInfo.categories.map(cat => <span key={cat} className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">{cat}</span>)}
-                                </div>
+                <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    {/* Left Column */}
+                    <div className="space-y-8">
+                        {/* Profile Information */}
+                        <div className="bg-white p-6 rounded-lg shadow-sm">
+                            <div className="flex justify-between items-center pb-4 border-b border-gray-200">
+                                <h3 className="text-lg font-semibold text-gray-900">Profile Information</h3>
+                                <button onClick={() => setIsEditingProfile(!isEditingProfile)} className="px-4 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors">{isEditingProfile ? 'Cancel' : 'Edit'}</button>
                             </div>
-                            <div className="col-span-2">
-                                <label className="text-sm text-gray-500">Skills</label>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                    {employmentInfo.skills.map(skill => <span key={skill} className="px-3 py-1 bg-blue-100 text-blue-600 text-sm rounded-full">{skill}</span>)}
-                                </div>
+                            <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6">
+                                <div><label className="text-sm text-gray-500">Full Name</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.fullName}</p></div>
+                                <div><label className="text-sm text-gray-500">Date of Birth</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.dob}</p></div>
+                                <div><label className="text-sm text-gray-500">Nationality</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.nationality}</p></div>
+                                <div><label className="text-sm text-gray-500">Gender</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.gender}</p></div>
+                                <div><label className="text-sm text-gray-500">Current Location</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.location}</p></div>
+                                <div><label className="text-sm text-gray-500">Contact</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.contact}</p></div>
+                                <div className="col-span-2"><label className="text-sm text-gray-500">Email</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.email}</p></div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                {/* Pre-Uploaded Documents */}
-                <div className="mt-8 bg-white p-6 rounded-lg shadow-sm">
-                    <h3 className="text-lg font-semibold text-gray-900">Pre-Uploaded Documents</h3>
-                    <p className="mt-1 text-sm text-gray-500">These documents can be quickly attached to any job application.</p>
-                    <div className="mt-6 space-y-3">
-                        {documents.map(doc => (
-                            <div key={doc.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                                <div className="flex items-center gap-3">
-                                    <span className="material-icons-outlined text-gray-500">description</span>
-                                    <div>
-                                        <p className="font-medium text-sm text-gray-900">{doc.fileName}</p>
-                                        <p className="text-xs text-gray-500">{doc.type} - Uploaded on {doc.uploadDate}</p>
+                        {/* Employment & Preferences */}
+                        <div className="bg-white p-6 rounded-lg shadow-sm">
+                            <div className="flex justify-between items-center pb-4 border-b border-gray-200">
+                                <h3 className="text-lg font-semibold text-gray-900">Employment & Preferences</h3>
+                                <button onClick={() => setIsEditingPreferences(!isEditingPreferences)} className="px-4 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors">{isEditingPreferences ? 'Cancel' : 'Edit'}</button>
+                            </div>
+                            <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6">
+                                <div><label className="text-sm text-gray-500">Current Role</label><p className="mt-1 font-semibold text-gray-900">{employmentInfo.role}</p></div>
+                                <div><label className="text-sm text-gray-500">Years of Experience</label><p className="mt-1 font-semibold text-gray-900">{employmentInfo.experience}</p></div>
+                                <div className="col-span-2">
+                                    <label className="text-sm text-gray-500">Desired Job Categories</label>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {employmentInfo.categories.map(cat => <span key={cat} className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">{cat}</span>)}
                                     </div>
                                 </div>
-                                <button className="text-sm font-medium text-blue-600 hover:underline">Replace</button>
+                                <div className="col-span-2">
+                                    <label className="text-sm text-gray-500">Skills</label>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {employmentInfo.skills.map(skill => <span key={skill} className="px-3 py-1 bg-blue-100 text-blue-600 text-sm rounded-full">{skill}</span>)}
+                                    </div>
+                                </div>
                             </div>
-                        ))}
-                        <button className="w-full flex justify-center items-center gap-2 p-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-blue-600 hover:bg-blue-50 transition-colors">
-                            <span className="material-icons-outlined text-base">add</span>
-                            Add New Document
-                        </button>
+                        </div>
                     </div>
-                </div>
 
-                {/* One-way Video Interview */}
-                <div className="mt-8 bg-white p-6 rounded-lg shadow-sm">
-                    <h3 className="text-lg font-semibold text-gray-900">One-way Video Interview</h3>
-                    <p className="mt-1 text-sm text-gray-500">A pre-recorded video helps employers get to know you better. Maximum 4 minutes, 50MB limit.</p>
-                    <div className="mt-6 bg-gray-100 rounded-lg overflow-hidden aspect-video">
-                        <div className="w-full h-full flex items-center justify-center text-gray-500">
-                             <video ref={videoRef} className="w-full h-full" muted={isRecording || !videoUrl} controls={!!videoUrl} src={videoUrl || undefined} key={videoUrl}>
-                                Your browser does not support the video tag.
-                            </video>
+                    {/* Right Column */}
+                    <div className="space-y-8">
+                        {/* Pre-Uploaded Documents */}
+                        <div className="bg-white p-6 rounded-lg shadow-sm">
+                            <h3 className="text-lg font-semibold text-gray-900">Pre-Uploaded Documents</h3>
+                            <p className="mt-1 text-sm text-gray-500">These documents can be quickly attached to any job application.</p>
+                            <div className="mt-6 space-y-3">
+                                {documents.map(doc => (
+                                    <div key={doc.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                                        <div className="flex items-center gap-3">
+                                            <span className="material-icons-outlined text-gray-500">description</span>
+                                            <div>
+                                                <p className="font-medium text-sm text-gray-900">{doc.fileName}</p>
+                                                <p className="text-xs text-gray-500">{doc.type} - Uploaded on {doc.uploadDate}</p>
+                                            </div>
+                                        </div>
+                                        <button className="text-sm font-medium text-blue-600 hover:underline">Replace</button>
+                                    </div>
+                                ))}
+                                <button className="w-full flex justify-center items-center gap-2 p-4 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-blue-600 hover:bg-blue-50 transition-colors">
+                                    <span className="material-icons-outlined text-base">add</span>
+                                    Add New Document
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div className="flex items-center">
-                            <input id="consent-checkbox" type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                            <label htmlFor="consent-checkbox" className="ml-2 block text-sm text-gray-600">I consent to my video being recorded and stored for job application purposes.</label>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <button onClick={isRecording ? stopRecording : startRecording} className="px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 transition-colors">
-                                {isRecording ? 'Stop' : (videoUrl ? 'Re-record' : 'Record')}
-                            </button>
-                            <button onClick={() => fileInputRef.current?.click()} className="px-5 py-2.5 text-sm font-semibold text-gray-900 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">Upload Video</button>
-                            <input type="file" ref={fileInputRef} className="hidden" accept="video/*" onChange={handleVideoUpload} />
-                            <button onClick={handleSaveVideo} className="px-5 py-2.5 text-sm font-semibold text-white bg-green-600 rounded-lg shadow-sm hover:bg-green-700 transition-colors">Save Video</button>
+
+                        {/* One-way Video Interview */}
+                        <div className="bg-white p-6 rounded-lg shadow-sm">
+                            <h3 className="text-lg font-semibold text-gray-900">One-way Video Interview</h3>
+                            <p className="mt-1 text-sm text-gray-500">A pre-recorded video helps employers get to know you better. Maximum 4 minutes, 50MB limit.</p>
+                            <div className="mt-6 bg-gray-100 rounded-lg overflow-hidden aspect-video">
+                                <div className="w-full h-full flex items-center justify-center text-gray-500">
+                                    <video ref={videoRef} className="w-full h-full" muted={isRecording || !videoUrl} controls={!!videoUrl} src={videoUrl || undefined} key={videoUrl}>
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            </div>
+                            <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                <div className="flex items-center">
+                                    <input id="consent-checkbox" type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                                    <label htmlFor="consent-checkbox" className="ml-2 block text-sm text-gray-600">I consent to my video being recorded and stored for job application purposes.</label>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <button onClick={isRecording ? stopRecording : startRecording} className="px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 transition-colors">
+                                        {isRecording ? 'Stop' : (videoUrl ? 'Re-record' : 'Record')}
+                                    </button>
+                                    <button onClick={() => fileInputRef.current?.click()} className="px-5 py-2.5 text-sm font-semibold text-gray-900 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">Upload Video</button>
+                                    <input type="file" ref={fileInputRef} className="hidden" accept="video/*" onChange={handleVideoUpload} />
+                                    <button onClick={handleSaveVideo} className="px-5 py-2.5 text-sm font-semibold text-white bg-green-600 rounded-lg shadow-sm hover:bg-green-700 transition-colors">Save Video</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
