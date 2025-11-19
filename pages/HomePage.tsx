@@ -8,6 +8,34 @@ interface HeaderProps {
   selectedCountry: Country | null;
 }
 
+// --- UI Components ---
+const AccordionItem = ({ title, children }: { title: string; children: React.ReactNode }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="border-b border-gray-200 last:border-0">
+      <button
+        className="w-full flex justify-between items-center py-4 text-left focus:outline-none"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="text-lg font-medium text-gray-800">{title}</span>
+        <svg
+          className={`w-5 h-5 text-purple-600 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <div
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 opacity-100 mb-4' : 'max-h-0 opacity-0'}`}
+      >
+        <p className="text-gray-600 leading-relaxed">{children}</p>
+      </div>
+    </div>
+  );
+};
+
 const Header: React.FC<HeaderProps> = ({ navigateTo, setCountry, selectedCountry }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -17,43 +45,44 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, setCountry, selectedCountry
     setIsDropdownOpen(false);
   };
 
+  // Common styles for nav links
+  const linkBaseClass = "text-lg font-semibold px-5 py-2.5 rounded-xl transition-all duration-200";
+  const activeLinkClass = "bg-purple-100 text-purple-700 shadow-sm";
+  const inactiveLinkClass = "text-gray-600 hover:bg-purple-50 hover:text-purple-600";
+
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
-      <nav className="container mx-auto px-6 py-3 flex items-center">
-        <div className="flex-1">
-          <div className="text-2xl font-bold text-gray-800 cursor-pointer" onClick={() => navigateTo(Page.Home)}>MingHwee</div>
+    <header className="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-purple-100 shadow-sm">
+      <nav className="container mx-auto px-6 py-6 flex items-center justify-between">
+        <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer group" onClick={() => navigateTo(Page.Home)}>
+           <div className="bg-purple-600 text-white p-2 rounded-xl shadow-lg shadow-purple-600/20 group-hover:scale-105 transition-transform">
+               {/* Logo Icon */}
+               <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.28-1.25-.743-1.659M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.28-1.25.743-1.659M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 0c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79-4-4-1.79-4-4-4z" /></svg>
+           </div>
+           <span className="text-2xl font-bold text-gray-900 tracking-tight">MingHwee</span>
         </div>
-        <div className="flex-grow flex justify-center">
-            <div className="hidden md:flex items-center space-x-6">
-                <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.Home); }} className="text-blue-600 font-semibold">Home</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.About); }} className="text-gray-600 hover:text-blue-600">About</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.Contact); }} className="text-gray-600 hover:text-blue-600">Contact</a>
-            </div>
+        
+        <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
+            <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.Home); }} className={`${linkBaseClass} ${activeLinkClass}`}>Home</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.About); }} className={`${linkBaseClass} ${inactiveLinkClass}`}>About Us</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.Pricing); }} className={`${linkBaseClass} ${inactiveLinkClass}`}>Pricing</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.Contact); }} className={`${linkBaseClass} ${inactiveLinkClass}`}>Contact</a>
         </div>
-        <div className="flex-1 flex justify-end">
-          <div className="flex items-center space-x-4">
-            <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); navigateTo(Page.Login, { userType: UserType.Employer }); }}
-              className="px-6 py-1 text-gray-700 font-semibold rounded-md hover:bg-gray-100 transition duration-300"
+
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center space-x-2 px-5 py-2.5 bg-white border border-gray-200 rounded-full hover:bg-purple-50 hover:border-purple-200 transition-all duration-300 text-sm font-semibold text-gray-700 shadow-sm"
             >
-              For Employers
-            </a>
-            <div className="relative">
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="px-6 py-1 border border-gray-300 rounded-md flex items-center space-x-2 hover:bg-gray-100"
-              >
-                <span>{selectedCountry || 'Select Country'}</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-              </button>
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
-                  <a href="#" onClick={(e) => handleCountrySelect(e, Country.Singapore)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Singapore</a>
-                  <a href="#" onClick={(e) => handleCountrySelect(e, Country.Philippines)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Philippines</a>
-                </div>
-              )}
-            </div>
+              <span>{selectedCountry || 'Select Country'}</span>
+              <svg className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-fadeIn overflow-hidden">
+                <a href="#" onClick={(e) => handleCountrySelect(e, Country.Singapore)} className="block px-6 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors">Singapore</a>
+                <a href="#" onClick={(e) => handleCountrySelect(e, Country.Philippines)} className="block px-6 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors">Philippines</a>
+              </div>
+            )}
           </div>
         </div>
       </nav>
@@ -61,177 +90,338 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, setCountry, selectedCountry
   );
 };
 
-const WhyChooseUs = () => {
-  const features = [
-    { title: 'Verified & Safe Jobs', description: 'We partner only with trusted and verified employers. Your safety and fair treatment are our top priorities.', imageUrl: 'https://picsum.photos/870/400?image=1' },
-    { title: 'We Value Your Skills', description: 'Whether you\'re experienced or just starting, we help you showcase your skills to find the right job.', imageUrl: 'https://picsum.photos/870/400?image=2' },
-    { title: 'Smart Job Matching', description: 'Our smart system finds jobs that match your skills and preferences, so you get relevant interview invites.', imageUrl: 'https://picsum.photos/870/400?image=3' }
-  ];
-
-  return (
-    <section className="py-20 bg-white">
-      <div className="container mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">Why Work With Us?</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {features.map(feature => (
-            <div key={feature.title} className="bg-white rounded-lg shadow-lg border border-gray-200 p-8 text-left transition-transform transform hover:-translate-y-2">
-              <img src={feature.imageUrl} alt={feature.title} className="h-48 w-full object-cover rounded-md mb-6" />
-              <h3 className="text-2xl font-semibold text-gray-800 mb-2">{feature.title}</h3>
-              <p className="text-gray-600">{feature.description}</p>
-            </div>
-          ))}
+const HeroSection: React.FC<{ navigateTo: (page: Page, options?: { userType?: UserType }) => void }> = ({ navigateTo }) => (
+    <section className="relative bg-gradient-to-b from-purple-100 via-pink-50 to-white overflow-hidden pb-20 pt-10 lg:pt-20">
+        {/* Decorative curve */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+             <div className="absolute -top-[40%] -right-[10%] w-[80rem] h-[80rem] bg-purple-200/30 rounded-full blur-3xl"></div>
+             <div className="absolute top-[20%] -left-[10%] w-[60rem] h-[60rem] bg-pink-200/30 rounded-full blur-3xl"></div>
         </div>
-      </div>
-    </section>
-  );
-};
 
-const HowItWorks = () => {
-    const steps = [
+        <div className="container mx-auto px-6 md:px-12 lg:px-16">
+            <div className="flex flex-col lg:flex-row items-center gap-12">
+                <div className="lg:w-1/2 text-center lg:text-left z-10">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 text-xs font-bold tracking-wider text-purple-700 uppercase bg-white rounded-full shadow-sm border border-purple-100">
+                         <span className="w-2 h-2 bg-purple-600 rounded-full animate-pulse"></span>
+                         Verified Employment Platform
+                    </div>
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight leading-[1.15]">
+                        Connecting Talent with <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">Opportunity</span>
+                    </h1>
+                    <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed max-w-lg mx-auto lg:mx-0">
+                        Your trusted partner in finding verified, safe blue-collar jobs across Singapore and the Philippines. Fair, transparent, and ethical.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <button 
+                            onClick={() => navigateTo(Page.Login, { userType: UserType.Employer })}
+                            className="px-8 py-4 bg-purple-700 text-white font-bold text-sm tracking-wide uppercase rounded-full shadow-xl shadow-purple-900/20 hover:bg-purple-800 hover:shadow-purple-900/30 hover:-translate-y-1 transition-all duration-300"
+                        >
+                            I'm an Employer
+                        </button>
+                        <button 
+                            onClick={() => navigateTo(Page.Login, { userType: UserType.Candidate })}
+                            className="px-8 py-4 bg-pink-500 text-white font-bold text-sm tracking-wide uppercase rounded-full shadow-xl shadow-pink-600/20 hover:bg-pink-600 hover:shadow-pink-600/30 hover:-translate-y-1 transition-all duration-300"
+                        >
+                            I'm a Helper
+                        </button>
+                    </div>
+                    <p className="mt-6 text-purple-800 font-medium">
+                        Better connections make better <span className="text-pink-600 font-bold">homes</span>
+                    </p>
+                </div>
+                
+                <div className="lg:w-1/2 relative">
+                    <div className="relative mx-auto w-full max-w-2xl lg:max-w-4xl">
+                         {/* Main Image */}
+                         <img 
+                            src="https://github.com/theyashsisodiya/Minghwee_Job_Portal/blob/main/nano-edit-1763546262410.png?raw=true" 
+                            alt="Family and Helper" 
+                            className="w-full h-auto object-contain mix-blend-multiply scale-125 brightness-110 contrast-105"
+                        />
+                         {/* Floating Badge */}
+                         <div className="absolute bottom-12 left-0 bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-white/50 animate-bounce-slow hidden md:block">
+                             <div className="flex items-center gap-3">
+                                 <div className="bg-green-100 p-2 rounded-full">
+                                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                 </div>
+                                 <div>
+                                     <p className="font-bold text-gray-900 text-sm">Verified Candidates</p>
+                                     <p className="text-xs text-gray-500">100% Safe Hiring</p>
+                                 </div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+);
+
+const PhilosophySection = () => (
+    <section className="py-20 bg-white text-center">
+        <div className="container mx-auto px-6">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">Match. Manage. Grow.</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto mb-10 text-lg leading-relaxed">
+                Empowering domestic employment through stronger connections. At MingHwee, we believe great outcomes come when employers, helpers, and agencies work in harmony.
+            </p>
+            <div className="flex flex-col md:flex-row justify-center gap-4 md:gap-12 text-sm text-gray-700 font-medium">
+                <div className="flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>
+                    Agencies offer experience and expertise.
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>
+                    Helpers bring dedication and aspirations.
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>
+                    Employers provide trust and a welcoming home.
+                </div>
+            </div>
+        </div>
+    </section>
+);
+
+const WhyChooseSection = () => {
+    const features = [
         {
-            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
-            title: '1. Create Your Profile',
-            description: 'Fill out your details, skills, and job preferences in minutes. It’s free and easy.'
+            title: 'Support at every step',
+            desc: 'From smart search tools and messaging to contracts and subscriptions, our dedicated Client Services Team is here to guide you.',
         },
         {
-            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>,
-            title: '2. Get Matched',
-            description: 'Our smart system finds verified employers looking for someone just like you.'
+            title: 'Transparent and Trusted',
+            desc: 'With no hidden costs, helpers join for free and employers enjoy clear, upfront pricing. Thousands of families rely on our platform.',
         },
         {
-            icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.085a2 2 0 00-1.736.93L5.5 8m7 2H5M5 8h2m-2 0h2m0 0h2m-2 0h2" /></svg>,
-            title: '3. Get Hired',
-            description: 'Receive interview invites, get help with your documents, and start your new job.'
+            title: 'Choose your hiring style',
+            desc: 'Pick the approach that suits your needs: Direct Hire, Concierge, or Agent. We handle the process your way.',
+        },
+        {
+            title: 'Ethical',
+            desc: 'We uphold the highest ethical standards. Our direct and concierge helpers come without loans. Fees are fully disclosed.',
         }
     ];
 
     return (
-        <section className="py-20 bg-gray-50">
-            <div className="container mx-auto px-6">
-                <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">Get a Job in 3 Simple Steps</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-                    {steps.map(step => (
-                        <div key={step.title} className="p-6">
-                            <div className="flex justify-center mb-4">{step.icon}</div>
-                            <h3 className="text-2xl font-semibold text-gray-800 mb-2">{step.title}</h3>
-                            <p className="text-gray-600">{step.description}</p>
+        <section className="py-24 bg-[#C23B8B] text-white relative overflow-hidden">
+             {/* Background Pattern */}
+             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+            <div className="container mx-auto px-6 relative z-10">
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl md:text-4xl font-bold">Why choose MingHwee?</h2>
+                    <p className="mt-4 opacity-90 max-w-2xl mx-auto">MingHwee is the all-in-one platform for domestic employment in Singapore—trusted by employers, helpers, and agencies alike.</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                    {features.map((feat, idx) => (
+                        <div key={idx} className="bg-white text-gray-900 p-8 rounded-2xl shadow-xl flex items-start gap-4 hover:-translate-y-1 transition-transform duration-300">
+                             <div className="flex-shrink-0 mt-1">
+                                <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white">
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                                </div>
+                             </div>
+                             <div>
+                                 <h3 className="font-bold text-lg mb-2">{feat.title}</h3>
+                                 <p className="text-gray-600 text-sm leading-relaxed">{feat.desc}</p>
+                             </div>
                         </div>
                     ))}
                 </div>
             </div>
         </section>
-    )
-}
-
-const JobCategories = () => {
-  const categories = [
-    { name: 'Plumber', imageUrl: 'https://picsum.photos/400/400?image=10' },
-    { name: 'Babysitter', imageUrl: 'https://picsum.photos/400/400?image=11' },
-    { name: 'Chef', imageUrl: 'https://picsum.photos/400/400?image=12' },
-    { name: 'Electrician', imageUrl: 'https://picsum.photos/400/400?image=13' },
-    { name: 'Cleaner', imageUrl: 'https://picsum.photos/400/400?image=14' },
-    { name: 'Driver', imageUrl: 'https://picsum.photos/400/400?image=15' },
-    { name: 'Gardener', imageUrl: 'https://picsum.photos/400/400?image=16' },
-  ];
-  return (
-    <section className="py-20 bg-[#FFFBF5]">
-      <div className="container mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">Popular Job Categories</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6">
-          {categories.map(category => (
-            <div key={category.name} className="text-center group">
-              <div className="overflow-hidden rounded-lg shadow-md">
-                <img src={category.imageUrl} alt={category.name} className="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-110" />
-              </div>
-              <p className="font-semibold text-gray-700 mt-4">{category.name}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+    );
 };
 
-const Testimonials = () => {
-  const testimonials = [
-    { name: 'Javier Reyes', company: 'Now working at SG Piping Solutions', avatarUrl: 'https://i.pravatar.cc/150?u=javier', quote: 'MingHwee made finding a job in Singapore so easy. They helped me with my paperwork and I got an interview in just one week. I\'m very happy with my new job!' },
-    { name: 'Maria Santos', company: 'Hired by CleanSweep Services', avatarUrl: 'https://i.pravatar.cc/150?u=maria', quote: "I was worried about finding a safe job. The employers on MingHwee are verified, and the process was clear. I feel secure and respected in my new role." },
-    { name: 'Li Wei', company: 'Placed with Creative Builders', avatarUrl: 'https://i.pravatar.cc/150?u=liwei', quote: 'The smart matching is great! I only received invitations for jobs that were a perfect fit for my skills as an electrician. It saved me a lot of time.' },
-  ];
-
-  return (
-    <section className="py-20 bg-white">
-      <div className="container mx-auto px-6">
-        <h2 className="text-4xl font-bold text-center text-gray-800">Hear from Workers Like You</h2>
-        <p className="text-center text-gray-600 mt-4 mb-12 max-w-3xl mx-auto">See how we've helped others find great jobs and build better futures.</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map(t => (
-            <div key={t.name} className="bg-gray-50 p-8 rounded-lg border border-gray-200">
-              <p className="text-6xl text-gray-300 font-serif -mt-4 -ml-4">“</p>
-              <p className="text-gray-600 mb-6 -mt-8">{t.quote}</p>
-              <div className="flex items-center">
-                <img src={t.avatarUrl} alt={t.name} className="w-12 h-12 rounded-full object-cover mr-4" />
-                <div>
-                  <p className="font-semibold text-gray-800">{t.name}</p>
-                  <p className="text-sm text-gray-500">{t.company}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const NewFooter = () => {
-    const InstagramIcon = () => <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.012-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 016.08 2.525c.636-.247 1.363-.416 2.427-.465C9.53 2.013 9.884 2 12.315 2zm0 2.163c-2.359 0-2.693.01-3.638.056-.945.045-1.505.207-1.944.372a2.734 2.734 0 00-1.047.748 2.734 2.734 0 00-.748 1.047c-.165.44-.327.999-.372 1.944-.046.945-.056 1.279-.056 3.638s.01 2.693.056 3.638c.045.945.207 1.505.372 1.944a2.734 2.734 0 00.748 1.047 2.734 2.734 0 001.047.748c.44.165.999.327 1.944.372.945.046 1.279.056 3.638.056s2.693-.01 3.638-.056c.945-.045 1.505-.207 1.944-.372a2.734 2.734 0 001.047-.748 2.734 2.734 0 00.748-1.047c.165-.44.327-.999.372-1.944.046-.945.056-1.279.056-3.638s-.01-2.693-.056-3.638c-.045-.945-.207-1.505-.372-1.944a2.734 2.734 0 00-.748-1.047 2.734 2.734 0 00-1.047-.748c-.44-.165-.999-.327-1.944-.372C15.008 4.173 14.674 4.163 12.315 4.163zM12 8.75a5.25 5.25 0 100 10.5 5.25 5.25 0 000-10.5zM12 17a3 3 0 110-6 3 3 0 010 6zm4.805-7.75a1.2 1.2 0 100-2.4 1.2 1.2 0 000 2.4z" clipRule="evenodd"/></svg>;
-    const FacebookIcon = () => <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd"/></svg>;
-    const WhatsAppIcon = () => <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.42 1.32 4.92L2 22l5.25-1.38c1.45.79 3.08 1.21 4.75 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zM12 20.15c-1.48 0-2.92-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.32c-.82-1.32-1.26-2.85-1.26-4.43 0-4.42 3.6-8.03 8.04-8.03s8.04 3.6 8.04 8.03-3.61 8.03-8.04 8.03zm4.91-6.15c-.28-.14-1.65-.81-1.9-.91-.25-.1-.43-.14-.62.14-.19.28-.72.91-.88 1.1-.16.19-.32.22-.59.07-.28-.15-1.17-.43-2.23-1.38-.83-.72-1.39-1.61-1.55-1.88s-.01-.43.13-.57c.12-.13.28-.34.42-.51.14-.17.19-.28.28-.46.09-.19.05-.37-.02-.51-.07-.15-.62-1.49-.85-2.04-.23-.55-.46-.48-.62-.48-.15 0-.33-.02-.51-.02s-.46.07-.7.35c-.24.28-.91.88-1.11 2.15s.75 2.92.85 3.12c.1.2 1.8 2.91 4.39 4.22 2.59 1.3 2.59.88 3.06.85.47-.03 1.65-.67 1.88-1.32.23-.65.23-1.21.16-1.32z"/></svg>;
+const PopularCategoriesSection = () => {
+    const categories = [
+        { name: 'Plumber', image: 'https://plus.unsplash.com/premium_photo-1663040178972-ee22589c5950?w=500&auto=format&fit=crop&q=60' },
+        { name: 'Babysitter', image: 'https://images.unsplash.com/photo-1610043831879-720483722565?w=500&auto=format&fit=crop&q=60' },
+        { name: 'Chef', image: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=500&auto=format&fit=crop&q=60' },
+        { name: 'Electrician', image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&auto=format&fit=crop&q=60' },
+        { name: 'Cleaner', image: 'https://images.unsplash.com/photo-1584621645335-359b81b48167?w=500&auto=format&fit=crop&q=60' },
+        { name: 'Driver', image: 'https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=500&auto=format&fit=crop&q=60' },
+        { name: 'Gardener', image: 'https://images.unsplash.com/photo-1611735341450-74d61e66bbad?w=500&auto=format&fit=crop&q=60' },
+        { name: 'Construction', image: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=500&auto=format&fit=crop&q=60' },
+    ];
 
     return (
-        <footer className="bg-[#F0F5FA] border-t border-gray-200">
-            <div className="container mx-auto px-6 py-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div className="col-span-1 md:col-span-2 lg:col-span-1">
-                    <h3 className="text-2xl font-bold text-gray-800 mb-4">MingHwee</h3>
-                    <p className="text-gray-600">Connecting talent with opportunity, empowering blue-collar workers across Southeast Asia.</p>
+        <section className="py-24 bg-purple-50">
+            <div className="container mx-auto px-6">
+                <div className="text-center mb-12">
+                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Explore Top Job Categories</h2>
+                    <p className="mt-2 text-gray-600">Find the right role for your skillset</p>
                 </div>
-                <div>
-                    <h4 className="font-semibold text-gray-800 mb-4">Our services</h4>
-                    <ul className="space-y-2 text-gray-600">
-                    <li><a href="#" className="hover:text-blue-600">Find job</a></li>
-                    <li><a href="#" className="hover:text-blue-600">Create resume</a></li>
-                    <li><a href="#" className="hover:text-blue-600">Auto Job Selection</a></li>
-                    <li><a href="#" className="hover:text-blue-600">Pricing Plan</a></li>
-                    </ul>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    {categories.map((cat) => (
+                        <div key={cat.name} className="group relative overflow-hidden rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 aspect-[4/3] cursor-pointer">
+                            <img src={cat.image} alt={cat.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                            <div className="absolute bottom-0 left-0 p-4">
+                                <span className="text-white font-bold text-lg">{cat.name}</span>
+                            </div>
+                        </div>
+                    ))}
                 </div>
-                <div>
-                    <h4 className="font-semibold text-gray-800 mb-4">Links</h4>
-                    <ul className="space-y-2 text-gray-600">
-                    <li><a href="#" className="hover:text-blue-600">Blog</a></li>
-                    <li><a href="#" className="hover:text-blue-600">Help Center</a></li>
-                    <li><a href="#" className="hover:text-blue-600">Contact Us</a></li>
-                    <li><a href="#" className="hover:text-blue-600">Privacy Policy</a></li>
-                    <li><a href="#" className="hover:text-blue-600">About us</a></li>
-                    </ul>
+            </div>
+        </section>
+    );
+};
+
+const TestimonialsSection = () => {
+    const reviews = [
+        { text: "Excellent service! I recently hired directly from overseas (PH) using their concierge service which is quite cheaper than other agencies. Very smooth process.", author: "H Flores" },
+        { text: "MingHwee made finding a job in Singapore so easy. They helped me with my paperwork and I got an interview in just one week.", author: "Javier Reyes" },
+        { text: "Very user friendly platform. As an employer, I found it very easy to shortlist candidates and arrange interviews.", author: "Sarah Tan" }
+    ];
+
+    return (
+        <section className="py-24 bg-[#F9EAF5]">
+            <div className="container mx-auto px-6 text-center">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Testimonials</h2>
+                <p className="text-gray-600 mb-16">Actual reviews from our happy and satisfied clients</p>
+                
+                <div className="flex overflow-x-auto gap-6 pb-8 snap-x justify-center">
+                    {reviews.map((review, idx) => (
+                        <div key={idx} className="min-w-[300px] max-w-md bg-white p-8 rounded-3xl shadow-sm snap-center flex flex-col justify-center">
+                            <p className="text-gray-700 italic mb-6 leading-relaxed">"{review.text}"</p>
+                            <div className="flex justify-center items-center gap-2">
+                                <span className="font-bold text-gray-900">{review.author}</span>
+                                <div className="flex text-yellow-400">
+                                    {[1,2,3,4,5].map(i => <span key={i}>★</span>)}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
-                <div>
-                    <h4 className="font-semibold text-gray-800 mb-4">Contact Us</h4>
-                    <div className="flex space-x-4 mb-4">
-                        <a href="#" className="text-gray-600 hover:text-blue-600" aria-label="Instagram"><InstagramIcon /></a>
-                        <a href="#" className="text-gray-600 hover:text-blue-600" aria-label="Facebook"><FacebookIcon /></a>
-                        <a href="#" className="text-gray-600 hover:text-blue-600" aria-label="WhatsApp"><WhatsAppIcon /></a>
+                <div className="flex justify-center gap-2 mt-4">
+                    <span className="w-3 h-3 bg-gray-800 rounded-full"></span>
+                    <span className="w-3 h-3 bg-gray-300 rounded-full"></span>
+                    <span className="w-3 h-3 bg-gray-300 rounded-full"></span>
+                </div>
+            </div>
+        </section>
+    );
+};
+
+const FAQSection = () => (
+    <section className="py-20 bg-white">
+        <div className="container mx-auto px-6 max-w-3xl">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Frequently Asked Questions</h2>
+            <div className="space-y-2">
+                <AccordionItem title="What does it cost?">
+                    Employers can browse for free. To contact helpers, we offer affordable subscription plans. Helpers join for free.
+                </AccordionItem>
+                <AccordionItem title="What are the key success factors for an employer-helper relationship?">
+                    Communication, clear expectations, and mutual respect are key. We provide templates and guides to help facilitate this.
+                </AccordionItem>
+                <AccordionItem title="Why would I keep my subscription after I found my helper?">
+                    Your subscription gives you continued access to our support team, contract management tools, and replacement guarantees.
+                </AccordionItem>
+            </div>
+            <div className="text-center mt-12">
+                <button className="px-8 py-3 bg-purple-900 text-white font-bold rounded-full text-sm hover:bg-purple-800 transition-colors">SEE MORE</button>
+            </div>
+        </div>
+    </section>
+);
+
+const VideoAndInfoSection = () => (
+    <section className="py-24 bg-[#431c53] text-white">
+        <div className="container mx-auto px-6">
+            <div className="bg-white rounded-[2.5rem] p-8 md:p-12 flex flex-col lg:flex-row items-center gap-12 shadow-2xl relative overflow-hidden">
+                {/* Decoration */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
+                <div className="absolute -bottom-8 -left-8 w-64 h-64 bg-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
+
+                <div className="lg:w-1/2 w-full z-10">
+                    <div className="relative aspect-video rounded-2xl overflow-hidden bg-gray-100 shadow-inner group cursor-pointer">
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <svg className="w-6 h-6 text-purple-600 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60" alt="Video Thumbnail" className="w-full h-full object-cover opacity-80" />
+                        <p className="absolute top-4 left-4 text-gray-900 font-bold bg-white/80 px-3 py-1 rounded-lg text-sm">Watch our brand video</p>
                     </div>
-                    <p className="text-gray-600">1500 Marilla St, Dallas, TX 75201</p>
-                    <p className="text-gray-600">1(847)555-5550</p>
                 </div>
+                <div className="lg:w-1/2 text-gray-900 z-10">
+                    <h3 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900">Not a maid agency, <br/> <span className="text-purple-600">we are so much more!</span></h3>
+                    <p className="text-gray-600 mb-6 leading-relaxed">
+                        Our mission is simple, we want to provide equal access and progress for all, to help build a culture of respect between employers and domestic helper in Singapore.
+                    </p>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                        We are not a maid agency, instead we provide you with all the tools and support to help you to find a helper yourself. You can choose to DIY without an agent and expensive fees or relax and enjoy our concierge service.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+);
+
+const Footer = () => {
+    return (
+        <footer className="bg-[#2D1B4E] text-white pt-20 pb-10 text-sm">
+            <div className="container mx-auto px-6">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
+                    <div className="md:col-span-2 pr-8">
+                        <div className="flex items-center gap-2 mb-6">
+                             <div className="bg-white text-purple-900 p-1 rounded-lg">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.28-1.25-.743-1.659M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.28-1.25.743-1.659M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 0c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79-4-4-1.79-4-4-4z" /></svg>
+                           </div>
+                           <span className="text-2xl font-bold">MingHwee</span>
+                        </div>
+                        <p className="text-gray-400 mb-4">This MingHwee platform is partnered with the following employment agencies:</p>
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                            MingHwee Pte Ltd, licensed by the Ministry of Manpower (licence 23C2048)<br/>
+                            Little Big Employment Agency Pte Ltd, licensed by the Ministry of Manpower (license 19C9790)<br/>
+                            Living Well Maid Agency Pte Ltd, licensed by the Ministry of Manpower (license 20C0407)
+                        </p>
+                        <div className="mt-6">
+                            <p className="font-bold mb-3">Connect with us</p>
+                            <div className="flex gap-4">
+                                <a href="#" className="w-8 h-8 bg-white text-purple-900 rounded-full flex items-center justify-center hover:bg-pink-500 hover:text-white transition-colors"><i className="fab fa-facebook-f">f</i></a>
+                                <a href="#" className="w-8 h-8 bg-white text-purple-900 rounded-full flex items-center justify-center hover:bg-pink-500 hover:text-white transition-colors"><i className="fab fa-instagram">in</i></a>
+                                <a href="#" className="w-8 h-8 bg-white text-purple-900 rounded-full flex items-center justify-center hover:bg-pink-500 hover:text-white transition-colors"><i className="fab fa-linkedin-in">li</i></a>
+                                <a href="#" className="w-8 h-8 bg-white text-purple-900 rounded-full flex items-center justify-center hover:bg-pink-500 hover:text-white transition-colors"><i className="fab fa-youtube">yt</i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 className="font-bold mb-6">Home</h4>
+                        <ul className="space-y-3 text-gray-400">
+                            <li><a href="#" className="hover:text-white">Find a helper</a></li>
+                            <li><a href="#" className="hover:text-white">Find a job</a></li>
+                            <li><a href="#" className="hover:text-white">Sign up/Log in</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 className="font-bold mb-6">Subscription plans</h4>
+                        <ul className="space-y-3 text-gray-400">
+                            <li><a href="#" className="hover:text-white">Concierge services</a></li>
+                            <li><a href="#" className="hover:text-white">Forum</a></li>
+                            <li><a href="#" className="hover:text-white">Blogs</a></li>
+                        </ul>
+                    </div>
+
+                     <div>
+                        <h4 className="font-bold mb-6">About MingHwee</h4>
+                        <ul className="space-y-3 text-gray-400">
+                            <li><a href="#" className="hover:text-white">FAQs</a></li>
+                            <li><a href="#" className="hover:text-white">Contact us</a></li>
+                            <li><a href="#" className="hover:text-white">Terms of use</a></li>
+                            <li><a href="#" className="hover:text-white">Privacy policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div className="border-t border-purple-800 pt-8 text-center text-gray-500">
+                    <p>&copy; {new Date().getFullYear()} MingHwee Pte. Ltd. All rights reserved.</p>
                 </div>
             </div>
         </footer>
     );
 };
-
 
 interface HomePageProps {
   navigateTo: (page: Page, options?: { userType?: UserType }) => void;
@@ -241,39 +431,18 @@ interface HomePageProps {
 
 const HomePage: React.FC<HomePageProps> = ({ navigateTo, setCountry, selectedCountry }) => {
   return (
-    <div className="bg-gray-50">
+    <div className="bg-white font-sans text-gray-900">
       <Header navigateTo={navigateTo} setCountry={setCountry} selectedCountry={selectedCountry} />
       <main>
-        <div className="bg-gray-50 pt-10 pb-16">
-            <div className="container mx-auto px-6">
-                <div className="w-full max-w-7xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div 
-                    className="relative bg-cover bg-center h-[500px]" 
-                    style={{ backgroundImage: "url('https://picsum.photos/2069/1381')" }}
-                >
-                    <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-center p-8">
-                    <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">Connecting Talent with Opportunity</h1>
-                    <p className="text-lg text-gray-200 mb-8 max-w-3xl">
-                        Your trusted partner for finding good, safe blue-collar jobs in Singapore & the Philippines. Register for free and let us match you with verified employers.
-                    </p>
-                    <button 
-                    onClick={() => navigateTo(Page.Login, { userType: UserType.Candidate })}
-                    className="px-10 py-4 bg-blue-600 text-white font-semibold text-lg rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300"
-                    >
-                    Register as a Candidate
-                    </button>
-                    </div>
-                </div>
-                </div>
-            </div>
-        </div>
-        
-        <WhyChooseUs />
-        <HowItWorks />
-        <JobCategories />
-        <Testimonials />
+        <HeroSection navigateTo={navigateTo} />
+        <PhilosophySection />
+        <WhyChooseSection />
+        <TestimonialsSection />
+        <FAQSection />
+        <VideoAndInfoSection />
+        <PopularCategoriesSection />
       </main>
-      <NewFooter />
+      <Footer />
     </div>
   );
 };

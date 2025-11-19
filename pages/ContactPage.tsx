@@ -10,45 +10,50 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ navigateTo, setCountry, selectedCountry }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const handleCountrySelect = (e: React.MouseEvent<HTMLAnchorElement>, country: Country) => {
     e.preventDefault();
     setCountry(country);
     setIsDropdownOpen(false);
   };
+
+  // Common styles for nav links
+  const linkBaseClass = "text-lg font-semibold px-5 py-2.5 rounded-xl transition-all duration-200";
+  const activeLinkClass = "bg-purple-100 text-purple-700 shadow-sm";
+  const inactiveLinkClass = "text-gray-600 hover:bg-purple-50 hover:text-purple-600";
+
   return (
-    <header className="bg-white shadow-sm">
-      <nav className="container mx-auto px-6 py-3 flex items-center">
-        <div className="flex-1">
-          <div className="text-2xl font-bold text-gray-800 cursor-pointer" onClick={() => navigateTo(Page.Home)}>MingHwee</div>
+    <header className="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-purple-100 shadow-sm">
+      <nav className="container mx-auto px-6 py-6 flex items-center justify-between">
+        <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer group" onClick={() => navigateTo(Page.Home)}>
+           <div className="bg-purple-600 text-white p-2 rounded-xl shadow-lg shadow-purple-600/20 group-hover:scale-105 transition-transform">
+               <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.28-1.25-.743-1.659M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.28-1.25.743-1.659M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 0c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79-4-4-1.79-4-4-4z" /></svg>
+           </div>
+           <span className="text-2xl font-bold text-gray-900 tracking-tight">MingHwee</span>
         </div>
-        <div className="hidden md:flex items-center space-x-6">
-          <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.Home); }} className="text-gray-600 hover:text-blue-600">Home</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.About); }} className="text-gray-600 hover:text-blue-600">About</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.Contact); }} className="text-blue-600 font-semibold">Contact</a>
+        
+        <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
+            <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.Home); }} className={`${linkBaseClass} ${inactiveLinkClass}`}>Home</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.About); }} className={`${linkBaseClass} ${inactiveLinkClass}`}>About Us</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.Pricing); }} className={`${linkBaseClass} ${inactiveLinkClass}`}>Pricing</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.Contact); }} className={`${linkBaseClass} ${activeLinkClass}`}>Contact</a>
         </div>
-        <div className="flex-1 flex justify-end">
-          <div className="flex items-center space-x-4">
+
+        <div className="flex items-center space-x-4">
+          <div className="relative">
             <button
-              onClick={() => navigateTo(Page.Login, { userType: UserType.Candidate })}
-              className="px-6 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center space-x-2 px-5 py-2.5 bg-white border border-gray-200 rounded-full hover:bg-purple-50 hover:border-purple-200 transition-all duration-300 text-sm font-semibold text-gray-700 shadow-sm"
             >
-              Login
+              <span>{selectedCountry || 'Select Country'}</span>
+              <svg className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
-            <div className="relative">
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="px-6 py-1 border border-gray-300 rounded-md flex items-center space-x-2 hover:bg-gray-100"
-              >
-                <span>{selectedCountry || 'Select Country'}</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-              </button>
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
-                  <a href="#" onClick={(e) => handleCountrySelect(e, Country.Singapore)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Singapore</a>
-                  <a href="#" onClick={(e) => handleCountrySelect(e, Country.Philippines)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Philippines</a>
-                </div>
-              )}
-            </div>
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-fadeIn overflow-hidden">
+                <a href="#" onClick={(e) => handleCountrySelect(e, Country.Singapore)} className="block px-6 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors">Singapore</a>
+                <a href="#" onClick={(e) => handleCountrySelect(e, Country.Philippines)} className="block px-6 py-3 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors">Philippines</a>
+              </div>
+            )}
           </div>
         </div>
       </nav>

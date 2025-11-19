@@ -1,9 +1,11 @@
+
 export enum Page {
   Home = 'home',
   Login = 'login',
   Dashboard = 'dashboard',
   About = 'about',
   Contact = 'contact',
+  Pricing = 'pricing',
 }
 
 export enum UserType {

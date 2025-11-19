@@ -157,7 +157,7 @@ const SalesDashboard: React.FC<SalesDashboardProps> = ({ userName, onLogout }) =
                 <table className="w-full text-left">
                     <thead>
                         <tr className="border-b border-gray-200">
-                            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Employer Name</th>
+                            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Company Name</th>
                             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Email</th>
                             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Contact</th>
                             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Action</th>

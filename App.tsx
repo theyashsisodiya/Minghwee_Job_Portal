@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Page, UserType, Country, Notification } from './types';
 import HomePage from './pages/HomePage';
@@ -8,6 +9,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import SalesDashboard from './pages/sales/SalesDashboard';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
+import PricingPage from './pages/PricingPage';
 
 const Toast: React.FC<{ notification: Notification; onDismiss: (id: number) => void }> = ({ notification, onDismiss }) => {
   React.useEffect(() => {
@@ -120,6 +122,8 @@ const App: React.FC = () => {
         return <AboutPage navigateTo={navigateTo} setCountry={handleSetCountry} selectedCountry={country} />;
       case Page.Contact:
         return <ContactPage navigateTo={navigateTo} setCountry={handleSetCountry} selectedCountry={country} />;
+      case Page.Pricing:
+        return <PricingPage navigateTo={navigateTo} setCountry={handleSetCountry} selectedCountry={country} />;
       default:
         return <HomePage navigateTo={navigateTo} setCountry={handleSetCountry} selectedCountry={country} />;
     }
