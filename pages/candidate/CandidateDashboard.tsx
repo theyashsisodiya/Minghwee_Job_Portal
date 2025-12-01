@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import MyDetails from './components/MyDetails';
 import InterviewInvites from './components/InterviewInvites';
@@ -5,6 +6,7 @@ import ProgressTracker from './components/ProgressTracker';
 import ScheduledInterviews from './components/ScheduledInterviews';
 import RegistrationWizard from './components/RegistrationWizard';
 import { Notification } from '../../types';
+import { useGlobalState } from '../../contexts/StateContext';
 
 // --- Icons --- //
 const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
@@ -78,6 +80,30 @@ interface CandidateDashboardProps {
 
 const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ userName, onLogout, isNewUser, onProfileComplete, addNotification }) => {
   const [activeTab, setActiveTab] = useState('myDetails');
+  const { addCandidate } = useGlobalState();
+
+  const handleRegistrationComplete = () => {
+      // Mock Data from wizard
+      const newCandidate = {
+          name: userName,
+          role: 'Applicant',
+          avatarUrl: 'https://i.pravatar.cc/150?img=12', // Placeholder
+          personalInfo: {
+              fullName: userName,
+              email: 'candidate@email.com',
+              phone: '12345678',
+              location: 'Singapore',
+              gender: 'Female',
+              dob: '1995-01-01'
+          },
+          skills: ['Cleaning', 'Cooking'],
+          jobCategories: ['Domestic Helper'],
+          processHistory: []
+      };
+      
+      addCandidate(newCandidate); // Add to global state, triggers auto-matching
+      onProfileComplete();
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -95,7 +121,7 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ userName, onLog
   };
 
   if (isNewUser) {
-    return <RegistrationWizard onComplete={onProfileComplete} addNotification={addNotification} />;
+    return <RegistrationWizard onComplete={handleRegistrationComplete} addNotification={addNotification} />;
   }
 
   return (

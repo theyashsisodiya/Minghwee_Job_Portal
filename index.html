@@ -4,37 +4,98 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MingHwee Job Portal</title>
+    <title>MingHwee - Trust & Care</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;1,400&display=swap" rel="stylesheet">
+
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              serif: ['Merriweather', 'serif'],
+            },
+            colors: {
+              brand: {
+                terracotta: '#D97757',
+                coral: '#E07A5F',
+                cream: '#FDFCDC',
+                beige: '#F4F1DE',
+                burgundy: '#6D2E46',
+                honey: '#F2CC8F',
+              }
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- GSAP & Plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/TextPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollToPlugin.min.js"></script>
+    <!-- Note: ScrollSmoother is a Club GreenSock perk. Using a compatible fallback if CDN fails or trial version -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollSmoother.min.js"></script>
+
     <style>
-      /* Global fix for inputs to ensure readability against light backgrounds */
-      input[type="text"],
-      input[type="email"],
-      input[type="password"],
-      input[type="tel"],
-      input[type="date"],
-      input[type="number"],
-      textarea,
-      select {
-        color: #1f2937; /* Tailwind CSS text-gray-800 */
+      /* Global Reset for Scrolling Compatibility */
+      html, body {
+        width: 100%;
+        height: auto;
+        min-height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        background-color: #FDFCDC; /* brand-cream */
+      }
+      
+      /* Input styles fix */
+      input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="date"], input[type="number"], textarea, select {
+        color: #1f2937;
+      }
+      input::placeholder, textarea::placeholder {
+        color: #9ca3af;
       }
 
-      input::placeholder,
-      textarea::placeholder {
-        color: #9ca3af; /* Tailwind CSS text-gray-400 */
+      /* Lenis Specific Styles */
+      html.lenis, html.lenis body {
+        height: auto;
+      }
+      .lenis.lenis-smooth {
+        scroll-behavior: auto !important;
+      }
+      .lenis.lenis-smooth [data-lenis-prevent] {
+        overscroll-behavior: contain;
+      }
+      .lenis.lenis-stopped {
+        overflow: hidden;
+      }
+      .lenis.lenis-scrolling iframe {
+        pointer-events: none;
       }
     </style>
-  <script type="importmap">
+    <script type="importmap">
 {
   "imports": {
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.0/client",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0"
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "framer-motion": "https://aistudiocdn.com/framer-motion@^12.23.24",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "lenis": "https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.mjs",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
   }
 }
 </script>
 </head>
-  <body class="bg-gray-50">
+  <body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

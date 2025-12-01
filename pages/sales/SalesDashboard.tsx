@@ -1,6 +1,6 @@
+
 import React, { useState } from 'react';
-import { Country, Client } from '../../types';
-import { MOCK_CLIENTS } from '../../constants';
+import { Country, Client, ManagedEmployer } from '../../types';
 import ViewJobs from '../employer/components/ViewJobs';
 import PostJobForm from '../employer/components/PostJobForm';
 import JobDetails from '../employer/components/JobDetails';
@@ -8,7 +8,9 @@ import Payment from '../employer/components/Payment';
 import ViewDocuments from '../employer/components/ViewDocuments';
 import SalesScheduledInterviews from './components/SalesScheduledInterviews';
 import SalesProgressTracker from './components/SalesProgressTracker';
+import { useGlobalState } from '../../contexts/StateContext';
 
+// --- ICONS ---
 const ClientsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.28-1.25-.743-1.659M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.28-1.25.743-1.659M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 0c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79-4-4-1.79-4-4-4z" /></svg>;
 const ScheduledInterviewIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
 const ProgressTrackerIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>;
@@ -52,15 +54,49 @@ const SalesSidebar: React.FC<{ activeTab: string; setActiveTab: (tab: string) =>
     );
 };
 
-const AddClientModal: React.FC<{ isOpen: boolean; onClose: () => void; onAddClient: (client: Omit<Client, 'id'>) => void }> = ({ isOpen, onClose, onAddClient }) => {
+interface AddClientModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onAddClient: (client: Client) => void;
+    existingEmployers: ManagedEmployer[];
+}
+
+const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, onClose, onAddClient, existingEmployers }) => {
     if (!isOpen) return null;
+    const [mode, setMode] = useState<'select' | 'create'>('select');
+    const [selectedEmployerId, setSelectedEmployerId] = useState<number | ''>('');
+    
+    // New Client Form Data
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [contact, setContact] = useState('');
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onAddClient({ name, email, contact });
+        
+        if (mode === 'select' && selectedEmployerId) {
+            // Find existing employer from Global State
+            const employer = existingEmployers.find(e => e.id === Number(selectedEmployerId));
+            if (employer) {
+                onAddClient({
+                    id: employer.id,
+                    name: employer.name,
+                    companyName: employer.company,
+                    email: employer.email || 'N/A',
+                    contact: employer.contact || 'N/A',
+                    isRegistered: true // Flag to show they have their own login
+                });
+            }
+        } else {
+            // Manually create new client (Sales managed only)
+            onAddClient({
+                id: Date.now(),
+                name: name,
+                email: email,
+                contact: contact,
+                isRegistered: false
+            });
+        }
         onClose();
     };
 
@@ -68,21 +104,55 @@ const AddClientModal: React.FC<{ isOpen: boolean; onClose: () => void; onAddClie
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
                 <h2 className="text-2xl font-bold mb-6 text-gray-800">Add New Client</h2>
+                
+                <div className="flex mb-6 bg-gray-100 p-1 rounded-lg">
+                    <button 
+                        className={`flex-1 py-2 text-sm font-semibold rounded-md ${mode === 'select' ? 'bg-white shadow' : 'text-gray-500'}`}
+                        onClick={() => setMode('select')}
+                    >
+                        Select Existing
+                    </button>
+                    <button 
+                        className={`flex-1 py-2 text-sm font-semibold rounded-md ${mode === 'create' ? 'bg-white shadow' : 'text-gray-500'}`}
+                        onClick={() => setMode('create')}
+                    >
+                        Create New
+                    </button>
+                </div>
+
                 <form onSubmit={handleSubmit}>
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="clientName">Client Name</label>
-                            <input type="text" id="clientName" value={name} onChange={e => setName(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                    {mode === 'select' ? (
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Select Employer</label>
+                            <select 
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={selectedEmployerId}
+                                onChange={(e) => setSelectedEmployerId(e.target.value ? Number(e.target.value) : '')}
+                                required
+                            >
+                                <option value="">Select an employer...</option>
+                                {existingEmployers.map(emp => (
+                                    <option key={emp.id} value={emp.id}>{emp.company} ({emp.name})</option>
+                                ))}
+                            </select>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="clientEmail">Client Email</label>
-                            <input type="email" id="clientEmail" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                    ) : (
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Client Name</label>
+                                <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Client Email</label>
+                                <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Client Contact</label>
+                                <input type="tel" value={contact} onChange={e => setContact(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="clientContact">Client Contact</label>
-                            <input type="tel" id="clientContact" value={contact} onChange={e => setContact(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                        </div>
-                    </div>
+                    )}
+                    
                     <div className="mt-8 flex justify-end space-x-4">
                         <button type="button" onClick={onClose} className="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300">Cancel</button>
                         <button type="submit" className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">Add Client</button>
@@ -99,19 +169,18 @@ const ClientJobManager: React.FC<{ client: Client; onBack: () => void }> = ({ cl
     const [activeTab, setActiveTab] = useState<ClientViewPage>('viewJobs');
     const navigate = (page: ClientViewPage) => setActiveTab(page);
     
-    const country = client.contact.startsWith('+65') ? Country.Singapore : Country.Philippines;
+    // Auto-detect country based on contact prefix for demo purposes, defaulting to Singapore
+    const country = client.contact.startsWith('+63') ? Country.Philippines : Country.Singapore;
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'viewJobs': return <ViewJobs navigate={navigate} country={country} />;
-            case 'postJob': return <PostJobForm country={country} navigate={navigate} />;
-            case 'editJob': return <PostJobForm country={country} navigate={navigate} isEditing />;
+            case 'viewJobs': return <ViewJobs navigate={navigate} country={country} employerId={client.id} allowPosting={true} />;
+            case 'postJob': return <PostJobForm country={country} navigate={navigate} employerId={client.id} />;
+            case 'editJob': return <PostJobForm country={country} navigate={navigate} isEditing employerId={client.id} />;
             case 'jobDetails': return <JobDetails onBack={() => navigate('viewJobs')} />;
-            // FIX: Pass required props to Payment component to fix type error.
-            case 'payment': return <Payment navigate={() => { /* This might need a different flow for sales */ }} onPaymentSuccess={() => {}} candidate={null} />;
-            // FIX: Pass required props to ViewDocuments component to fix type error.
-            case 'viewDocuments': return <ViewDocuments navigate={() => { /* This might need a different flow for sales */ }} candidate={null} navigateToPayment={() => {}} />;
-            default: return <ViewJobs navigate={navigate} country={country} />;
+            case 'payment': return <Payment navigate={() => { /* Sales flow logic */ }} onPaymentSuccess={() => {}} candidate={null} />;
+            case 'viewDocuments': return <ViewDocuments navigate={() => { /* Sales flow logic */ }} candidate={null} navigateToPayment={() => {}} />;
+            default: return <ViewJobs navigate={navigate} country={country} employerId={client.id} allowPosting={true} />;
         }
     };
     
@@ -122,8 +191,9 @@ const ClientJobManager: React.FC<{ client: Client; onBack: () => void }> = ({ cl
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                     Back to Client List
                 </button>
-                <h1 className="text-3xl font-bold text-gray-800">Managing Client: {client.name}</h1>
+                <h1 className="text-3xl font-bold text-gray-800">Managing Client: {client.companyName || client.name}</h1>
                  <p className="text-gray-500">{client.email} | {client.contact}</p>
+                 {client.isRegistered && <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Registered User</span>}
             </div>
             {renderContent()}
         </div>
@@ -136,15 +206,12 @@ interface SalesDashboardProps {
 }
 
 const SalesDashboard: React.FC<SalesDashboardProps> = ({ userName, onLogout }) => {
-    const [clients, setClients] = useState<Client[]>(MOCK_CLIENTS);
+    // Access Global State to manage clients and employers
+    const { clients, addClient, employers } = useGlobalState();
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('clients');
 
-    const handleAddClient = (newClient: Omit<Client, 'id'>) => {
-        setClients(prev => [...prev, { id: Date.now(), ...newClient }]);
-    };
-    
     const ClientListView = () => (
         <div>
             <div className="flex justify-between items-center mb-8">
@@ -157,7 +224,7 @@ const SalesDashboard: React.FC<SalesDashboardProps> = ({ userName, onLogout }) =
                 <table className="w-full text-left">
                     <thead>
                         <tr className="border-b border-gray-200">
-                            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Company Name</th>
+                            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Company / Employer</th>
                             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Email</th>
                             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Contact</th>
                             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Action</th>
@@ -166,7 +233,9 @@ const SalesDashboard: React.FC<SalesDashboardProps> = ({ userName, onLogout }) =
                     <tbody>
                         {clients.map(client => (
                             <tr key={client.id} className="border-b border-gray-200 hover:bg-gray-50">
-                                <td className="py-4 px-4 text-gray-800 font-medium">{client.name}</td>
+                                <td className="py-4 px-4 text-gray-800 font-medium">
+                                    {client.companyName ? `${client.companyName} (${client.name})` : client.name}
+                                </td>
                                 <td className="py-4 px-4 text-gray-600">{client.email}</td>
                                 <td className="py-4 px-4 text-gray-600">{client.contact}</td>
                                 <td className="py-4 px-4">
@@ -203,7 +272,12 @@ const SalesDashboard: React.FC<SalesDashboardProps> = ({ userName, onLogout }) =
             <SalesSidebar activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setSelectedClient(null); }} onLogout={onLogout} />
             <main className="flex-1 p-8 overflow-auto h-screen">
                 {renderContent()}
-                <AddClientModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddClient={handleAddClient} />
+                <AddClientModal 
+                    isOpen={isModalOpen} 
+                    onClose={() => setIsModalOpen(false)} 
+                    onAddClient={addClient}
+                    existingEmployers={employers} // Pass global employers to the modal
+                />
             </main>
         </div>
     );

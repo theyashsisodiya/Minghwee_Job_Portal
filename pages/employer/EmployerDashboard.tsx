@@ -1,15 +1,14 @@
 
 import React, { useState } from 'react';
-import { Country, CandidateProgress } from '../../types';
-import { MOCK_CANDIDATE_PROGRESS } from '../../constants';
+import { Country, CandidateProgress, CandidateApplicationStatus } from '../../types';
 import Onboarding from './components/Onboarding';
 import ViewJobs from './components/ViewJobs';
-import PostJobForm from './components/PostJobForm';
 import JobDetails from './components/JobDetails';
 import ScheduledInterviews from './components/ScheduledInterviews';
 import EmployerProgressTracker from './components/ProgressTracker';
 import Payment from './components/Payment';
 import ViewDocuments from './components/ViewDocuments';
+import { useGlobalState } from '../../contexts/StateContext';
 
 // --- Icons --- //
 const PostJobIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
@@ -18,7 +17,7 @@ const ProgressTrackerIcon = () => <svg xmlns="http://www.w3.org/2000/svg" classN
 const LogoutIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>;
 const HelpIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 
-export type EmployerPage = 'onboarding' | 'viewJobs' | 'postJob' | 'editJob' | 'jobDetails' | 'scheduled' | 'progress' | 'payment' | 'viewDocuments';
+export type EmployerPage = 'onboarding' | 'viewJobs' | 'jobDetails' | 'scheduled' | 'progress' | 'payment' | 'viewDocuments';
 
 interface SidebarProps {
   activeTab: EmployerPage;
@@ -36,7 +35,7 @@ const EmployerSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLo
   
   const isActive = (tab: EmployerPage) => {
     if (tab === 'viewJobs') {
-      return ['viewJobs', 'postJob', 'editJob', 'jobDetails'].includes(activeTab);
+      return ['viewJobs', 'jobDetails'].includes(activeTab);
     }
     if (tab === 'progress') {
         return ['progress', 'viewDocuments', 'payment'].includes(activeTab);
@@ -115,8 +114,27 @@ const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ userName, country
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
   const [activeTab, setActiveTab] = useState<EmployerPage>(isOnboardingComplete ? 'viewJobs' : 'onboarding');
   const [showReviewPopup, setShowReviewPopup] = useState(false);
-  const [candidateProgressData, setCandidateProgressData] = useState<CandidateProgress[]>(MOCK_CANDIDATE_PROGRESS);
   const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(null);
+  
+  const currentEmployerId = 1; // Mocked ID for the currently logged-in employer
+
+  const { getApplicationsByEmployer, candidates: globalCandidates } = useGlobalState();
+  const applications = getApplicationsByEmployer(currentEmployerId); 
+
+  // Transform GlobalApplication to CandidateProgress format for UI compatibility
+  const candidateProgressData: CandidateProgress[] = applications.map(app => {
+      const candidateProfile = globalCandidates.find(c => c.id === app.candidateId);
+      return {
+          id: app.id,
+          candidateId: app.candidateId,
+          name: candidateProfile?.name || 'Unknown Candidate',
+          jobTitle: 'Candidate', // Should look up job title based on app.jobId
+          avatarUrl: candidateProfile?.avatarUrl || 'https://i.pravatar.cc/150',
+          status: app.status,
+          steps: app.steps,
+          paymentMade: app.paymentMade
+      };
+  });
  
   const navigate = (page: EmployerPage, candidateId?: number) => {
     if (candidateId) {
@@ -133,9 +151,6 @@ const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ userName, country
 
   const handlePaymentSuccess = () => {
     if (selectedCandidateId === null) return;
-    setCandidateProgressData(prev => 
-        prev.map(c => c.id === selectedCandidateId ? { ...c, paymentMade: true } : c)
-    );
     alert('Payment Successful! You now have full access to the candidate\'s documents.');
     setActiveTab('progress');
   };
@@ -148,11 +163,7 @@ const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ userName, country
     }
     switch (activeTab) {
       case 'viewJobs':
-        return <ViewJobs navigate={(page) => setActiveTab(page)} country={country} />;
-      case 'postJob':
-        return <PostJobForm country={country} navigate={(page) => setActiveTab(page)} />;
-      case 'editJob':
-        return <PostJobForm country={country} navigate={(page) => setActiveTab(page)} isEditing />;
+        return <ViewJobs navigate={(page: any) => setActiveTab(page)} country={country} employerId={currentEmployerId} allowPosting={false} />;
       case 'jobDetails':
         return <JobDetails onBack={() => navigate('viewJobs')} />;
       case 'scheduled':
@@ -160,11 +171,11 @@ const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ userName, country
       case 'progress':
         return <EmployerProgressTracker navigate={navigate} candidates={candidateProgressData} />;
       case 'payment':
-        return <Payment navigate={(page) => setActiveTab(page)} onPaymentSuccess={handlePaymentSuccess} candidate={selectedCandidate} />;
+        return <Payment navigate={(page: any) => setActiveTab(page)} onPaymentSuccess={handlePaymentSuccess} candidate={selectedCandidate || null} />;
       case 'viewDocuments':
-        return <ViewDocuments navigate={(page) => setActiveTab(page)} candidate={selectedCandidate} navigateToPayment={() => navigate('payment', selectedCandidate?.id)} />;
+        return <ViewDocuments navigate={(page: any) => setActiveTab(page)} candidate={selectedCandidate || null} navigateToPayment={() => navigate('payment', selectedCandidate?.id)} />;
       default:
-        return <ViewJobs navigate={(page) => setActiveTab(page)} country={country} />;
+        return <ViewJobs navigate={(page: any) => setActiveTab(page)} country={country} employerId={currentEmployerId} allowPosting={false} />;
     }
   };
 

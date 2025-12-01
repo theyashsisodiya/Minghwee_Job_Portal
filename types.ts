@@ -20,6 +20,30 @@ export enum Country {
   Philippines = 'Philippines',
 }
 
+export interface Testimonial {
+  id: number;
+  quote: string;
+  author: string;
+  role: string;
+  image: string;
+}
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+export interface NavItem {
+  label: string;
+  href: string;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'model';
+  text: string;
+  isError?: boolean;
+}
+
 export enum ProgressStatus {
     Completed = 'completed',
     InProgress = 'inProgress',
@@ -35,9 +59,11 @@ export enum DocumentStatus {
 
 export interface Client {
     id: number;
-    name: string;
+    name: string; // Contact Person Name
+    companyName?: string;
     email: string;
     contact: string;
+    isRegistered?: boolean; // If they have their own employer account
 }
 
 export interface PreUploadedDocument {
@@ -111,10 +137,14 @@ export enum JobStatus {
 
 export interface JobPosting {
     id: number;
+    employerId: number;
     title: string;
     status: JobStatus;
     category: string;
     postedDate: string;
+    location: string;
+    description: string;
+    salary: { min: number; max: number; currency: string };
 }
 
 export interface MatchedCandidate {
@@ -128,6 +158,7 @@ export interface MatchedCandidate {
 }
 
 export enum CandidateApplicationStatus {
+    Matched = 'Matched',
     InterviewInvited = 'Interview Invited',
     CandidateSelected = 'Candidate Selected',
     CandidateRejected = 'Candidate Rejected',
@@ -139,6 +170,7 @@ export enum CandidateApplicationStatus {
 
 export interface CandidateProgress {
     id: number;
+    candidateId: number;
     name: string;
     jobTitle: string;
     avatarUrl: string;
@@ -223,6 +255,8 @@ export interface ManagedEmployer {
     name: string;
     company: string;
     status: EmployerStatus;
+    email: string;
+    contact: string;
 }
 
 export interface EmployerProfileData {
@@ -281,4 +315,15 @@ export interface Notification {
     id: number;
     message: string;
     type: 'success' | 'error' | 'info';
+}
+
+// --- GLOBAL STATE TYPES ---
+export interface GlobalApplication {
+    id: number;
+    candidateId: number;
+    jobId: number;
+    employerId: number;
+    status: CandidateApplicationStatus;
+    steps: ProgressStep[];
+    paymentMade: boolean;
 }

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Page, UserType, Country, Notification } from './types';
 import HomePage from './pages/HomePage';
 import AuthPage from './pages/AuthPage';
@@ -10,6 +10,7 @@ import SalesDashboard from './pages/sales/SalesDashboard';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import PricingPage from './pages/PricingPage';
+import { StateProvider } from './contexts/StateContext';
 
 const Toast: React.FC<{ notification: Notification; onDismiss: (id: number) => void }> = ({ notification, onDismiss }) => {
   React.useEffect(() => {
@@ -46,7 +47,7 @@ const Toast: React.FC<{ notification: Notification; onDismiss: (id: number) => v
   );
 };
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [page, setPage] = useState<Page>(Page.Home);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [user, setUser] = useState<{ type: UserType; name: string } | null>(null);
@@ -54,6 +55,35 @@ const App: React.FC = () => {
   const [loginUserType, setLoginUserType] = useState<UserType>(UserType.Candidate);
   const [isNewUser, setIsNewUser] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  // Automatically detect location on mount
+  useEffect(() => {
+    const detectCountry = async () => {
+      try {
+        // Using a free IP geolocation API
+        const response = await fetch('https://ipapi.co/json/');
+        if (!response.ok) throw new Error('IP API failed');
+        const data = await response.json();
+        
+        console.log("Detected Country:", data.country_name);
+
+        if (data.country_name === 'Singapore') {
+          setCountry(Country.Singapore);
+        } else if (data.country_name === 'Philippines') {
+          setCountry(Country.Philippines);
+        } else {
+          setCountry(Country.Singapore);
+        }
+      } catch (error) {
+        console.warn("Location detection failed, defaulting to Singapore", error);
+        setCountry(Country.Singapore); 
+      }
+    };
+
+    if (!country) {
+      detectCountry();
+    }
+  }, []);
 
   const addNotification = (message: string, type: Notification['type']) => {
     setNotifications(prev => [...prev, { id: Date.now(), message, type }]);
@@ -73,12 +103,11 @@ const App: React.FC = () => {
     setIsLoggedIn(false);
     setUser(null);
     setPage(Page.Home);
-    setCountry(null);
   };
   
   const handleProfileComplete = () => {
     setIsNewUser(false);
-    addNotification('Profile completed successfully!', 'success');
+    addNotification('Profile completed successfully! You have been auto-matched with relevant jobs.', 'success');
   };
 
   const handleSetCountry = (selectedCountry: Country) => {
@@ -86,10 +115,6 @@ const App: React.FC = () => {
   };
  
   const navigateTo = (newPage: Page, options?: { userType?: UserType }) => {
-    if (newPage === Page.Login && !country && options?.userType !== UserType.Admin && options?.userType !== UserType.Sales) { // Admin/Sales don't need a country
-        addNotification("Please select a country first.", 'error');
-        return;
-    }
     if (options?.userType) {
         setLoginUserType(options.userType);
     }
@@ -97,7 +122,6 @@ const App: React.FC = () => {
   }
 
   const renderPage = () => {
-    const commonProps = { addNotification };
     if (isLoggedIn) {
         if (user?.type === UserType.Candidate) {
             return <CandidateDashboard userName={user.name} onLogout={handleLogout} isNewUser={isNewUser} onProfileComplete={handleProfileComplete} addNotification={addNotification} />;
@@ -142,5 +166,13 @@ const App: React.FC = () => {
     </div>
   );
 };
+
+const App: React.FC = () => {
+    return (
+        <StateProvider>
+            <AppContent />
+        </StateProvider>
+    )
+}
 
 export default App;
