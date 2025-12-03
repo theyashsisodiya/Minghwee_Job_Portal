@@ -60,22 +60,29 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     const detectCountry = async () => {
       try {
-        // Using a free IP geolocation API
-        const response = await fetch('https://ipapi.co/json/');
-        if (!response.ok) throw new Error('IP API failed');
-        const data = await response.json();
+        // Using get.geojs.io which is CORS-friendly and free
+        const response = await fetch('https://get.geojs.io/v1/ip/country.json');
         
-        console.log("Detected Country:", data.country_name);
+        if (!response.ok) {
+            // Silently fallback to default
+            setCountry(Country.Singapore);
+            return;
+        }
 
-        if (data.country_name === 'Singapore') {
+        const data = await response.json();
+        // Returns 2-letter ISO code (e.g., "SG", "PH")
+        console.log("Detected Country Code:", data.country);
+
+        if (data.country === 'SG') {
           setCountry(Country.Singapore);
-        } else if (data.country_name === 'Philippines') {
+        } else if (data.country === 'PH') {
           setCountry(Country.Philippines);
         } else {
+          // Default to Singapore for any other location
           setCountry(Country.Singapore);
         }
       } catch (error) {
-        console.warn("Location detection failed, defaulting to Singapore", error);
+        // Fallback to Singapore on any network/parsing error
         setCountry(Country.Singapore); 
       }
     };
