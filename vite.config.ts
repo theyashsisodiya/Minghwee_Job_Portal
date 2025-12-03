@@ -13,18 +13,15 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     define: {
       // Define process.env.API_KEY to be available in the client code
-      'process.env.API_KEY': JSON.stringify(env.API_KEY)
+      // Default to empty string to prevent undefined errors during build replacement
+      'process.env.API_KEY': JSON.stringify(env.API_KEY || '')
     },
     build: {
       outDir: 'dist',
       sourcemap: false,
       minify: 'esbuild',
     },
-    server: {
-      // Default server settings
-      // Removed strict HMR clientPort to allow flexibility if running on different ports (e.g. 8081, cloud environments)
-      port: 5173,
-      strictPort: true,
-    }
+    // Removed explicit server block to allow Vite to automatically determine 
+    // the correct port and HMR host in dynamic/cloud environments.
   };
 });

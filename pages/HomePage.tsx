@@ -44,6 +44,7 @@ const HomePage: React.FC<HomePageProps> = ({ navigateTo, selectedCountry, setCou
     
     let lenis: Lenis | null = null;
     let rafId: number;
+    let smoother: any = null;
 
     // PRIMARY: Try to use GSAP ScrollSmoother (CDN)
     if (gsap && ScrollSmoother && ScrollTrigger) {
@@ -51,7 +52,7 @@ const HomePage: React.FC<HomePageProps> = ({ navigateTo, selectedCountry, setCou
       gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
       
       try {
-        ScrollSmoother.create({
+        smoother = ScrollSmoother.create({
             wrapper: "#smooth-wrapper",
             content: "#smooth-content",
             smooth: 1.5,
@@ -112,9 +113,23 @@ const HomePage: React.FC<HomePageProps> = ({ navigateTo, selectedCountry, setCou
       if (rafId) cancelAnimationFrame(rafId);
       if (lenis) lenis.destroy();
       window.removeEventListener('scroll', handleScroll);
-      // Clean up GSAP if needed (optional)
-      const st = getScrollTrigger();
-      if(st) st.getAll().forEach((t: any) => t.kill());
+      
+      // CRITICAL FIX: Robust cleanup to prevent crash on page navigation
+      try {
+        if (smoother) {
+            smoother.kill(); 
+        }
+        
+        const st = getScrollTrigger();
+        if(st) {
+            const allTriggers = st.getAll();
+            if (Array.isArray(allTriggers)) {
+                allTriggers.forEach((t: any) => t.kill());
+            }
+        }
+      } catch (error) {
+        console.warn("Error cleaning up GSAP instance:", error);
+      }
     };
   }, []);
 
@@ -239,7 +254,6 @@ const HomePage: React.FC<HomePageProps> = ({ navigateTo, selectedCountry, setCou
                     className="w-full h-auto object-cover"
                   />
                 </div>
-                {/* Verified Match Card Removed as per request */}
               </MotionDiv>
             </div>
           </header>
