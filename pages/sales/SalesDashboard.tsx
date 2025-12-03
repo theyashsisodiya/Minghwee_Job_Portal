@@ -163,7 +163,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, onClose, onAddC
     );
 };
 
-type ClientViewPage = 'viewJobs' | 'postJob' | 'editJob' | 'jobDetails' | 'payment' | 'viewDocuments';
+type ClientViewPage = 'viewJobs' | 'postJob' | 'editJob' | 'jobDetails' | 'payment' | 'viewDocuments' | 'progress';
 
 const ClientJobManager: React.FC<{ client: Client; onBack: () => void }> = ({ client, onBack }) => {
     const [activeTab, setActiveTab] = useState<ClientViewPage>('viewJobs');
@@ -180,6 +180,8 @@ const ClientJobManager: React.FC<{ client: Client; onBack: () => void }> = ({ cl
             case 'jobDetails': return <JobDetails onBack={() => navigate('viewJobs')} />;
             case 'payment': return <Payment navigate={() => { /* Sales flow logic */ }} onPaymentSuccess={() => {}} candidate={null} />;
             case 'viewDocuments': return <ViewDocuments navigate={() => { /* Sales flow logic */ }} candidate={null} navigateToPayment={() => {}} />;
+            // Sales client view does not have a "progress" tab, so we fallback to viewJobs if navigated there by shared components
+            case 'progress': return <ViewJobs navigate={navigate} country={country} employerId={client.id} allowPosting={true} />;
             default: return <ViewJobs navigate={navigate} country={country} employerId={client.id} allowPosting={true} />;
         }
     };

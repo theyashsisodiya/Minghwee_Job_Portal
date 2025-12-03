@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send } from 'lucide-react';
@@ -34,7 +35,16 @@ export const Assistant: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+      // Use process.env.API_KEY directly as per @google/genai guidelines.
+      // This also resolves the "Property 'env' does not exist on type 'ImportMeta'" error.
+      const apiKey = process.env.API_KEY;
+      
+      if (!apiKey) {
+        throw new Error("API Key is missing.");
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
+
       // Using gemini-2.5-flash for quick chat responses
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
@@ -48,7 +58,11 @@ export const Assistant: React.FC = () => {
       setMessages(prev => [...prev, { role: 'model', text }]);
     } catch (error) {
       console.error('Chat error:', error);
-      setMessages(prev => [...prev, { role: 'model', text: "I'm having trouble connecting right now. Please try again later.", isError: true }]);
+      const errorMessage = (error as any).message === "API Key is missing." 
+        ? "I'm currently undergoing maintenance (API Key missing). Please try again later."
+        : "I'm having trouble connecting right now. Please try again later.";
+      
+      setMessages(prev => [...prev, { role: 'model', text: errorMessage, isError: true }]);
     } finally {
       setIsLoading(false);
     }
