@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import MyDetails from './components/MyDetails';
 import InterviewInvites from './components/InterviewInvites';
 import ProgressTracker from './components/ProgressTracker';
 import ScheduledInterviews from './components/ScheduledInterviews';
-import RegistrationWizard from './components/RegistrationWizard';
-import { Notification } from '../../types';
+import RegistrationWizard, { WizardFormData } from './components/RegistrationWizard';
+import { Notification, CandidateProfileData } from '../../types';
 import { useGlobalState } from '../../contexts/StateContext';
 
 // --- Icons --- //
@@ -80,35 +79,39 @@ interface CandidateDashboardProps {
 
 const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ userName, onLogout, isNewUser, onProfileComplete, addNotification }) => {
   const [activeTab, setActiveTab] = useState('myDetails');
-  const { addCandidate } = useGlobalState();
+  const { addCandidate, candidates } = useGlobalState();
+  
+  // Find the current user's profile. Assume the last one is the newest after registration.
+  // In a real app, this would be based on a logged-in user ID.
+  const currentUserProfile = isNewUser ? null : candidates[candidates.length - 1];
 
-  const handleRegistrationComplete = () => {
-      // Mock Data from wizard
-      const newCandidate = {
-          name: userName,
-          role: 'Applicant',
-          avatarUrl: 'https://i.pravatar.cc/150?img=12', // Placeholder
+  const handleRegistrationComplete = (data: WizardFormData) => {
+      // Map form data to the global state structure
+      const newCandidateProfile: Omit<CandidateProfileData, 'id'> = {
+          name: data.fullName,
+          role: data.role,
+          avatarUrl: 'https://i.pravatar.cc/150?u=' + data.email, // Generate avatar from email
           personalInfo: {
-              fullName: userName,
-              email: 'candidate@email.com',
-              phone: '12345678',
-              location: 'Singapore',
-              gender: 'Female',
-              dob: '1995-01-01'
+              fullName: data.fullName,
+              email: data.email,
+              phone: data.phone,
+              location: `${data.location}, ${data.country}`,
+              gender: data.gender,
+              dob: data.dob,
           },
-          skills: ['Cleaning', 'Cooking'],
-          jobCategories: ['Domestic Helper'],
+          skills: data.skills,
+          jobCategories: data.jobCategories,
           processHistory: []
       };
       
-      addCandidate(newCandidate); // Add to global state, triggers auto-matching
-      onProfileComplete();
+      addCandidate(newCandidateProfile); // Add real data to global state
+      onProfileComplete(); // Trigger dashboard view
   };
 
   const renderContent = () => {
     switch (activeTab) {
       case 'myDetails':
-        return <MyDetails addNotification={addNotification} />;
+        return <MyDetails profileData={currentUserProfile} addNotification={addNotification} />;
       case 'invites':
         return <InterviewInvites addNotification={addNotification} />;
       case 'progress':
@@ -116,7 +119,7 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ userName, onLog
       case 'scheduled':
         return <ScheduledInterviews />;
       default:
-        return <MyDetails addNotification={addNotification} />;
+        return <MyDetails profileData={currentUserProfile} addNotification={addNotification} />;
     }
   };
 

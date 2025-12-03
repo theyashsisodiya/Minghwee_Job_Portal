@@ -54,115 +54,6 @@ const SalesSidebar: React.FC<{ activeTab: string; setActiveTab: (tab: string) =>
     );
 };
 
-interface AddClientModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onAddClient: (client: Client) => void;
-    existingEmployers: ManagedEmployer[];
-}
-
-const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, onClose, onAddClient, existingEmployers }) => {
-    if (!isOpen) return null;
-    const [mode, setMode] = useState<'select' | 'create'>('select');
-    const [selectedEmployerId, setSelectedEmployerId] = useState<number | ''>('');
-    
-    // New Client Form Data
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [contact, setContact] = useState('');
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        if (mode === 'select' && selectedEmployerId) {
-            // Find existing employer from Global State
-            const employer = existingEmployers.find(e => e.id === Number(selectedEmployerId));
-            if (employer) {
-                onAddClient({
-                    id: employer.id,
-                    name: employer.name,
-                    companyName: employer.company,
-                    email: employer.email || 'N/A',
-                    contact: employer.contact || 'N/A',
-                    isRegistered: true // Flag to show they have their own login
-                });
-            }
-        } else {
-            // Manually create new client (Sales managed only)
-            onAddClient({
-                id: Date.now(),
-                name: name,
-                email: email,
-                contact: contact,
-                isRegistered: false
-            });
-        }
-        onClose();
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">Add New Client</h2>
-                
-                <div className="flex mb-6 bg-gray-100 p-1 rounded-lg">
-                    <button 
-                        className={`flex-1 py-2 text-sm font-semibold rounded-md ${mode === 'select' ? 'bg-white shadow' : 'text-gray-500'}`}
-                        onClick={() => setMode('select')}
-                    >
-                        Select Existing
-                    </button>
-                    <button 
-                        className={`flex-1 py-2 text-sm font-semibold rounded-md ${mode === 'create' ? 'bg-white shadow' : 'text-gray-500'}`}
-                        onClick={() => setMode('create')}
-                    >
-                        Create New
-                    </button>
-                </div>
-
-                <form onSubmit={handleSubmit}>
-                    {mode === 'select' ? (
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Select Employer</label>
-                            <select 
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value={selectedEmployerId}
-                                onChange={(e) => setSelectedEmployerId(e.target.value ? Number(e.target.value) : '')}
-                                required
-                            >
-                                <option value="">Select an employer...</option>
-                                {existingEmployers.map(emp => (
-                                    <option key={emp.id} value={emp.id}>{emp.company} ({emp.name})</option>
-                                ))}
-                            </select>
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Client Name</label>
-                                <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Client Email</label>
-                                <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Client Contact</label>
-                                <input type="tel" value={contact} onChange={e => setContact(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                            </div>
-                        </div>
-                    )}
-                    
-                    <div className="mt-8 flex justify-end space-x-4">
-                        <button type="button" onClick={onClose} className="px-6 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300">Cancel</button>
-                        <button type="submit" className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">Add Client</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
-
 type ClientViewPage = 'viewJobs' | 'postJob' | 'editJob' | 'jobDetails' | 'payment' | 'viewDocuments' | 'progress';
 
 const ClientJobManager: React.FC<{ client: Client; onBack: () => void }> = ({ client, onBack }) => {
@@ -209,18 +100,15 @@ interface SalesDashboardProps {
 
 const SalesDashboard: React.FC<SalesDashboardProps> = ({ userName, onLogout }) => {
     // Access Global State to manage clients and employers
-    const { clients, addClient, employers } = useGlobalState();
+    const { clients } = useGlobalState();
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('clients');
 
     const ClientListView = () => (
         <div>
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-800">Clients</h1>
-                <button onClick={() => setIsModalOpen(true)} className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-200">
-                    Add Client
-                </button>
+                {/* Manual "Add Client" removed in favor of auto-assignment from Employer Registration */}
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
                 <table className="w-full text-left">
@@ -274,12 +162,6 @@ const SalesDashboard: React.FC<SalesDashboardProps> = ({ userName, onLogout }) =
             <SalesSidebar activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setSelectedClient(null); }} onLogout={onLogout} />
             <main className="flex-1 p-8 overflow-auto h-screen">
                 {renderContent()}
-                <AddClientModal 
-                    isOpen={isModalOpen} 
-                    onClose={() => setIsModalOpen(false)} 
-                    onAddClient={addClient}
-                    existingEmployers={employers} // Pass global employers to the modal
-                />
             </main>
         </div>
     );

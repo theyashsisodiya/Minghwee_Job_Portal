@@ -2,8 +2,29 @@ import React, { useState, useRef, useCallback } from 'react';
 import { JOB_CATEGORIES, PREDEFINED_SKILLS } from '../../../constants';
 import { Notification } from '../../../types';
 
+// Define the data structure for the wizard
+export interface WizardFormData {
+    fullName: string;
+    dob: string;
+    nationality: string;
+    gender: string;
+    location: string; // Current City
+    country: string;  // Current Country
+    phone: string;
+    email: string;
+    role: string;     // Job Title
+    experience: string;
+    qualification: string;
+    jobCategories: string[];
+    preferredLocations: string;
+    expectedSalary: string;
+    startDate: string;
+    languages: string;
+    skills: string[];
+}
+
 interface RegistrationWizardProps {
-    onComplete: () => void;
+    onComplete: (data: WizardFormData) => void;
     addNotification: (message: string, type: Notification['type']) => void;
 }
 
@@ -18,18 +39,43 @@ const STEPS = [
 
 const RegistrationWizard: React.FC<RegistrationWizardProps> = ({ onComplete, addNotification }) => {
     const [currentStep, setCurrentStep] = useState(0);
+    
+    // Centralized State for all steps
+    const [formData, setFormData] = useState<WizardFormData>({
+        fullName: '',
+        dob: '',
+        nationality: '',
+        gender: 'Male',
+        location: '',
+        country: '',
+        phone: '',
+        email: '',
+        role: '',
+        experience: '',
+        qualification: '',
+        jobCategories: [],
+        preferredLocations: '',
+        expectedSalary: '',
+        startDate: '',
+        languages: '',
+        skills: []
+    });
+
+    const updateFormData = (key: keyof WizardFormData, value: any) => {
+        setFormData(prev => ({ ...prev, [key]: value }));
+    };
 
     const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, STEPS.length - 1));
     const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0));
 
     const renderStepContent = () => {
         switch (currentStep) {
-            case 0: return <StepAPersonalDetails />;
-            case 1: return <StepBEmployment />;
-            case 2: return <StepCPreferences />;
-            case 3: return <StepDSkills />;
+            case 0: return <StepAPersonalDetails data={formData} onChange={updateFormData} />;
+            case 1: return <StepBEmployment data={formData} onChange={updateFormData} />;
+            case 2: return <StepCPreferences data={formData} onChange={updateFormData} />;
+            case 3: return <StepDSkills data={formData} onChange={updateFormData} />;
             case 4: return <StepEUploads addNotification={addNotification} />;
-            case 5: return <StepFFinal onComplete={onComplete} />;
+            case 5: return <StepFFinal onComplete={() => onComplete(formData)} />;
             default: return null;
         }
     };
@@ -81,6 +127,7 @@ const RegistrationWizard: React.FC<RegistrationWizardProps> = ({ onComplete, add
     );
 };
 
+// --- Reusable Form Components ---
 const FormSection: React.FC<{ title: string, children: React.ReactNode }> = ({ title, children }) => (
     <div>
         <h2 className="text-xl font-semibold text-gray-700 mb-6 border-b pb-3">{title}</h2>
@@ -96,56 +143,97 @@ const FormField: React.FC<{ label: string; children: React.ReactNode; fullWidth?
 const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => <input {...props} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />;
 const Select = (props: React.SelectHTMLAttributes<HTMLSelectElement>) => <select {...props} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />;
 
-const StepAPersonalDetails = () => (
+// --- Step Components ---
+
+interface StepProps {
+    data: WizardFormData;
+    onChange: (key: keyof WizardFormData, value: any) => void;
+}
+
+const StepAPersonalDetails: React.FC<StepProps> = ({ data, onChange }) => (
     <FormSection title="Personal Details">
-        <FormField label="Full Name (as per passport)" required><Input placeholder="John Doe" required /></FormField>
-        <FormField label="Date of Birth" required><Input type="date" required /></FormField>
-        <FormField label="Nationality" required><Input placeholder="e.g., Filipino" required /></FormField>
-        <FormField label="Gender" required><Select required><option>Male</option><option>Female</option></Select></FormField>
-        <FormField label="Current City" required><Input placeholder="e.g., Manila" required /></FormField>
-        <FormField label="Current Country" required><Input placeholder="e.g., Philippines" required /></FormField>
-        <FormField label="Primary Phone (WhatsApp)" required><Input type="tel" placeholder="+63 917 123 4567" required /></FormField>
-        <FormField label="Email Address" required><Input type="email" placeholder="john.doe@email.com" required /></FormField>
-        <FormField label="Emergency Contact Name" required><Input placeholder="Jane Doe" required /></FormField>
-        <FormField label="Emergency Contact Relation" required><Input placeholder="Spouse" required /></FormField>
-        <FormField label="Emergency Contact Phone" fullWidth required><Input type="tel" placeholder="+63 917 987 6543" required /></FormField>
+        <FormField label="Full Name (as per passport)" required><Input value={data.fullName} onChange={e => onChange('fullName', e.target.value)} placeholder="John Doe" required /></FormField>
+        <FormField label="Date of Birth" required><Input value={data.dob} onChange={e => onChange('dob', e.target.value)} type="date" required /></FormField>
+        <FormField label="Nationality" required><Input value={data.nationality} onChange={e => onChange('nationality', e.target.value)} placeholder="e.g., Filipino" required /></FormField>
+        <FormField label="Gender" required><Select value={data.gender} onChange={e => onChange('gender', e.target.value)} required><option>Male</option><option>Female</option></Select></FormField>
+        <FormField label="Current City" required><Input value={data.location} onChange={e => onChange('location', e.target.value)} placeholder="e.g., Manila" required /></FormField>
+        <FormField label="Current Country" required><Input value={data.country} onChange={e => onChange('country', e.target.value)} placeholder="e.g., Philippines" required /></FormField>
+        <FormField label="Primary Phone (WhatsApp)" required><Input value={data.phone} onChange={e => onChange('phone', e.target.value)} type="tel" placeholder="+63 917 123 4567" required /></FormField>
+        <FormField label="Email Address" required><Input value={data.email} onChange={e => onChange('email', e.target.value)} type="email" placeholder="john.doe@email.com" required /></FormField>
     </FormSection>
 );
 
-const StepBEmployment = () => (
+const StepBEmployment: React.FC<StepProps> = ({ data, onChange }) => (
     <FormSection title="Employment & Education">
-        <FormField label="Current or Last Job Title" required><Input placeholder="e.g., Certified Welder" required /></FormField>
-        <FormField label="Years of Experience" required><Input type="number" placeholder="e.g., 5" required /></FormField>
-        <FormField label="Highest Qualification" fullWidth required><Input placeholder="e.g., High School Diploma, Bachelor's Degree" required /></FormField>
+        <FormField label="Current or Last Job Title" required><Input value={data.role} onChange={e => onChange('role', e.target.value)} placeholder="e.g., Certified Welder" required /></FormField>
+        <FormField label="Years of Experience" required><Input value={data.experience} onChange={e => onChange('experience', e.target.value)} type="number" placeholder="e.g., 5" required /></FormField>
+        <FormField label="Highest Qualification" fullWidth required><Input value={data.qualification} onChange={e => onChange('qualification', e.target.value)} placeholder="e.g., High School Diploma, Bachelor's Degree" required /></FormField>
     </FormSection>
 );
 
-const StepCPreferences = () => (
-    <FormSection title="Job Preferences">
-        <FormField label="Desired Job Categories" fullWidth required>
-            <Select required><option value="">Select a category</option>{JOB_CATEGORIES.map(c => <option key={c}>{c}</option>)}</Select>
-        </FormField>
-        <FormField label="Preferred Locations" required><Input placeholder="e.g., Singapore, Dubai" required /></FormField>
-        <FormField label="Expected Salary (per month)" required><Input type="number" placeholder="e.g., 800" required /></FormField>
-        <FormField label="Earliest Start Date" required><Input type="date" required /></FormField>
-    </FormSection>
-);
+const StepCPreferences: React.FC<StepProps> = ({ data, onChange }) => {
+    const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value;
+        if (!value) return;
+        if (!data.jobCategories.includes(value)) {
+            onChange('jobCategories', [...data.jobCategories, value]);
+        }
+    };
+    const removeCategory = (cat: string) => {
+        onChange('jobCategories', data.jobCategories.filter(c => c !== cat));
+    };
+    return (
+        <FormSection title="Job Preferences">
+            <FormField label="Desired Job Categories" fullWidth required>
+                <Select value="" onChange={handleCategoryChange} required={data.jobCategories.length === 0}>
+                    <option value="">Select a category to add...</option>{JOB_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                </Select>
+                <div className="mt-2 flex flex-wrap gap-2">
+                    {data.jobCategories.map(cat => (
+                        <span key={cat} className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                            {cat}
+                            <button onClick={() => removeCategory(cat)} className="ml-2 text-blue-600 hover:text-blue-800">&times;</button>
+                        </span>
+                    ))}
+                </div>
+            </FormField>
+            <FormField label="Preferred Locations" required><Input value={data.preferredLocations} onChange={e => onChange('preferredLocations', e.target.value)} placeholder="e.g., Singapore, Dubai" required /></FormField>
+            <FormField label="Expected Salary (per month)" required><Input value={data.expectedSalary} onChange={e => onChange('expectedSalary', e.target.value)} type="number" placeholder="e.g., 800" required /></FormField>
+            <FormField label="Earliest Start Date" required><Input value={data.startDate} onChange={e => onChange('startDate', e.target.value)} type="date" required /></FormField>
+        </FormSection>
+    );
+};
 
-const StepDSkills = () => (
-    <FormSection title="Skills & Languages">
-        <FormField label="Languages Spoken (comma separated)" fullWidth required><Input placeholder="e.g., English, Tagalog, Mandarin" required /></FormField>
-        <FormField label="Select at least one key skill" fullWidth required>
-             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-3 border rounded-lg max-h-48 overflow-y-auto">
-                {PREDEFINED_SKILLS.map(skill => (
-                    <label key={skill} className="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" className="form-checkbox rounded text-blue-600" />
-                        <span className="text-gray-700 text-sm">{skill}</span>
-                    </label>
-                ))}
-            </div>
-        </FormField>
-    </FormSection>
-);
+const StepDSkills: React.FC<StepProps> = ({ data, onChange }) => {
+    const handleSkillToggle = (skill: string) => {
+        const newSkills = data.skills.includes(skill)
+            ? data.skills.filter(s => s !== skill)
+            : [...data.skills, skill];
+        onChange('skills', newSkills);
+    };
+    return (
+        <FormSection title="Skills & Languages">
+            <FormField label="Languages Spoken (comma separated)" fullWidth required><Input value={data.languages} onChange={e => onChange('languages', e.target.value)} placeholder="e.g., English, Tagalog, Mandarin" required /></FormField>
+            <FormField label="Select at least one key skill" fullWidth required>
+                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-3 border rounded-lg max-h-48 overflow-y-auto">
+                    {PREDEFINED_SKILLS.map(skill => (
+                        <label key={skill} className="flex items-center space-x-2 cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                className="form-checkbox rounded text-blue-600" 
+                                checked={data.skills.includes(skill)}
+                                onChange={() => handleSkillToggle(skill)}
+                            />
+                            <span className="text-gray-700 text-sm">{skill}</span>
+                        </label>
+                    ))}
+                </div>
+            </FormField>
+        </FormSection>
+    );
+};
+
+// --- Uploads & Final Steps (No data capture needed for this fix) ---
 
 const FileUploadField: React.FC<{ label: string; description: string; addNotification: (message: string, type: Notification['type']) => void; acceptedTypes: string; isPassport?: boolean; }> = ({ label, description, addNotification, acceptedTypes, isPassport = false }) => {
     const [fileName, setFileName] = useState('');

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
     JobPosting, ManagedEmployer, CandidateProfileData, GlobalApplication, 
@@ -33,11 +32,22 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // INITIAL GLOBAL STATE
     // ========================================================================
     
-    // Load mock data from constants. In a real app, this would be an API fetch.
     const [jobs, setJobs] = useState<JobPosting[]>(MOCK_JOB_POSTINGS);
     const [employers, setEmployers] = useState<ManagedEmployer[]>(MOCK_MANAGED_EMPLOYERS);
-    const [candidates, setCandidates] = useState<CandidateProfileData[]>([MOCK_CANDIDATE_PROFILE]);
     const [clients, setClients] = useState<Client[]>(MOCK_CLIENTS);
+
+    // Load candidates from localStorage or fallback to mock data
+    const [candidates, setCandidates] = useState<CandidateProfileData[]>(() => {
+        try {
+            const storedCandidates = localStorage.getItem('minghwee_candidates');
+            if (storedCandidates) {
+                return JSON.parse(storedCandidates);
+            }
+        } catch (error) {
+            console.error("Failed to parse candidates from localStorage", error);
+        }
+        return [MOCK_CANDIDATE_PROFILE]; // Fallback if localStorage is empty or fails
+    });
     
     // Initial Applications State (Links Candidates <-> Jobs <-> Employers)
     const [applications, setApplications] = useState<GlobalApplication[]>([
@@ -72,8 +82,6 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         };
         setJobs(prev => [...prev, newJob]);
         
-        // AUTO-MATCH LOGIC: 
-        // When a job is posted, check if any existing candidates match based on category.
         candidates.forEach(candidate => {
             if (candidate.jobCategories.includes(newJob.category)) {
                 createApplication(candidate.id, newJob.id, newJob.employerId);
@@ -82,23 +90,42 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     const addEmployer = (employerData: Omit<ManagedEmployer, 'id' | 'status'>) => {
+        const newId = Date.now();
         const newEmployer: ManagedEmployer = {
-            id: Date.now(),
+            id: newId,
             status: EmployerStatus.Pending,
             ...employerData
         };
         setEmployers(prev => [...prev, newEmployer]);
+
+        const newClient: Client = {
+            id: newId,
+            name: newEmployer.name,
+            companyName: newEmployer.company,
+            email: newEmployer.email,
+            contact: newEmployer.contact,
+            isRegistered: true
+        };
+        addClient(newClient);
     };
 
     const addCandidate = (candidateData: Omit<CandidateProfileData, 'id'>) => {
         const newId = Date.now();
-        const newCandidate = { ...candidateData, id: newId };
-        setCandidates(prev => [...prev, newCandidate]);
+        // FIX: Explicitly type `newCandidate` to ensure it conforms to the CandidateProfileData interface.
+        const newCandidate: CandidateProfileData = { ...candidateData, id: newId };
+        
+        setCandidates(prev => {
+            const updatedCandidates = [...prev, newCandidate];
+            try {
+                // Persist updated candidates list to localStorage
+                localStorage.setItem('minghwee_candidates', JSON.stringify(updatedCandidates));
+            } catch (error) {
+                console.error("Failed to save candidates to localStorage", error);
+            }
+            return updatedCandidates;
+        });
 
-        // AUTO-MATCH LOGIC: 
-        // When a candidate registers, check against existing active jobs.
         jobs.forEach(job => {
-            // Simple match logic based on Category overlap
             if (newCandidate.jobCategories.includes(job.category)) {
                 createApplication(newId, job.id, job.employerId);
             }
@@ -106,15 +133,13 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     const addClient = (client: Client) => {
-        // Sales Dashboard: Add a client to the managed list.
-        // Check if already exists to prevent duplicates.
-        if (!clients.find(c => c.id === client.id)) {
-            setClients(prev => [...prev, client]);
-        }
+        setClients(prev => {
+            if (prev.find(c => c.id === client.id)) return prev;
+            return [...prev, client];
+        });
     };
 
     const createApplication = (candidateId: number, jobId: number, employerId: number) => {
-        // Prevent duplicate applications for the same candidate/job pair
         const exists = applications.find(app => app.candidateId === candidateId && app.jobId === jobId);
         if (exists) return;
 
@@ -141,7 +166,6 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setApplications(prev => prev.map(app => {
             if (app.id !== appId) return app;
             
-            // Logic to auto-complete previous steps based on the new status
             const newSteps = [...app.steps];
             
             const completeUpTo = (stepName: string) => {
@@ -149,10 +173,10 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 return newSteps.map(s => {
                     if (s.name === stepName) {
                         found = true;
-                        return { ...s, status: ProgressStatus.InProgress }; // Set current step to In Progress
+                        return { ...s, status: ProgressStatus.InProgress };
                     }
-                    if (!found) return { ...s, status: ProgressStatus.Completed }; // Mark previous steps complete
-                    return { ...s, status: ProgressStatus.Pending }; // Future steps pending
+                    if (!found) return { ...s, status: ProgressStatus.Completed };
+                    return { ...s, status: ProgressStatus.Pending };
                 });
             };
 

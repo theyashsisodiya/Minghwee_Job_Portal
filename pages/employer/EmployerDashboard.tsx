@@ -118,7 +118,7 @@ const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ userName, country
   
   const currentEmployerId = 1; // Mocked ID for the currently logged-in employer
 
-  const { getApplicationsByEmployer, candidates: globalCandidates } = useGlobalState();
+  const { getApplicationsByEmployer, candidates: globalCandidates, addEmployer } = useGlobalState();
   const applications = getApplicationsByEmployer(currentEmployerId); 
 
   // Transform GlobalApplication to CandidateProgress format for UI compatibility
@@ -143,7 +143,15 @@ const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ userName, country
     setActiveTab(page);
   };
 
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = (data: { name: string; company: string; email: string; contact: string }) => {
+    // Add employer to global state, which will also auto-assign them to Sales Dashboard as a Client
+    addEmployer({
+        name: data.name,
+        company: data.company || 'Individual Employer',
+        email: data.email,
+        contact: data.contact
+    });
+
     setIsOnboardingComplete(true);
     setShowReviewPopup(true);
     setActiveTab('viewJobs');

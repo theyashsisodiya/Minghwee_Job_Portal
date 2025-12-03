@@ -1,33 +1,43 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { MOCK_PRE_UPLOADED_DOCUMENTS, DOCUMENT_TYPES } from '../../../constants';
-import { PreUploadedDocument, Notification } from '../../../types';
+import { MOCK_PRE_UPLOADED_DOCUMENTS, PREDEFINED_SKILLS, JOB_CATEGORIES } from '../../../constants';
+import { PreUploadedDocument, Notification, CandidateProfileData } from '../../../types';
 
 
 interface MyDetailsProps {
     addNotification: (message: string, type: Notification['type']) => void;
+    profileData: CandidateProfileData | null;
 }
 
-const MyDetails: React.FC<MyDetailsProps> = ({ addNotification }) => {
+const MyDetails: React.FC<MyDetailsProps> = ({ addNotification, profileData }) => {
     const [isEditingProfile, setIsEditingProfile] = useState(false);
     const [isEditingPreferences, setIsEditingPreferences] = useState(false);
     const [documents, setDocuments] = useState<PreUploadedDocument[]>(MOCK_PRE_UPLOADED_DOCUMENTS);
 
-    const [personalInfo, setPersonalInfo] = useState({
-        fullName: "John Doe",
-        dob: "1995-08-15",
-        nationality: "Filipino",
-        gender: "Male",
-        location: "Manila, Philippines",
-        contact: "+63 917 123 4567",
-        email: "john.doe@email.com",
-    });
+    const [personalInfo, setPersonalInfo] = useState(
+        profileData?.personalInfo || {
+            fullName: "John Doe",
+            dob: "1995-08-15",
+            nationality: "Filipino",
+            gender: "Male",
+            location: "Manila, Philippines",
+            phone: "+63 917 123 4567",
+            email: "john.doe@email.com",
+        }
+    );
 
-    const [employmentInfo, setEmploymentInfo] = useState({
-        role: "Certified Welder",
-        experience: "5",
-        categories: ["Skilled Trades", "Construction"],
-        skills: ["TIG Welding", "MIG Welding", "Blueprint Reading"],
-    });
+    const [employmentInfo, setEmploymentInfo] = useState(
+        profileData ? {
+            role: profileData.role,
+            experience: "5", // Note: experience is not in profileData, using default
+            categories: profileData.jobCategories,
+            skills: profileData.skills,
+        } : {
+            role: "Certified Welder",
+            experience: "5",
+            categories: ["Skilled Trades", "Construction"],
+            skills: ["TIG Welding", "MIG Welding", "Blueprint Reading"],
+        }
+    );
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -123,7 +133,7 @@ const MyDetails: React.FC<MyDetailsProps> = ({ addNotification }) => {
             <div className="max-w-7xl mx-auto">
                 <div className="flex items-center gap-6">
                     <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center text-white text-3xl font-bold">
-                        JD
+                        {profileData?.name.substring(0, 2).toUpperCase() || 'JD'}
                     </div>
                     <div>
                         <h2 className="text-3xl font-bold text-gray-900">{personalInfo.fullName}</h2>
@@ -146,10 +156,9 @@ const MyDetails: React.FC<MyDetailsProps> = ({ addNotification }) => {
                             <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6">
                                 <div><label className="text-sm text-gray-500">Full Name</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.fullName}</p></div>
                                 <div><label className="text-sm text-gray-500">Date of Birth</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.dob}</p></div>
-                                <div><label className="text-sm text-gray-500">Nationality</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.nationality}</p></div>
+                                <div><label className="text-sm text-gray-500">Location</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.location}</p></div>
                                 <div><label className="text-sm text-gray-500">Gender</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.gender}</p></div>
-                                <div><label className="text-sm text-gray-500">Current Location</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.location}</p></div>
-                                <div><label className="text-sm text-gray-500">Contact</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.contact}</p></div>
+                                <div className="col-span-2"><label className="text-sm text-gray-500">Contact</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.phone}</p></div>
                                 <div className="col-span-2"><label className="text-sm text-gray-500">Email</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.email}</p></div>
                             </div>
                         </div>
