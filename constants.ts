@@ -1,3 +1,4 @@
+
 import type { 
     InterviewInvite, JobPosting, MatchedCandidate, CandidateProgress, ScheduledInterview,
     AdminDashboardStats, ManagedCandidate,
@@ -479,9 +480,24 @@ export const MOCK_ADMIN_STATS: AdminDashboardStats = {
     newJobPosts: 345,
     pendingApprovals: 12,
     candidatesHired: {
-        week: [1500, 2300, 2200, 3100, 3800, 4200, 4500],
-        month: [2100, 2500, 2800, 3200, 3500, 3900, 4100, 4300, 4600, 4800, 5000, 5200].slice(0, 4).map(v => v * 4),
-        year: [2100, 2500, 2800, 3200, 3500, 3900, 4100, 4300, 4600, 4800, 5000, 5200].map(v => v * 52)
+        week: [120, 150, 180, 200, 250, 300, 350],
+        month: [1000, 1200, 1300, 1500],
+        year: [12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000]
+    },
+    activeJobsSeries: {
+        week: [300, 310, 320, 330, 340, 345, 350],
+        month: [1200, 1250, 1300, 1350],
+        year: [10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000, 21000]
+    },
+    employerGrowth: {
+        week: [10, 12, 15, 18, 20, 22, 25],
+        month: [80, 90, 100, 120],
+        year: [2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000, 3100]
+    },
+    sales: {
+        week: [5000, 6000, 7500, 8000, 9500, 11000, 12000],
+        month: [40000, 45000, 50000, 60000],
+        year: [400000, 450000, 500000, 550000, 600000, 650000, 700000, 750000, 800000, 850000, 900000, 1000000]
     },
     jobsByCategory: [
         { category: 'Domestic Helper', value: 45 },

@@ -208,7 +208,11 @@ export interface AdminDashboardStats {
     activeEmployers: number;
     newJobPosts: number;
     pendingApprovals: number;
+    // Time-series data for chart (arrays of numbers)
     candidatesHired: { week: number[], month: number[], year: number[] };
+    activeJobsSeries: { week: number[], month: number[], year: number[] };
+    employerGrowth: { week: number[], month: number[], year: number[] };
+    sales: { week: number[], month: number[], year: number[] };
     jobsByCategory: { category: string, value: number }[];
 }
 
