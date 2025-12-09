@@ -1,11 +1,13 @@
+
 import React, { useState } from 'react';
 import MyDetails from './components/MyDetails';
 import InterviewInvites from './components/InterviewInvites';
 import ProgressTracker from './components/ProgressTracker';
 import ScheduledInterviews from './components/ScheduledInterviews';
 import RegistrationWizard, { WizardFormData } from './components/RegistrationWizard';
-import { Notification, CandidateProfileData } from '../../types';
+import { Notification, CandidateProfileData, UserType } from '../../types';
 import { useGlobalState } from '../../contexts/StateContext';
+import DashboardHeader from '../../components/DashboardHeader';
 
 // --- Icons --- //
 const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
@@ -59,7 +61,8 @@ const CandidateSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onL
           <LogoutIcon />
           <span>Log out</span>
         </button>
-        <button className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg text-left text-gray-600 hover:bg-gray-100 transition-colors duration-200">
+        <button className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg text-left text-gray-600 hover:bg-gray-100 transition-colors duration-200"
+        >
           <HelpIcon />
           <span>Help</span>
         </button>
@@ -82,8 +85,8 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ userName, onLog
   const { addCandidate, candidates } = useGlobalState();
   
   // Find the current user's profile. Assume the last one is the newest after registration.
-  // In a real app, this would be based on a logged-in user ID.
   const currentUserProfile = isNewUser ? null : candidates[candidates.length - 1];
+  const currentUserId = currentUserProfile?.id || 1; // Default ID if new user mock
 
   const handleRegistrationComplete = (data: WizardFormData) => {
       // Map form data to the global state structure
@@ -131,7 +134,10 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ userName, onLog
     <div className="flex bg-gray-100">
       <CandidateSidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={onLogout} />
       <main className="flex-1 overflow-auto h-screen">
-        {renderContent()}
+        <DashboardHeader userName={userName} userType={UserType.Candidate} userId={currentUserId} />
+        <div className="px-8 pb-8">
+            {renderContent()}
+        </div>
       </main>
     </div>
   );

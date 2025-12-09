@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { MOCK_MANAGED_EMPLOYERS } from '../../../constants';
 import { AdminPage } from '../AdminDashboard';
@@ -28,7 +29,7 @@ const Employers: React.FC<EmployersProps> = ({ navigate }) => {
 
             <div className="bg-white p-4 rounded-lg shadow-md mb-6 flex items-center justify-between">
                 <div className="relative w-full max-w-sm">
-                    <input type="text" placeholder="Search employers by company or name" className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    <input type="text" placeholder="Search employers by name" className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
                 </div>
                  <div className="relative">
                     <select className="appearance-none bg-white border border-gray-300 rounded-md pl-4 pr-10 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -45,7 +46,7 @@ const Employers: React.FC<EmployersProps> = ({ navigate }) => {
                 <table className="w-full text-left">
                     <thead>
                         <tr className="border-b border-gray-200">
-                            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Company</th>
+                            <th className="py-3 px-4 text-sm font-semibold text-gray-600">Employer</th>
                             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Contact Person</th>
                             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
                             <th className="py-3 px-4 text-sm font-semibold text-gray-600">Documents</th>
@@ -55,7 +56,7 @@ const Employers: React.FC<EmployersProps> = ({ navigate }) => {
                     <tbody>
                         {MOCK_MANAGED_EMPLOYERS.map(employer => (
                             <tr key={employer.id} className="border-b border-gray-200 hover:bg-gray-50">
-                                <td className="py-4 px-4 font-medium text-gray-800">{employer.company}</td>
+                                <td className="py-4 px-4 font-medium text-gray-800">{employer.employerName}</td>
                                 <td className="py-4 px-4 text-gray-600">{employer.name}</td>
                                 <td className="py-4 px-4"><StatusBadge status={employer.status} /></td>
                                 <td className="py-4 px-4">

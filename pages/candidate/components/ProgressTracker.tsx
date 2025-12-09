@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MOCK_CANDIDATE_APPLICATIONS, MOCK_PRE_UPLOADED_DOCUMENTS } from '../../../constants';
 import { JobApplicationProgress, ProgressStatus, DetailedProgressStep, Notification } from '../../../types';
@@ -44,7 +45,7 @@ const ApplicationTracker: React.FC<{ progress: JobApplicationProgress; addNotifi
                         <img src={progress.logoUrl} alt="" className="w-12 h-12 rounded-full"/>
                         <div>
                             <h3 className="text-lg font-bold text-gray-800">{progress.jobTitle}</h3>
-                            <p className="text-sm font-semibold text-gray-600">{progress.companyName}</p>
+                            <p className="text-sm font-semibold text-gray-600">{progress.employerName}</p>
                         </div>
                     </div>
                      <div className="flex items-center space-x-3">

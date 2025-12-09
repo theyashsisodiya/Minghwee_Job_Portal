@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { MOCK_CANDIDATE_PROFILE } from '../../../constants';
 import { AdminPage } from '../AdminDashboard';
@@ -74,7 +75,7 @@ const CandidateProfile: React.FC<CandidateProfileProps> = ({ navigate }) => {
                         {candidate.processHistory.map((item, index) => (
                              <li key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
                                 <div>
-                                    <p className="font-medium text-gray-800">{item.jobTitle} at {item.company}</p>
+                                    <p className="font-medium text-gray-800">{item.jobTitle} at {item.employer}</p>
                                     <p className="text-sm text-gray-500">Date: {item.date}</p>
                                 </div>
                                 <span className={`px-3 py-1 text-sm font-semibold rounded-full ${

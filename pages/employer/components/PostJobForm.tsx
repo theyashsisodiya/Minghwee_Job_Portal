@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { Country } from '../../../types';
 import { JOB_CATEGORIES } from '../../../constants';
 import { useGlobalState } from '../../../contexts/StateContext';
@@ -8,14 +9,48 @@ interface PostJobFormProps {
     navigate: (page: 'viewJobs') => void;
     isEditing?: boolean;
     employerId: number;
+    initialData?: any; // To pre-fill from a Requirement
 }
 
-const PostJobForm: React.FC<PostJobFormProps> = ({ country, navigate, isEditing = false, employerId }) => {
+const PostJobForm: React.FC<PostJobFormProps> = ({ country, navigate, isEditing = false, employerId, initialData }) => {
     const isSingapore = country === Country.Singapore;
     const currency = isSingapore ? 'SGD' : 'PHP';
     const domesticHelperDuties = ['Childcare', 'Eldercare', 'Cooking', 'General Housekeeping', 'Pet Care'];
     
     const { addJob } = useGlobalState();
+
+    // Default form state
+    const [formDataState, setFormDataState] = useState({
+        jobTitle: '',
+        jobCategory: '',
+        location: '',
+        jobDescription: '',
+        salaryMin: '',
+        salaryMax: '',
+        workingHours: '',
+        experience: '',
+        requiredSkills: '',
+        physicalReqs: '',
+        certs: '',
+        arrangement: '',
+        restDays: '',
+    });
+
+    useEffect(() => {
+        if (initialData) {
+            setFormDataState(prev => ({
+                ...prev,
+                ...initialData,
+                salaryMin: initialData.salaryMin || '',
+                salaryMax: initialData.salaryMax || ''
+            }));
+        }
+    }, [initialData]);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormDataState(prev => ({ ...prev, [name]: value }));
+    };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -58,17 +93,18 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ country, navigate, isEditing 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="jobTitle">Job Title</label>
-                                    <input name="jobTitle" type="text" id="jobTitle" placeholder="Enter job title" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                                    <input name="jobTitle" type="text" id="jobTitle" placeholder="Enter job title" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required value={formDataState.jobTitle} onChange={handleInputChange} />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="jobCategory">Job Category</label>
                                     {isSingapore ? (
-                                        <select name="jobCategory" id="jobCategory" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <select name="jobCategory" id="jobCategory" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value={formDataState.jobCategory} onChange={handleInputChange}>
+                                            <option value="">Select Category</option>
                                             <option value="Domestic Helper">Domestic Helper</option>
                                             <option value="Other">Other</option>
                                         </select>
                                     ) : (
-                                        <select name="jobCategory" id="jobCategory" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <select name="jobCategory" id="jobCategory" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value={formDataState.jobCategory} onChange={handleInputChange}>
                                             <option value="">Select a category</option>
                                             {JOB_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                                         </select>
@@ -76,11 +112,11 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ country, navigate, isEditing 
                                 </div>
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="jobDescription">Job Description</label>
-                                    <textarea name="jobDescription" id="jobDescription" rows={5} placeholder="Describe the responsibilities and requirements..." className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                                    <textarea name="jobDescription" id="jobDescription" rows={5} placeholder="Describe the responsibilities and requirements..." className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required value={formDataState.jobDescription} onChange={handleInputChange}></textarea>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="location">Location</label>
-                                    <input name="location" type="text" id="location" placeholder="Enter job location" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                                    <input name="location" type="text" id="location" placeholder="Enter job location" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required value={formDataState.location} onChange={handleInputChange} />
                                 </div>
                             </div>
                         </div>
@@ -89,19 +125,19 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ country, navigate, isEditing 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="workingHours">Working Hours</label>
-                                    <input name="workingHours" type="text" id="workingHours" placeholder="e.g., 9 AM - 6 PM, Shift work" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    <input name="workingHours" type="text" id="workingHours" placeholder="e.g., 9 AM - 6 PM, Shift work" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value={formDataState.workingHours} onChange={handleInputChange} />
                                 </div>
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Salary Range (per month)</label>
                                     <div className="flex items-center space-x-4">
                                         <div className="relative flex-1">
                                             <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">{currency}</span>
-                                            <input name="salaryMin" type="number" placeholder="Minimum" className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                                            <input name="salaryMin" type="number" placeholder="Minimum" className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required value={formDataState.salaryMin} onChange={handleInputChange} />
                                         </div>
                                         <span className="text-gray-500">-</span>
                                         <div className="relative flex-1">
                                             <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">{currency}</span>
-                                            <input name="salaryMax" type="number" placeholder="Maximum" className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                                            <input name="salaryMax" type="number" placeholder="Maximum" className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required value={formDataState.salaryMax} onChange={handleInputChange} />
                                         </div>
                                     </div>
                                 </div>
@@ -112,7 +148,7 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ country, navigate, isEditing 
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="experience">Years of Experience</label>
-                                    <select name="experience" id="experience" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <select name="experience" id="experience" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value={formDataState.experience} onChange={handleInputChange}>
                                         <option>Select experience level</option>
                                         <option>No experience required</option>
                                         <option>1-2 years</option>
@@ -122,15 +158,15 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ country, navigate, isEditing 
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="requiredSkills">Required Skills</label>
-                                    <input name="requiredSkills" type="text" id="requiredSkills" placeholder="e.g., Welding, Heavy Lifting" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    <input name="requiredSkills" type="text" id="requiredSkills" placeholder="e.g., Welding, Heavy Lifting" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value={formDataState.requiredSkills} onChange={handleInputChange} />
                                 </div>
                                 <div className="md:col-span-2">
                                      <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="physicalReqs">Physical Requirements</label>
-                                    <textarea name="physicalReqs" id="physicalReqs" rows={3} placeholder="e.g., Able to lift up to 20kg, able to stand for long hours" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                                    <textarea name="physicalReqs" id="physicalReqs" rows={3} placeholder="e.g., Able to lift up to 20kg, able to stand for long hours" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value={formDataState.physicalReqs} onChange={handleInputChange}></textarea>
                                 </div>
                                  <div className="md:col-span-2">
                                      <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="certs">Certifications / Licenses</label>
-                                     <input name="certs" type="text" id="certs" placeholder="e.g., Forklift License, First Aid Certification" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                     <input name="certs" type="text" id="certs" placeholder="e.g., Forklift License, First Aid Certification" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value={formDataState.certs} onChange={handleInputChange} />
                                 </div>
                              </div>
                         </div>
@@ -142,13 +178,13 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ country, navigate, isEditing 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">Arrangement</label>
                                         <div className="flex items-center space-x-6">
-                                            <label className="flex items-center space-x-2 cursor-pointer"><input type="radio" name="arrangement" value="Live-in" className="form-radio text-blue-600" /><span>Live-in</span></label>
-                                            <label className="flex items-center space-x-2 cursor-pointer"><input type="radio" name="arrangement" value="Live-out" className="form-radio text-blue-600" /><span>Live-out</span></label>
+                                            <label className="flex items-center space-x-2 cursor-pointer"><input type="radio" name="arrangement" value="Live-in" className="form-radio text-blue-600" onChange={handleInputChange} /><span>Live-in</span></label>
+                                            <label className="flex items-center space-x-2 cursor-pointer"><input type="radio" name="arrangement" value="Live-out" className="form-radio text-blue-600" onChange={handleInputChange} /><span>Live-out</span></label>
                                         </div>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="restDays">Rest Days per Month</label>
-                                        <input name="restDays" type="number" id="restDays" placeholder="e.g., 4" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        <input name="restDays" type="number" id="restDays" placeholder="e.g., 4" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value={formDataState.restDays} onChange={handleInputChange} />
                                     </div>
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">Primary Duties</label>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MOCK_SCHEDULED_INTERVIEWS } from '../../../constants';
 import { ScheduledInterview } from '../../../types';
@@ -72,10 +73,10 @@ const InterviewCard: React.FC<{ interview: ScheduledInterview }> = ({ interview 
     <div className="bg-white p-5 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:shadow-xl transition-all duration-300">
         <div className="flex justify-between items-start">
             <div className="flex items-center space-x-4">
-                <img src={interview.logoUrl} alt={`${interview.companyName} logo`} className="w-14 h-14 rounded-full object-cover border-2 border-white ring-2 ring-gray-200" />
+                <img src={interview.logoUrl} alt={`${interview.employerName} logo`} className="w-14 h-14 rounded-full object-cover border-2 border-white ring-2 ring-gray-200" />
                 <div>
                     <p className="font-bold text-lg text-gray-900">{interview.jobTitle}</p>
-                    <p className="text-md text-gray-600">{interview.companyName}</p>
+                    <p className="text-md text-gray-600">{interview.employerName}</p>
                 </div>
             </div>
             <span className="text-sm font-bold text-blue-800 bg-blue-100 px-4 py-2 rounded-full">{interview.time} ({interview.timezone})</span>

@@ -1,11 +1,12 @@
-
-import React, { useState } from 'react';
-import { MOCK_MATCHED_CANDIDATES } from '../../../constants';
+import React, { useState, useMemo } from 'react';
 import { MatchedCandidate } from '../../../types';
+import { useGlobalState } from '../../../contexts/StateContext';
 
 interface JobDetailsProps {
     onBack: () => void;
     isAdminView?: boolean;
+    jobId?: number | null;
+    onInvite?: (applicationId: number) => void;
 }
 
 const LocationIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
@@ -16,12 +17,13 @@ const SkillIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w
 
 interface CandidateCardProps {
     candidate: MatchedCandidate;
+    applicationId: number;
     isInvited: boolean;
     onInvite: (id: number) => void;
     isExpanded: boolean;
     onToggleExpand: (id: number) => void;
 }
-const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, isInvited, onInvite, isExpanded, onToggleExpand }) => (
+const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, applicationId, isInvited, onInvite, isExpanded, onToggleExpand }) => (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-300">
         <div
             className="p-4 flex items-center justify-between cursor-pointer"
@@ -42,7 +44,7 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, isInvited, onI
             </div>
             <div className="flex items-center space-x-4">
                 <button
-                    onClick={(e) => { e.stopPropagation(); onInvite(candidate.id); }}
+                    onClick={(e) => { e.stopPropagation(); onInvite(applicationId); }}
                     disabled={isInvited}
                     className={`px-5 py-2 font-semibold rounded-md transition-colors text-sm ${
                         isInvited
@@ -86,19 +88,19 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, isInvited, onI
     </div>
 );
 
-const ReadOnlyJobView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-    const jobData = {
-        title: 'Construction Worker',
-        category: 'Construction',
-        location: 'Singapore',
-        description: 'Seeking hardworking and reliable general labourers for various construction projects. Responsibilities include site preparation, loading/unloading materials, operating basic hand and power tools, and assisting skilled tradespeople. No experience necessary, training will be provided. Must be physically fit and able to work outdoors in various weather conditions. Safety-conscious attitude is a must.',
-        workingHours: '8 AM - 5 PM, Mon-Sat',
-        salary: { min: 2200, max: 3000, currency: 'SGD' },
-        experience: 'No experience required',
-        skills: ['Heavy Lifting', 'Basic Hand Tools', 'Teamwork'],
-        physicalReqs: 'Able to lift up to 25kg, able to stand for long hours.',
-        certs: 'Safety Induction Course (Construction) is a plus.'
-    };
+const ReadOnlyJobView: React.FC<{ onBack: () => void, jobId: number | null }> = ({ onBack, jobId }) => {
+    const { jobs } = useGlobalState();
+    const jobData = jobs.find(j => j.id === jobId);
+
+    if (!jobData) {
+        return (
+             <div>
+                <button onClick={onBack} className="text-blue-600 hover:underline font-semibold flex items-center mb-4">&larr; Back</button>
+                <p>Job not found.</p>
+            </div>
+        )
+    }
+
     const DetailItem: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
         <div>
             <p className="text-sm font-medium text-gray-500">{label}</p>
@@ -117,7 +119,7 @@ const ReadOnlyJobView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             <div className="mb-6">
                  <button onClick={onBack} className="text-blue-600 hover:underline font-semibold flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                    Back to Employer Profile
+                    Back
                 </button>
             </div>
             <div className="bg-white p-8 rounded-lg shadow-md">
@@ -136,30 +138,8 @@ const ReadOnlyJobView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                     <Section title="Job Description">
                         <p className="text-gray-600 whitespace-pre-line">{jobData.description}</p>
                     </Section>
-                    <Section title="Schedule & Compensation">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <DetailItem label="Working Hours">{jobData.workingHours}</DetailItem>
-                            <DetailItem label="Salary Range (per month)">{`${jobData.salary.currency} ${jobData.salary.min.toLocaleString()} - ${jobData.salary.max.toLocaleString()}`}</DetailItem>
-                        </div>
-                    </Section>
-                   
-                    <Section title="Candidate Requirements">
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <DetailItem label="Years of Experience">{jobData.experience}</DetailItem>
-                            <DetailItem label="Required Skills">
-                                <div className="flex flex-wrap gap-2 mt-1">
-                                    {jobData.skills.map(skill => (
-                                        <span key={skill} className="bg-gray-200 text-gray-800 px-2 py-1 text-xs font-medium rounded-full">{skill}</span>
-                                    ))}
-                                </div>
-                            </DetailItem>
-                            <div className="md:col-span-2">
-                                <DetailItem label="Physical Requirements">{jobData.physicalReqs}</DetailItem>
-                            </div>
-                             <div className="md:col-span-2">
-                                <DetailItem label="Certifications / Licenses">{jobData.certs}</DetailItem>
-                            </div>
-                         </div>
+                    <Section title="Compensation">
+                        <DetailItem label="Salary Range (per month)">{`${jobData.salary.currency} ${jobData.salary.min.toLocaleString()} - ${jobData.salary.max.toLocaleString()}`}</DetailItem>
                     </Section>
                 </div>
             </div>
@@ -167,18 +147,44 @@ const ReadOnlyJobView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     );
 };
 
-const JobDetails: React.FC<JobDetailsProps> = ({ onBack, isAdminView = false }) => {
-   
-    if (isAdminView) {
-        return <ReadOnlyJobView onBack={onBack} />;
-    }
-
-    const [invitedCandidates, setInvitedCandidates] = useState<number[]>([]);
+const JobDetails: React.FC<JobDetailsProps> = ({ onBack, isAdminView = false, jobId = null, onInvite = () => {} }) => {
+    const { jobs, applications, candidates } = useGlobalState();
     const [expandedCandidateId, setExpandedCandidateId] = useState<number | null>(null);
 
-    const handleInvite = (candidateId: number) => {
-        setInvitedCandidates(prev => [...prev, candidateId]);
-    };
+    const job = jobs.find(j => j.id === jobId);
+
+    const matchedCandidates = useMemo(() => {
+        if (!jobId) return [];
+        return applications
+            .filter(app => app.jobId === jobId)
+            .map(app => {
+                const candidateProfile = candidates.find(c => c.id === app.candidateId);
+                if (!candidateProfile) return null;
+                return {
+                    applicationId: app.id,
+                    isInvited: app.status !== 'Matched',
+                    candidate: {
+                        id: candidateProfile.id,
+                        name: candidateProfile.name,
+                        location: candidateProfile.personalInfo.location,
+                        avatarUrl: candidateProfile.avatarUrl,
+                        experience: '5+ years', // Mocked, as this is not in main profile data
+                        jobCategories: candidateProfile.jobCategories,
+                        skills: candidateProfile.skills,
+                    } as MatchedCandidate
+                };
+            })
+            .filter(Boolean);
+    }, [jobId, applications, candidates]);
+
+
+    if (isAdminView) {
+        return <ReadOnlyJobView onBack={onBack} jobId={jobId} />;
+    }
+    
+    if (!job) {
+        return <div>Job not found. <button onClick={onBack} className="text-blue-600">Go Back</button></div>
+    }
 
     const handleToggleExpand = (candidateId: number) => {
         setExpandedCandidateId(prevId => (prevId === candidateId ? null : candidateId));
@@ -188,39 +194,29 @@ const JobDetails: React.FC<JobDetailsProps> = ({ onBack, isAdminView = false }) 
         <div>
              <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-800">View Details</h1>
-                <div className="relative">
-                    <select className="appearance-none bg-white border border-gray-300 rounded-md pl-4 pr-10 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option>Filter</option>
-                        <option>By Experience</option>
-                        <option>By Location</option>
-                    </select>
-                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                </div>
-            </div>
+             </div>
             <div className="bg-white p-6 rounded-lg shadow-md mb-8">
                 <div className="flex items-center space-x-4">
-                    <img src="https://picsum.photos/seed/tech/80/80" alt="Company Logo" className="w-20 h-20 rounded-lg object-cover" />
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-800">Construction Worker</h2>
+                        <h2 className="text-2xl font-bold text-gray-800">{job.title}</h2>
                         <div className="flex items-center text-gray-600 mt-1">
                             <LocationIcon />
-                            <span>Singapore</span>
+                            <span>{job.location}</span>
                         </div>
                     </div>
                 </div>
             </div>
             <div>
-                <h3 className="text-xl font-semibold text-gray-700 mb-4">List of Candidates</h3>
+                <h3 className="text-xl font-semibold text-gray-700 mb-4">Matched Candidates</h3>
                 <div className="space-y-4">
-                    {MOCK_MATCHED_CANDIDATES.map(candidate => (
-                        <CandidateCard
-                            key={candidate.id}
-                            candidate={candidate}
-                            isInvited={invitedCandidates.includes(candidate.id)}
-                            onInvite={handleInvite}
-                            isExpanded={expandedCandidateId === candidate.id}
+                    {matchedCandidates.map(match => (
+                        match && <CandidateCard
+                            key={match.candidate.id}
+                            candidate={match.candidate}
+                            applicationId={match.applicationId}
+                            isInvited={match.isInvited}
+                            onInvite={onInvite}
+                            isExpanded={expandedCandidateId === match.candidate.id}
                             onToggleExpand={handleToggleExpand}
                         />
                     ))}

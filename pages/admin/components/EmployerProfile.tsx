@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { MOCK_EMPLOYER_PROFILE } from '../../../constants';
 import { AdminPage } from '../AdminDashboard';
@@ -23,8 +24,8 @@ const EmployerProfile: React.FC<{ navigate: (page: AdminPage) => void }> = ({ na
 
             <div className="bg-white rounded-lg shadow-md p-8">
                 <div className="pb-8 border-b">
-                    <h1 className="text-3xl font-bold text-gray-800">{employer.companyName}</h1>
-                    <p className="text-lg text-gray-600 mt-2">Contact: {employer.employerName} ({employer.email})</p>
+                    <h1 className="text-3xl font-bold text-gray-800">{employer.employerName}</h1>
+                    <p className="text-lg text-gray-600 mt-2">Contact: {employer.contactPerson} ({employer.email})</p>
                 </div>
 
                 <div className="py-8">

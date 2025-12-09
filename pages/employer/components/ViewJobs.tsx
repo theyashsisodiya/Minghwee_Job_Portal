@@ -1,11 +1,10 @@
-
 import React, { useState, useMemo } from 'react';
 import { JOB_CATEGORIES } from '../../../constants';
 import { JobStatus, JobPosting, Country } from '../../../types';
 import { useGlobalState } from '../../../contexts/StateContext';
 
 interface ViewJobsProps {
-    navigate: (page: 'postJob' | 'jobDetails' | 'editJob') => void;
+    navigate: (page: 'postJob' | 'jobDetails' | 'editJob', jobId?: number) => void;
     country: Country;
     employerId: number;
     allowPosting?: boolean;
@@ -13,7 +12,7 @@ interface ViewJobsProps {
 
 // Icons
 const CalendarIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
-const EmptyStateIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>;
+const EmptyStateIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2-2H5a2 2 0 01-2-2z" /></svg>;
 const PlusIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>;
 
 const JobCard: React.FC<{ job: JobPosting; onStatusToggle: (id: number) => void; navigate: ViewJobsProps['navigate']; allowPosting: boolean }> = ({ job, onStatusToggle, navigate, allowPosting }) => {
@@ -55,14 +54,14 @@ const JobCard: React.FC<{ job: JobPosting; onStatusToggle: (id: number) => void;
             </div>
             <div className="border-t pt-4 mt-auto flex space-x-3">
                 <button 
-                    onClick={() => navigate('jobDetails')} 
+                    onClick={() => navigate('jobDetails', job.id)} 
                     className="flex-1 text-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors text-sm shadow-sm"
                 >
                     View Details
                 </button>
                 {allowPosting && (
                     <button 
-                        onClick={() => navigate('editJob')} 
+                        onClick={() => navigate('editJob', job.id)} 
                         className="flex-1 text-center px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-md hover:bg-gray-300 transition-colors text-sm"
                     >
                         Edit

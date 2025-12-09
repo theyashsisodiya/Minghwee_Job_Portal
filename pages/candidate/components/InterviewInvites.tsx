@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MOCK_INTERVIEW_INVITES, MOCK_PRE_UPLOADED_DOCUMENTS } from '../../../constants';
 import type { InterviewInvite, PreUploadedDocument, Notification } from '../../../types';
@@ -58,12 +59,12 @@ const InviteCard: React.FC<{ invite: InterviewInvite; addNotification: (message:
         <>
         <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300">
             <div className="flex items-start space-x-5">
-                <img src={invite.logoUrl} alt={`${invite.companyName} logo`} className="w-16 h-16 rounded-full object-cover border" />
+                <img src={invite.logoUrl} alt={`${invite.employerName} logo`} className="w-16 h-16 rounded-full object-cover border" />
                 <div className="flex-grow">
                     <div className="flex justify-between items-start mb-2">
                         <div>
                             <h3 className="text-xl font-bold text-gray-800">{invite.jobTitle}</h3>
-                            <p className="text-md font-semibold text-gray-600">{invite.companyName}</p>
+                            <p className="text-md font-semibold text-gray-600">{invite.employerName}</p>
                             <div className="flex items-center text-sm text-gray-500 mt-1"><LocationIcon />{invite.location}</div>
                         </div>
                         <StatusBadge status={invite.status} />

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Country, CandidateProgress, CandidateApplicationStatus } from '../../types';
+import { Country, CandidateProgress, CandidateApplicationStatus, UserType } from '../../types';
 import Onboarding from './components/Onboarding';
 import ViewJobs from './components/ViewJobs';
 import JobDetails from './components/JobDetails';
@@ -9,6 +9,7 @@ import EmployerProgressTracker from './components/ProgressTracker';
 import Payment from './components/Payment';
 import ViewDocuments from './components/ViewDocuments';
 import { useGlobalState } from '../../contexts/StateContext';
+import DashboardHeader from '../../components/DashboardHeader';
 
 // --- Icons --- //
 const PostJobIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
@@ -92,7 +93,7 @@ const ReviewPopup = ({ onClose }: { onClose: () => void }) => (
         </div>
         <h3 className="text-xl font-bold text-gray-800">Profile Submitted!</h3>
         <p className="text-gray-600 my-4">
-          Your profile has been submitted for review. We will notify you once it's approved.
+          Your profile and job requirements have been submitted. Our team will review them and post your job shortly.
         </p>
         <button
           onClick={onClose}
@@ -116,9 +117,9 @@ const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ userName, country
   const [showReviewPopup, setShowReviewPopup] = useState(false);
   const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(null);
   
-  const currentEmployerId = 1; // Mocked ID for the currently logged-in employer
+  const [currentEmployerId, setCurrentEmployerId] = useState(1); // Default to mock, updated after onboarding
 
-  const { getApplicationsByEmployer, candidates: globalCandidates, addEmployer } = useGlobalState();
+  const { getApplicationsByEmployer, candidates: globalCandidates, addEmployer, addJobRequirement } = useGlobalState();
   const applications = getApplicationsByEmployer(currentEmployerId); 
 
   // Transform GlobalApplication to CandidateProgress format for UI compatibility
@@ -143,14 +144,26 @@ const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ userName, country
     setActiveTab(page);
   };
 
-  const handleOnboardingComplete = (data: { name: string; company: string; email: string; contact: string }) => {
-    // Add employer to global state, which will also auto-assign them to Sales Dashboard as a Client
-    addEmployer({
+  const handleOnboardingComplete = (data: any) => {
+    // 1. Create Employer Profile
+    const newEmployerId = addEmployer({
         name: data.name,
-        company: data.company || 'Individual Employer',
+        employerName: data.company || 'Individual Employer',
         email: data.email,
         contact: data.contact
     });
+    setCurrentEmployerId(newEmployerId);
+
+    // 2. Submit Job Requirement (Optional fields)
+    if (data.role || data.budget || data.details) {
+        addJobRequirement({
+            employerId: newEmployerId,
+            role: data.role,
+            budget: data.budget,
+            workingHours: data.workingHours,
+            details: data.details
+        });
+    }
 
     setIsOnboardingComplete(true);
     setShowReviewPopup(true);
@@ -190,9 +203,12 @@ const EmployerDashboard: React.FC<EmployerDashboardProps> = ({ userName, country
   return (
     <div className="flex bg-gray-50">
       <EmployerSidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={onLogout} country={country} />
-      <main className="flex-1 p-8 overflow-auto h-screen">
-        {renderContent()}
-        {showReviewPopup && <ReviewPopup onClose={() => setShowReviewPopup(false)} />}
+      <main className="flex-1 overflow-auto h-screen">
+        <DashboardHeader userName={userName} userType={UserType.Employer} userId={currentEmployerId} />
+        <div className="px-8 pb-8">
+            {renderContent()}
+            {showReviewPopup && <ReviewPopup onClose={() => setShowReviewPopup(false)} />}
+        </div>
       </main>
     </div>
   );

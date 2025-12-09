@@ -60,7 +60,7 @@ export enum DocumentStatus {
 export interface Client {
     id: number;
     name: string; // Contact Person Name
-    companyName?: string;
+    employerName?: string; // Replaced companyName
     email: string;
     contact: string;
     isRegistered?: boolean; // If they have their own employer account
@@ -106,8 +106,8 @@ export interface RequestedDocument {
 
 export interface JobApplicationProgress {
     id: number;
-    companyName: string;
-    logoUrl: string;
+    employerName: string; // Replaced companyName
+    logoUrl: string; // Could be avatar
     jobTitle: string;
     location: string;
     steps: DetailedProgressStep[];
@@ -118,7 +118,7 @@ export interface JobApplicationProgress {
 
 export interface InterviewInvite {
     id: number;
-    companyName: string;
+    employerName: string; // Replaced companyName
     logoUrl: string;
     jobTitle: string;
     location: string;
@@ -145,6 +145,18 @@ export interface JobPosting {
     location: string;
     description: string;
     salary: { min: number; max: number; currency: string };
+}
+
+// New Type for Raw Employer Requirements
+export interface JobRequirement {
+    id: number;
+    employerId: number;
+    role: string; // Cook, Cleaner, etc.
+    budget?: string;
+    workingHours?: string;
+    details?: string;
+    status: 'Pending Review' | 'Converted to Job';
+    submittedDate: string;
 }
 
 export interface MatchedCandidate {
@@ -186,7 +198,7 @@ export interface ScheduledInterview {
     date: string; // e.g., "2021-09-11"
     time: string; // e.g., "10:00 AM"
     clientName?: string;
-    companyName?: string;
+    employerName?: string; // Replaced companyName
     logoUrl?: string;
     timezone?: string;
     videoLink?: string;
@@ -200,6 +212,8 @@ export interface SalesCandidateProgress {
     clientName: string;
     jobTitle: string;
     steps: ProgressStep[];
+    status: CandidateApplicationStatus;
+    candidateId: number; // Added to link back to actual candidate for notifications
 }
 
 // --- Admin Types ---
@@ -208,6 +222,8 @@ export interface AdminDashboardStats {
     activeEmployers: number;
     newJobPosts: number;
     pendingApprovals: number;
+    activeSalespersons: number;
+    pendingPayments: number;
     // Time-series data for chart (arrays of numbers)
     candidatesHired: { week: number[], month: number[], year: number[] };
     activeJobsSeries: { week: number[], month: number[], year: number[] };
@@ -221,6 +237,7 @@ export interface ManagedCandidate {
     name: string;
     jobCategory: string;
     appliedCategories: string[];
+    nationality: string;
 }
 
 export interface CandidateProfileData {
@@ -243,7 +260,7 @@ export interface CandidateProfileData {
 
 export interface CandidateProcessHistory {
     jobTitle: string;
-    company: string;
+    employer: string; // Replaced company
     status: 'Invited' | 'Accepted' | 'Rejected';
     date: string;
 }
@@ -257,16 +274,17 @@ export enum EmployerStatus {
 export interface ManagedEmployer {
     id: number;
     name: string;
-    company: string;
+    employerName: string; // Replaced company (e.g. household name or just name again)
     status: EmployerStatus;
     email: string;
     contact: string;
+    nationality?: string;
 }
 
 export interface EmployerProfileData {
     id: number;
-    companyName: string;
-    employerName: string;
+    employerName: string; // Replaced companyName
+    contactPerson: string; // Replaced employerName
     email: string;
     description: string;
     postedJobs: EmployerPostedJob[];
@@ -321,6 +339,16 @@ export interface Notification {
     type: 'success' | 'error' | 'info';
 }
 
+export interface UserNotification {
+    id: number;
+    userId: number; // Receiver ID
+    userType: UserType; // Receiver Type
+    message: string;
+    timestamp: string;
+    read: boolean;
+    sender: string;
+}
+
 // --- GLOBAL STATE TYPES ---
 export interface GlobalApplication {
     id: number;
@@ -330,4 +358,22 @@ export interface GlobalApplication {
     status: CandidateApplicationStatus;
     steps: ProgressStep[];
     paymentMade: boolean;
+}
+
+// --- Sales ---
+export interface Salesperson {
+    id: number;
+    name: string;
+    email: string;
+    password?: string; // For mock credential management
+    phone: string;
+    joinedDate: string;
+    
+    // Performance Metrics
+    activeEmployers: number;
+    jobsPosted: number;
+    activeJobs: number;
+    successfulHires: number;
+    candidatesInProgress: number;
+    efficiency: number; // Percentage
 }

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { MOCK_SALES_CANDIDATE_PROGRESS } from '../../../constants';
-import { SalesCandidateProgress, ProgressStatus, ProgressStep } from '../../../types';
+
+import React, { useState, useMemo } from 'react';
+import { SalesCandidateProgress, ProgressStatus, CandidateApplicationStatus, UserType } from '../../../types';
+import { useGlobalState } from '../../../contexts/StateContext';
 
 // --- ICONS ---
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>;
-const ChevronDownIcon: React.FC<{ className?: string }> = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>;
+const ChevronDownIcon: React.FC<{ className?: string }> = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>;
 
 // Step Icons
 const EnvelopeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" /><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" /></svg>;
@@ -63,37 +64,51 @@ const getStyling = (status: ProgressStatus, isHired: boolean) => {
     }
 };
 
-const CandidateProgressCard: React.FC<{ candidateData: SalesCandidateProgress, onUpdate: (updatedCandidate: SalesCandidateProgress) => void }> = ({ candidateData, onUpdate }) => {
+const CandidateProgressCard: React.FC<{ candidateData: SalesCandidateProgress }> = ({ candidateData }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const isHired = candidateData.steps.every(s => s.status === ProgressStatus.Completed);
-    const isRejected = candidateData.steps.some(s => s.status === ProgressStatus.Rejected);
+    const [message, setMessage] = useState('');
+    const { updateApplicationStatus, sendNotification } = useGlobalState();
+
+    const isHired = candidateData.status === CandidateApplicationStatus.Hired;
+    const isRejected = [CandidateApplicationStatus.CandidateRejected, CandidateApplicationStatus.MedicalRejected].includes(candidateData.status);
 
     const handleMarkComplete = () => {
-        const inProgressIndex = candidateData.steps.findIndex(s => s.status === ProgressStatus.InProgress);
-        if (inProgressIndex === -1) return;
+        const currentStepIndex = candidateData.steps.findIndex(s => s.status === ProgressStatus.InProgress);
+        const currentStepName = currentStepIndex !== -1 ? candidateData.steps[currentStepIndex].name : null;
 
-        const updatedSteps = [...candidateData.steps];
-        updatedSteps[inProgressIndex].status = ProgressStatus.Completed;
-        if (inProgressIndex + 1 < updatedSteps.length) {
-            updatedSteps[inProgressIndex + 1].status = ProgressStatus.InProgress;
-        }
-        onUpdate({ ...candidateData, steps: updatedSteps });
+        let nextStatus = candidateData.status;
+
+        // Logic to determine next global status based on current Sales View steps
+        if (currentStepName === 'Interview Invite Sent') nextStatus = CandidateApplicationStatus.CandidateSelected;
+        else if (currentStepName === 'Candidate Selected') nextStatus = CandidateApplicationStatus.MedicalAccepted; // Simulate docs done
+        else if (currentStepName === 'Upload Other Documents') nextStatus = CandidateApplicationStatus.SendContract;
+        else if (currentStepName === 'Send Contract') nextStatus = CandidateApplicationStatus.Hired;
+
+        updateApplicationStatus(candidateData.id, nextStatus);
     };
 
-    const handleSendContract = () => {
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = '.pdf,.doc,.docx';
-        fileInput.onchange = (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0];
-            if (file) {
-                alert(`Contract "${file.name}" uploaded for ${candidateData.name}.`);
-                handleMarkComplete();
-            }
-        };
-        fileInput.click();
+    const handleRequestReupload = () => {
+        sendNotification({
+            userId: candidateData.candidateId,
+            userType: UserType.Candidate,
+            message: `Action Required: Please re-upload your documents for ${candidateData.jobTitle} application.`,
+            sender: 'Sales Team'
+        });
+        alert(`Notification sent to ${candidateData.name} to re-upload documents.`);
     };
-    
+
+    const handleSendMessage = () => {
+        if (!message.trim()) return;
+        sendNotification({
+            userId: candidateData.candidateId,
+            userType: UserType.Candidate,
+            message: `Message from Sales: ${message}`,
+            sender: 'Sales Team'
+        });
+        alert(`Message sent to ${candidateData.name}.`);
+        setMessage('');
+    };
+
     const getStatusBadge = () => {
         if (isHired) return <div className="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">Hired</div>;
         if (isRejected) return <div className="px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">Rejected</div>;
@@ -105,7 +120,7 @@ const CandidateProgressCard: React.FC<{ candidateData: SalesCandidateProgress, o
     const inProgressStep = candidateData.steps.find(s => s.status === ProgressStatus.InProgress);
 
     return (
-        <div className="bg-white rounded-xl shadow-md transition-shadow hover:shadow-lg">
+        <div className="bg-white rounded-xl shadow-md transition-shadow hover:shadow-lg border border-gray-200">
             <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
                 <div className="flex items-center space-x-4">
                     <img src={candidateData.avatarUrl} alt={candidateData.name} className="w-14 h-14 rounded-full" />
@@ -144,29 +159,57 @@ const CandidateProgressCard: React.FC<{ candidateData: SalesCandidateProgress, o
                         })}
                     </div>
 
-                    {!isHired && !isRejected && inProgressStep && (
-                        <div className="mt-8 pt-4 border-t flex justify-between items-center">
-                            <div>
-                               <p className="text-sm text-gray-600">Next Action:</p>
-                               <p className="text-sm font-medium text-gray-800">{inProgressStep.name}</p>
-                            </div>
-                            {inProgressStep.name === "Send Contract" ? (
-                                <button
-                                    onClick={handleSendContract}
-                                    className="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm shadow-sm"
-                                >
-                                    Upload & Send Contract
-                                </button>
+                    <div className="mt-8 flex flex-col md:flex-row gap-6">
+                        {/* Actions Panel */}
+                        <div className="flex-1 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                            <h4 className="text-sm font-bold text-gray-700 mb-4 uppercase">Workflow Actions</h4>
+                            {!isHired && !isRejected && inProgressStep ? (
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p className="text-sm text-gray-500">Current Step:</p>
+                                        <p className="font-semibold text-blue-600">{inProgressStep.name}</p>
+                                    </div>
+                                    <button
+                                        onClick={handleMarkComplete}
+                                        className="px-5 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+                                    >
+                                        Mark as Complete
+                                    </button>
+                                </div>
                             ) : (
-                                <button
-                                    onClick={handleMarkComplete}
-                                    className="px-5 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors text-sm shadow-sm"
-                                >
-                                    Mark as Complete
-                                </button>
+                                <p className="text-sm text-gray-500 italic">No active workflow actions available.</p>
                             )}
                         </div>
-                    )}
+
+                        {/* Communication Panel */}
+                        <div className="flex-1 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                            <h4 className="text-sm font-bold text-gray-700 mb-4 uppercase">Communication</h4>
+                            <div className="space-y-3">
+                                <button 
+                                    onClick={handleRequestReupload}
+                                    className="w-full px-4 py-2 bg-yellow-50 text-yellow-700 border border-yellow-200 font-semibold rounded-lg hover:bg-yellow-100 text-sm flex items-center justify-center gap-2"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                    Request Document Re-upload
+                                </button>
+                                <div className="flex gap-2">
+                                    <input 
+                                        type="text" 
+                                        placeholder="Send a message to candidate..." 
+                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        value={message}
+                                        onChange={(e) => setMessage(e.target.value)}
+                                    />
+                                    <button 
+                                        onClick={handleSendMessage}
+                                        className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
@@ -174,11 +217,62 @@ const CandidateProgressCard: React.FC<{ candidateData: SalesCandidateProgress, o
 };
 
 const SalesProgressTracker: React.FC = () => {
-    const [candidates, setCandidates] = useState<SalesCandidateProgress[]>(MOCK_SALES_CANDIDATE_PROGRESS);
+    const { applications, candidates, clients, jobs } = useGlobalState();
+    
+    // Transform global data into the simplified sales view format
+    const candidateProgressData = useMemo<SalesCandidateProgress[]>(() => {
+        return applications.map(app => {
+            const candidate = candidates.find(c => c.id === app.candidateId);
+            const client = clients.find(c => c.id === app.employerId);
+            const job = jobs.find(j => j.id === app.jobId);
 
-    const handleUpdateCandidate = (updatedCandidate: SalesCandidateProgress) => {
-        setCandidates(prev => prev.map(c => c.id === updatedCandidate.id ? updatedCandidate : c));
-    };
+            // Map Global Steps to Simple Sales Steps
+            const mapGlobalToSalesSteps = (globalStatus: CandidateApplicationStatus) => {
+                const salesSteps = [
+                    { name: 'Interview Invite Sent', status: ProgressStatus.Pending },
+                    { name: 'Candidate Selected', status: ProgressStatus.Pending },
+                    { name: 'Upload Other Documents', status: ProgressStatus.Pending },
+                    { name: 'Send Contract', status: ProgressStatus.Pending },
+                ];
+
+                // Simple logic to fill bubbles based on global status enum order
+                if (globalStatus === CandidateApplicationStatus.Matched) return salesSteps;
+                
+                salesSteps[0].status = ProgressStatus.Completed; // Invite Sent
+                if (globalStatus === CandidateApplicationStatus.InterviewInvited) {
+                    salesSteps[1].status = ProgressStatus.InProgress;
+                    return salesSteps;
+                }
+
+                salesSteps[1].status = ProgressStatus.Completed; // Selected
+                if (globalStatus === CandidateApplicationStatus.CandidateSelected) {
+                    salesSteps[2].status = ProgressStatus.InProgress;
+                    return salesSteps;
+                }
+
+                salesSteps[2].status = ProgressStatus.Completed; // Docs/Medical
+                if (globalStatus === CandidateApplicationStatus.MedicalAccepted) {
+                    salesSteps[3].status = ProgressStatus.InProgress;
+                    return salesSteps;
+                }
+
+                salesSteps[3].status = ProgressStatus.Completed; // Contract Sent (Hired)
+                return salesSteps;
+            };
+
+            return {
+                id: app.id,
+                candidateId: candidate?.id || 0,
+                name: candidate?.name || 'N/A',
+                avatarUrl: candidate?.avatarUrl || '',
+                clientName: client?.employerName || client?.name || 'N/A',
+                jobTitle: job?.title || 'N/A',
+                steps: mapGlobalToSalesSteps(app.status),
+                status: app.status
+            };
+        });
+    }, [applications, candidates, clients, jobs]);
+
 
     return (
         <div>
@@ -197,10 +291,8 @@ const SalesProgressTracker: React.FC = () => {
                     </div>
                      <div className="relative">
                         <select className="appearance-none bg-white border border-gray-300 rounded-md pl-4 pr-10 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option>Filter by Client</option>
-                            <option>BuildWell Construction</option>
-                            <option>Rapid Logistics PH</option>
-                            <option>SG Manufacturing</option>
+                            <option>Filter by Employer</option>
+                             {clients.map(c => <option key={c.id} value={c.id}>{c.employerName || c.name}</option>)}
                         </select>
                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                            <ChevronDownIcon className="w-4 h-4" />
@@ -209,8 +301,8 @@ const SalesProgressTracker: React.FC = () => {
                 </div>
             </div>
              <div className="space-y-5">
-                {candidates.map(candidate => (
-                    <CandidateProgressCard key={candidate.id} candidateData={candidate} onUpdate={handleUpdateCandidate} />
+                {candidateProgressData.map(candidate => (
+                    <CandidateProgressCard key={candidate.id} candidateData={candidate} />
                 ))}
             </div>
         </div>

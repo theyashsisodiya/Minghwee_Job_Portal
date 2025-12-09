@@ -1,11 +1,13 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
     JobPosting, ManagedEmployer, CandidateProfileData, GlobalApplication, 
-    CandidateApplicationStatus, ProgressStatus, JobStatus, UserType, Client, EmployerStatus
+    CandidateApplicationStatus, ProgressStatus, JobStatus, UserType, Client, EmployerStatus,
+    JobRequirement, Salesperson, UserNotification
 } from '../types';
 import { 
     MOCK_JOB_POSTINGS, MOCK_MANAGED_EMPLOYERS, MOCK_CANDIDATE_PROFILE,
-    MOCK_CLIENTS
+    MOCK_CLIENTS, MOCK_SALESPERSONS
 } from '../constants';
 
 interface StateContextType {
@@ -14,15 +16,32 @@ interface StateContextType {
     candidates: CandidateProfileData[];
     applications: GlobalApplication[];
     clients: Client[];
+    jobRequirements: JobRequirement[];
+    salespersons: Salesperson[];
+    userNotifications: UserNotification[];
     
     addJob: (job: Omit<JobPosting, 'id' | 'postedDate' | 'status'>) => void;
-    addEmployer: (employer: Omit<ManagedEmployer, 'id' | 'status'>) => void;
+    addEmployer: (employer: Omit<ManagedEmployer, 'id' | 'status'>) => number; // Returns ID
     addCandidate: (candidate: Omit<CandidateProfileData, 'id'>) => void;
     addClient: (client: Client) => void;
+    addEmployerAsClient: (employerId: number) => void;
+    addJobRequirement: (req: Omit<JobRequirement, 'id' | 'status' | 'submittedDate'>) => void;
+    markRequirementConverted: (reqId: number) => void;
+    
+    // Salesperson Management
+    addSalesperson: (sp: Omit<Salesperson, 'id' | 'joinedDate' | 'activeEmployers' | 'jobsPosted' | 'activeJobs' | 'successfulHires' | 'candidatesInProgress' | 'efficiency'>) => void;
+    removeSalesperson: (id: number) => void;
+
     createApplication: (candidateId: number, jobId: number, employerId: number) => void;
     updateApplicationStatus: (appId: number, status: CandidateApplicationStatus) => void;
     getApplicationsByEmployer: (employerId: number) => GlobalApplication[];
     getApplicationsByCandidate: (candidateId: number) => GlobalApplication[];
+    getRequirementsByEmployer: (employerId: number) => JobRequirement[];
+
+    // Notifications
+    sendNotification: (notification: Omit<UserNotification, 'id' | 'timestamp' | 'read'>) => void;
+    markNotificationAsRead: (id: number) => void;
+    getNotificationsForUser: (userId: number, userType: UserType) => UserNotification[];
 }
 
 const StateContext = createContext<StateContextType | undefined>(undefined);
@@ -35,6 +54,9 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [jobs, setJobs] = useState<JobPosting[]>(MOCK_JOB_POSTINGS);
     const [employers, setEmployers] = useState<ManagedEmployer[]>(MOCK_MANAGED_EMPLOYERS);
     const [clients, setClients] = useState<Client[]>(MOCK_CLIENTS);
+    const [jobRequirements, setJobRequirements] = useState<JobRequirement[]>([]);
+    const [salespersons, setSalespersons] = useState<Salesperson[]>(MOCK_SALESPERSONS);
+    const [userNotifications, setUserNotifications] = useState<UserNotification[]>([]);
 
     // Load candidates from localStorage or fallback to mock data
     const [candidates, setCandidates] = useState<CandidateProfileData[]>(() => {
@@ -56,10 +78,10 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             candidateId: 1, // Matches MOCK_CANDIDATE_PROFILE.id
             jobId: 1,       // Matches first job in MOCK_JOB_POSTINGS
             employerId: 1,  // Matches first employer
-            status: CandidateApplicationStatus.InterviewInvited,
+            status: CandidateApplicationStatus.Matched,
             steps: [
                 { name: 'Matched', status: ProgressStatus.Completed },
-                { name: 'Interview', status: ProgressStatus.InProgress },
+                { name: 'Interview', status: ProgressStatus.Pending },
                 { name: 'Selected', status: ProgressStatus.Pending },
                 { name: 'Medical', status: ProgressStatus.Pending },
                 { name: 'Contract', status: ProgressStatus.Pending },
@@ -97,27 +119,16 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             ...employerData
         };
         setEmployers(prev => [...prev, newEmployer]);
-
-        const newClient: Client = {
-            id: newId,
-            name: newEmployer.name,
-            companyName: newEmployer.company,
-            email: newEmployer.email,
-            contact: newEmployer.contact,
-            isRegistered: true
-        };
-        addClient(newClient);
+        return newId;
     };
 
     const addCandidate = (candidateData: Omit<CandidateProfileData, 'id'>) => {
         const newId = Date.now();
-        // FIX: Explicitly type `newCandidate` to ensure it conforms to the CandidateProfileData interface.
         const newCandidate: CandidateProfileData = { ...candidateData, id: newId };
         
         setCandidates(prev => {
             const updatedCandidates = [...prev, newCandidate];
             try {
-                // Persist updated candidates list to localStorage
                 localStorage.setItem('minghwee_candidates', JSON.stringify(updatedCandidates));
             } catch (error) {
                 console.error("Failed to save candidates to localStorage", error);
@@ -137,6 +148,61 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             if (prev.find(c => c.id === client.id)) return prev;
             return [...prev, client];
         });
+    };
+
+    const addEmployerAsClient = (employerId: number) => {
+        const employer = employers.find(e => e.id === employerId);
+        if (!employer) return;
+
+        const clientExists = clients.some(c => c.id === employer.id);
+        if (clientExists) return;
+
+        const newClient: Client = {
+            id: employer.id,
+            name: employer.name,
+            employerName: employer.employerName, 
+            email: employer.email,
+            contact: employer.contact,
+            isRegistered: true
+        };
+        setClients(prev => [...prev, newClient]);
+    };
+
+    const addJobRequirement = (req: Omit<JobRequirement, 'id' | 'status' | 'submittedDate'>) => {
+        const newReq: JobRequirement = {
+            id: Date.now(),
+            status: 'Pending Review',
+            submittedDate: new Date().toISOString(),
+            ...req
+        };
+        setJobRequirements(prev => [...prev, newReq]);
+    };
+
+    const markRequirementConverted = (reqId: number) => {
+        setJobRequirements(prev => prev.map(req => 
+            req.id === reqId ? { ...req, status: 'Converted to Job' } : req
+        ));
+    };
+
+    // --- Salesperson Management Actions ---
+    
+    const addSalesperson = (spData: Omit<Salesperson, 'id' | 'joinedDate' | 'activeEmployers' | 'jobsPosted' | 'activeJobs' | 'successfulHires' | 'candidatesInProgress' | 'efficiency'>) => {
+        const newSalesperson: Salesperson = {
+            id: Date.now(),
+            joinedDate: new Date().toISOString(),
+            activeEmployers: 0,
+            jobsPosted: 0,
+            activeJobs: 0,
+            successfulHires: 0,
+            candidatesInProgress: 0,
+            efficiency: 0,
+            ...spData
+        };
+        setSalespersons(prev => [...prev, newSalesperson]);
+    };
+
+    const removeSalesperson = (id: number) => {
+        setSalespersons(prev => prev.filter(sp => sp.id !== id));
     };
 
     const createApplication = (candidateId: number, jobId: number, employerId: number) => {
@@ -167,7 +233,6 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             if (app.id !== appId) return app;
             
             const newSteps = [...app.steps];
-            
             const completeUpTo = (stepName: string) => {
                 let found = false;
                 return newSteps.map(s => {
@@ -193,6 +258,30 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }));
     };
 
+    // --- Notification Logic ---
+    const sendNotification = (notification: Omit<UserNotification, 'id' | 'timestamp' | 'read'>) => {
+        const newNotification: UserNotification = {
+            ...notification,
+            id: Date.now(),
+            timestamp: new Date().toISOString(),
+            read: false
+        };
+        setUserNotifications(prev => [newNotification, ...prev]);
+    };
+
+    const markNotificationAsRead = (id: number) => {
+        setUserNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    };
+
+    const getNotificationsForUser = (userId: number, userType: UserType) => {
+        // For demonstration, if userId is 0 or -1, return all for that type, or filter by specific ID
+        // In a real app, strict filtering by ID is needed.
+        // Here, we'll try to match exact ID if possible, otherwise mostly match type.
+        
+        // Using a loose match for demo simplicity since we use mock IDs like '1' for everyone
+        return userNotifications.filter(n => n.userType === userType && (n.userId === userId || n.userId === 0)); 
+    };
+
     // --- Selectors ---
 
     const getApplicationsByEmployer = (employerId: number) => {
@@ -203,12 +292,18 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return applications.filter(app => app.candidateId === candidateId);
     };
 
+    const getRequirementsByEmployer = (employerId: number) => {
+        return jobRequirements.filter(req => req.employerId === employerId);
+    };
+
     return (
         <StateContext.Provider value={{
-            jobs, employers, candidates, applications, clients,
-            addJob, addEmployer, addCandidate, addClient,
+            jobs, employers, candidates, applications, clients, jobRequirements, salespersons, userNotifications,
+            addJob, addEmployer, addCandidate, addClient, addEmployerAsClient,
+            addJobRequirement, markRequirementConverted, addSalesperson, removeSalesperson,
             createApplication, updateApplicationStatus,
-            getApplicationsByEmployer, getApplicationsByCandidate
+            getApplicationsByEmployer, getApplicationsByCandidate, getRequirementsByEmployer,
+            sendNotification, markNotificationAsRead, getNotificationsForUser
         }}>
             {children}
         </StateContext.Provider>

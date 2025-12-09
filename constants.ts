@@ -4,7 +4,7 @@ import type {
     AdminDashboardStats, ManagedCandidate,
     ManagedEmployer, EmployerRegistrationApproval, CandidatePlacementApproval, CandidateProfileData,
     EmployerProfileData, AdminDocument, InterviewedCandidate, Client, SalesCandidateProgress, PreUploadedDocument, JobApplicationProgress, SubmittedDocument,
-    Testimonial, FaqItem, NavItem
+    Testimonial, FaqItem, NavItem, Salesperson
 } from './types';
 import { ProgressStatus, JobStatus, CandidateApplicationStatus, DocumentStatus, EmployerStatus, PaymentStatus } from './types';
 
@@ -89,7 +89,7 @@ export const FAQS: FaqItem[] = [
     answer: "Yes — once payment is confirmed, admin will guide and prepare regulatory submissions (work permit / IPA / embassy steps) and coordinate with overseas agents as required for the candidate’s country."
   },
   {
-    question: "How do refunds work?",
+    question: "How does refunds work?",
     answer: "Booking fee refunds: Processed if cancellation falls within policy window (usually within 7 days), handled automatically — expect 3–5 business days for bank/card refunds.\n\nFull payment refunds: Handled per the service agreement and case basis (e.g., regulatory rejection). All refunds are logged and visible in your account."
   }
 ];
@@ -99,35 +99,30 @@ export const FAQS: FaqItem[] = [
 // ============================================================================
 
 export const JOB_CATEGORIES = [
-  "Construction",
-  "Manufacturing",
-  "Logistics & Warehouse",
-  "Hospitality",
-  "Cleaning Services",
   "Domestic Helper",
-  "Automotive",
-  "Agriculture",
-  "Skilled Trades",
-  "Retail",
-  "Security Services",
-  "Customer Service",
-  "Operations",
-  "Other",
+  "Elderly Care",
+  "Childcare",
+  "Housekeeping",
+  "Cooking",
+  "Pet Care",
+  "Construction", // Keeping some other categories for flexibility
+  "Hospitality",
+  "Gardening",
+  "Driving"
 ];
 
 export const PREDEFINED_SKILLS = [
-  "Welding",
-  "Plumbing",
-  "Electrical Wiring",
-  "Carpentry",
-  "Forklift Operation",
-  "Commercial Driving",
-  "Heavy Equipment Operation",
-  "Food Preparation & Safety",
+  "Infant Care",
+  "Elderly Care",
+  "Cooking (Chinese)",
+  "Cooking (Western)",
   "Housekeeping",
-  "Customer Service",
-  "Cash Handling",
-  "Basic First Aid",
+  "Pet Care (Dogs)",
+  "Pet Care (Cats)",
+  "First Aid",
+  "Car Washing",
+  "Gardening",
+  "Grocery Shopping"
 ];
 
 export const DOCUMENT_TYPES = [
@@ -145,70 +140,56 @@ export const MOCK_JOB_POSTINGS: JobPosting[] = [
     { 
         id: 1, 
         employerId: 1,
-        title: 'Construction Worker', 
+        title: 'Domestic Helper for Elderly Care', 
         status: JobStatus.Active, 
-        category: 'Construction', 
+        category: 'Elderly Care', 
         postedDate: '2024-07-28T09:00:00Z',
         location: 'Singapore',
-        description: 'General construction worker needed for various sites.',
-        salary: { min: 1800, max: 2400, currency: 'SGD' }
+        description: 'Looking for a patient helper to assist with elderly care and general housekeeping.',
+        salary: { min: 600, max: 800, currency: 'SGD' }
     },
     { 
         id: 2, 
         employerId: 2,
-        title: 'Delivery Driver', 
+        title: 'Housekeeper & Cook', 
         status: JobStatus.Inactive, 
-        category: 'Logistics & Warehouse', 
+        category: 'Housekeeping', 
         postedDate: '2024-07-25T14:30:00Z',
         location: 'Singapore',
-        description: 'Class 3/4 driving license required.',
-        salary: { min: 2200, max: 2800, currency: 'SGD' }
+        description: 'Need assistance with daily cooking and cleaning for a family of 4.',
+        salary: { min: 700, max: 900, currency: 'SGD' }
     },
     { 
         id: 3, 
         employerId: 1,
-        title: 'Warehouse Assistant', 
+        title: 'Nanny for Toddler', 
         status: JobStatus.Active, 
-        category: 'Logistics & Warehouse', 
+        category: 'Childcare', 
         postedDate: '2024-07-29T11:00:00Z',
         location: 'Jurong West, Singapore',
-        description: 'Packing and sorting goods in warehouse environment.',
-        salary: { min: 1600, max: 2000, currency: 'SGD' }
-    },
-    { 
-        id: 4, 
-        employerId: 3,
-        title: 'Hotel Housekeeper', 
-        status: JobStatus.Active, 
-        category: 'Hospitality', 
-        postedDate: '2024-06-30T18:00:00Z',
-        location: 'Sentosa, Singapore',
-        description: 'Housekeeping duties for 5-star hotel.',
-        salary: { min: 1800, max: 2200, currency: 'SGD' }
+        description: 'Experienced nanny needed for a 3-year-old child.',
+        salary: { min: 650, max: 850, currency: 'SGD' }
     },
 ];
 
 export const MOCK_MATCHED_CANDIDATES: MatchedCandidate[] = [
-    { id: 1, name: 'Ethan', location: 'Singapore', avatarUrl: 'https://i.pravatar.cc/150?u=ethan', experience: '5+ years', jobCategories: ['Construction', 'Logistics & Warehouse'], skills: ['Heavy Equipment Operation', 'Forklift Operation', 'Welding'] },
-    { id: 2, name: 'Olivia', location: 'Manila', avatarUrl: 'https://i.pravatar.cc/150?u=olivia', experience: '1-2 years', jobCategories: ['Hospitality'], skills: ['Customer Service', 'Food Preparation & Safety', 'Housekeeping'] },
-    { id: 3, name: 'Liam', location: 'Singapore', avatarUrl: 'https://i.pravatar.cc/150?u=liam', experience: '3-5 years', jobCategories: ['Manufacturing', 'Automotive'], skills: ['Electrical Wiring', 'Carpentry'] },
-    { id: 4, name: 'Sophia', location: 'Cebu', avatarUrl: 'https://i.pravatar.cc/150?u=sophia', experience: '1-2 years', jobCategories: ['Cleaning Services', 'Domestic Helper'], skills: ['Housekeeping', 'Basic First Aid'] },
-    { id: 5, name: 'Noah', location: 'Singapore', avatarUrl: 'https://i.pravatar.cc/150?u=noah', experience: 'No experience', jobCategories: ['Agriculture'], skills: ['Commercial Driving'] },
+    { id: 1, name: 'Maria', location: 'Manila', avatarUrl: 'https://i.pravatar.cc/150?u=maria', experience: '5+ years', jobCategories: ['Elderly Care', 'Housekeeping'], skills: ['First Aid', 'Cooking (Chinese)'] },
+    { id: 2, name: 'Siti', location: 'Jakarta', avatarUrl: 'https://i.pravatar.cc/150?u=siti', experience: '3 years', jobCategories: ['Childcare', 'Cooking'], skills: ['Infant Care', 'Cooking (Western)'] },
+    { id: 3, name: 'Aya', location: 'Yangon', avatarUrl: 'https://i.pravatar.cc/150?u=aya', experience: '2 years', jobCategories: ['Housekeeping'], skills: ['Cleaning', 'Car Washing'] },
 ];
 
 export const MOCK_SCHEDULED_INTERVIEWS: ScheduledInterview[] = [
-  { id: 1, candidateName: 'Arjun Sharma', companyName: 'Rapid Logistics PH', jobTitle: 'Delivery Associate', date: '2024-09-11', time: '10:00', timezone: 'SGT', videoLink: '#', logoUrl: 'https://picsum.photos/seed/rp/50/50', avatarUrl: 'https://i.pravatar.cc/150?u=arjun' },
-  { id: 2, candidateName: 'Priya Verma', companyName: 'SG Manufacturing', jobTitle: 'Warehouse Assistant', date: '2024-09-11', time: '14:00', timezone: 'SGT', videoLink: '#', logoUrl: 'https://picsum.photos/seed/sgm/50/50', avatarUrl: 'https://i.pravatar.cc/150?u=priya' },
-  { id: 3, candidateName: 'Ethan', companyName: 'BuildWell Construction', jobTitle: 'Construction Worker', date: '2024-09-12', time: '11:00', timezone: 'SGT', videoLink: '#', logoUrl: 'https://picsum.photos/seed/bw/50/50', avatarUrl: 'https://i.pravatar.cc/150?u=ethan' },
+  { id: 1, candidateName: 'Maria Santos', employerName: 'Mr. Tan', jobTitle: 'Domestic Helper', date: '2024-09-11', time: '10:00', timezone: 'SGT', videoLink: '#', logoUrl: 'https://ui-avatars.com/api/?name=Mr+Tan&background=random', avatarUrl: 'https://i.pravatar.cc/150?u=maria' },
+  { id: 2, candidateName: 'Siti Rahma', employerName: 'Mrs. Lee', jobTitle: 'Nanny', date: '2024-09-11', time: '14:00', timezone: 'SGT', videoLink: '#', logoUrl: 'https://ui-avatars.com/api/?name=Mrs+Lee&background=random', avatarUrl: 'https://i.pravatar.cc/150?u=siti' },
 ];
 
 export const MOCK_CANDIDATE_PROGRESS: CandidateProgress[] = [
     { 
         id: 1, 
         candidateId: 101,
-        name: 'Arjun Sharma', 
-        jobTitle: 'House Cleaning', 
-        avatarUrl: 'https://i.pravatar.cc/150?u=arjun', 
+        name: 'Maria Santos', 
+        jobTitle: 'Domestic Helper', 
+        avatarUrl: 'https://i.pravatar.cc/150?u=maria', 
         status: CandidateApplicationStatus.InterviewInvited,
         steps: [
             { name: 'Interview', status: ProgressStatus.InProgress },
@@ -222,9 +203,9 @@ export const MOCK_CANDIDATE_PROGRESS: CandidateProgress[] = [
     { 
         id: 2, 
         candidateId: 102,
-        name: 'Priya Patel', 
-        jobTitle: 'House Cleaning', 
-        avatarUrl: 'https://i.pravatar.cc/150?u=priya', 
+        name: 'Siti Rahma', 
+        jobTitle: 'Nanny', 
+        avatarUrl: 'https://i.pravatar.cc/150?u=siti', 
         status: CandidateApplicationStatus.CandidateSelected,
         steps: [
             { name: 'Interview', status: ProgressStatus.Completed },
@@ -235,81 +216,15 @@ export const MOCK_CANDIDATE_PROGRESS: CandidateProgress[] = [
         ],
         paymentMade: false,
     },
-    { 
-        id: 3, 
-        candidateId: 103,
-        name: 'Vikram Singh', 
-        jobTitle: 'House Cleaning', 
-        avatarUrl: 'https://i.pravatar.cc/150?u=vikram', 
-        status: CandidateApplicationStatus.MedicalRejected,
-        steps: [
-            { name: 'Interview', status: ProgressStatus.Completed },
-            { name: 'Selected', status: ProgressStatus.Completed },
-            { name: 'Medical', status: ProgressStatus.Rejected },
-            { name: 'Contract', status: ProgressStatus.Pending },
-            { name: 'Hired', status: ProgressStatus.Pending },
-        ],
-        paymentMade: false,
-    },
-    { 
-        id: 4, 
-        candidateId: 104,
-        name: 'Deepika Verma', 
-        jobTitle: 'House Cleaning', 
-        avatarUrl: 'https://i.pravatar.cc/150?u=deepika', 
-        status: CandidateApplicationStatus.MedicalAccepted,
-        steps: [
-            { name: 'Interview', status: ProgressStatus.Completed },
-            { name: 'Selected', status: ProgressStatus.Completed },
-            { name: 'Medical', status: ProgressStatus.InProgress },
-            { name: 'Contract', status: ProgressStatus.Pending },
-            { name: 'Hired', status: ProgressStatus.Pending },
-        ],
-        paymentMade: true,
-    },
-    { 
-        id: 5, 
-        candidateId: 105,
-        name: 'Rohan Kapoor', 
-        jobTitle: 'House Cleaning', 
-        avatarUrl: 'https://i.pravatar.cc/150?u=rohan', 
-        status: CandidateApplicationStatus.SendContract,
-        steps: [
-            { name: 'Interview', status: ProgressStatus.Completed },
-            { name: 'Selected', status: ProgressStatus.Completed },
-            { name: 'Medical', status: ProgressStatus.Completed },
-            { name: 'Contract', status: ProgressStatus.InProgress },
-            { name: 'Hired', status: ProgressStatus.Pending },
-        ],
-        paymentMade: true,
-    },
-    { 
-        id: 6, 
-        candidateId: 106,
-        name: 'Aarav Gupta', 
-        jobTitle: 'Construction', 
-        avatarUrl: 'https://i.pravatar.cc/150?u=aarav', 
-        status: CandidateApplicationStatus.Hired,
-        steps: [
-            { name: 'Interview', status: ProgressStatus.Completed },
-            { name: 'Selected', status: ProgressStatus.Completed },
-            { name: 'Medical', status: ProgressStatus.Completed },
-            { name: 'Contract', status: ProgressStatus.Completed },
-            { name: 'Hired', status: ProgressStatus.Completed },
-        ],
-        paymentMade: true,
-    },
 ];
 
 export const MOCK_CANDIDATE_FULL_DOCS: { [key: string]: { id: number; name: string; uploaded: string }[] } = {
-    'Resume': [{ id: 1, name: 'Resume_AaravGupta_Full.pdf', uploaded: '2024-07-15' }],
+    'Resume': [{ id: 1, name: 'Resume_Maria.pdf', uploaded: '2024-07-15' }],
     'Certifications': [
-        { id: 2, name: 'Construction_Safety_Cert.pdf', uploaded: '2024-07-18' },
-        { id: 3, name: 'Heavy_Machinery_License.pdf', uploaded: '2024-07-18' },
+        { id: 2, name: 'Caregiver_Cert.pdf', uploaded: '2024-07-18' },
     ],
     'Identification': [
-        { id: 4, name: 'Passport_Scan_Aarav.pdf', uploaded: '2024-07-20' },
-        { id: 5, name: 'National_ID_Aarav.jpg', uploaded: '2024-07-20' },
+        { id: 4, name: 'Passport_Scan.pdf', uploaded: '2024-07-20' },
     ],
     'Medical': [{ id: 6, name: 'Medical_Fit_Report.pdf', uploaded: '2024-07-22' }],
 };
@@ -321,24 +236,24 @@ export const MOCK_CANDIDATE_FULL_DOCS: { [key: string]: { id: number; name: stri
 export const MOCK_INTERVIEW_INVITES: InterviewInvite[] = [
     {
         id: 1,
-        companyName: 'WeldRight Fabricators',
-        jobTitle: 'Certified Welder',
+        employerName: 'Mr. Tan',
+        jobTitle: 'Elderly Care Helper',
         location: 'Singapore',
-        logoUrl: 'https://picsum.photos/seed/1/50/50',
-        description: 'We are looking for a skilled Certified Welder to join our team. The ideal candidate will have experience with TIG and MIG welding and be able to read blueprints.',
-        matchReason: 'Your skills in "Welding" match this job.',
+        logoUrl: 'https://ui-avatars.com/api/?name=Mr+Tan&background=random',
+        description: 'We are looking for a kind helper to take care of our grandmother.',
+        matchReason: 'Your skills in "Elderly Care" match this job.',
         interviewType: 'Live',
         status: 'Active',
         requiredDocuments: ['Passport', 'CV / Resume', 'Police Clearance'],
     },
     {
         id: 2,
-        companyName: 'BuildRight Construction',
-        jobTitle: 'General Labourer',
+        employerName: 'Mrs. Wong',
+        jobTitle: 'General Housekeeper',
         location: 'Singapore',
-        logoUrl: 'https://picsum.photos/seed/2/50/50',
-        description: 'Seeking hardworking and reliable general labourers for various construction projects. No experience necessary, training will be provided.',
-        matchReason: 'Your experience in "Construction" is a good fit.',
+        logoUrl: 'https://ui-avatars.com/api/?name=Mrs+Wong&background=random',
+        description: 'Seeking reliable helper for general housework and cooking.',
+        matchReason: 'Your experience in "Housekeeping" is a good fit.',
         interviewType: 'Recorded',
         status: 'Active',
         requiredDocuments: ['Passport', 'National ID'],
@@ -348,10 +263,10 @@ export const MOCK_INTERVIEW_INVITES: InterviewInvite[] = [
 export const MOCK_CANDIDATE_APPLICATIONS: JobApplicationProgress[] = [
     {
         id: 1,
-        companyName: 'SG Piping Solutions',
-        jobTitle: 'Plumber',
+        employerName: 'Mr. Lim',
+        jobTitle: 'Domestic Helper',
         location: 'Singapore',
-        logoUrl: 'https://picsum.photos/seed/5/50/50',
+        logoUrl: 'https://ui-avatars.com/api/?name=Mr+Lim&background=random',
         steps: [
             { name: 'Matched', status: ProgressStatus.Completed, date: '2024-07-20' },
             { name: 'Invited', status: ProgressStatus.Completed, date: '2024-07-21' },
@@ -367,42 +282,14 @@ export const MOCK_CANDIDATE_APPLICATIONS: JobApplicationProgress[] = [
             { name: 'Onboarded', status: ProgressStatus.Pending, date: null },
         ],
         submittedDocuments: [
-             { id: 1, type: 'Passport', fileName: 'Passport_JohnDoe.pdf', uploadDate: '2024-07-15', version: 1, status: DocumentStatus.Verified },
-             { id: 2, type: 'CV / Resume', fileName: 'JohnDoe_CV_2024.pdf', uploadDate: '2024-07-15', version: 1, status: DocumentStatus.Verified },
+             { id: 1, type: 'Passport', fileName: 'Passport_Maria.pdf', uploadDate: '2024-07-15', version: 1, status: DocumentStatus.Verified },
         ]
-    },
-    {
-        id: 2,
-        companyName: 'Creative Builders',
-        jobTitle: 'Electrician',
-        location: 'Singapore',
-        logoUrl: 'https://picsum.photos/seed/6/50/50',
-        steps: [
-            { name: 'Matched', status: ProgressStatus.Completed, date: '2024-07-18' },
-            { name: 'Invited', status: ProgressStatus.Completed, date: '2024-07-19' },
-            { name: 'Interview Scheduled', status: ProgressStatus.Completed, date: '2024-07-20' },
-            { name: 'Interview Completed', status: ProgressStatus.Completed, date: '2024-07-21' },
-            { name: 'Awaiting Payment', status: ProgressStatus.Completed, date: '2024-07-22' },
-            { name: 'Documents Submitted', status: ProgressStatus.Completed, date: '2024-07-23' },
-            { name: 'Documents Verified', status: ProgressStatus.Completed, date: '2024-07-24' },
-            { name: 'Offer Sent', status: ProgressStatus.InProgress, date: '2024-07-25' },
-            { name: 'Contract Signed', status: ProgressStatus.Pending, date: null },
-            { name: 'Pre-Departure', status: ProgressStatus.Pending, date: null },
-            { name: 'Handover', status: ProgressStatus.Pending, date: null },
-            { name: 'Onboarded', status: ProgressStatus.Pending, date: null },
-        ],
-        requestedDocuments: [
-            { type: 'Police Clearance', deadline: '2024-08-15', status: 'Pending' }
-        ],
-        submittedDocuments: []
     },
 ];
 
 export const MOCK_PRE_UPLOADED_DOCUMENTS: PreUploadedDocument[] = [
-    { id: 1, type: 'Passport', fileName: 'Passport_JohnDoe.pdf', uploadDate: '2024-07-15', expiryDate: '2028-12-31' },
-    { id: 2, type: 'CV / Resume', fileName: 'JohnDoe_CV_2024.pdf', uploadDate: '2024-07-15' },
-    { id: 3, type: 'National ID', fileName: 'National_ID_JD.jpg', uploadDate: '2024-07-15' },
-    { id: 4, type: 'Experience Certificate', fileName: 'Previous_Company_Ref.pdf', uploadDate: '2024-07-18' },
+    { id: 1, type: 'Passport', fileName: 'Passport_Maria.pdf', uploadDate: '2024-07-15', expiryDate: '2028-12-31' },
+    { id: 2, type: 'CV / Resume', fileName: 'Maria_CV.pdf', uploadDate: '2024-07-15' },
 ];
 
 // ============================================================================
@@ -410,18 +297,20 @@ export const MOCK_PRE_UPLOADED_DOCUMENTS: PreUploadedDocument[] = [
 // ============================================================================
 
 export const MOCK_CLIENTS: Client[] = [
-    { id: 1, name: 'BuildWell Construction', email: 'contact@buildwell.com', contact: '+65 1111 2222' },
-    { id: 2, name: 'Rapid Logistics PH', email: 'info@rapidlogistics.ph', contact: '+63 917 123 4567' },
-    { id: 3, name: 'SG Manufacturing', email: 'hr@sgm.com.sg', contact: '+65 3333 4444' },
+    { id: 1, name: 'Mr. Tan', employerName: 'Tan Household', email: 'tan@email.com', contact: '+65 1111 2222' },
+    { id: 2, name: 'Mrs. Lee', employerName: 'Lee Household', email: 'lee@email.com', contact: '+65 3333 4444' },
+    { id: 3, name: 'Mr. Wong', employerName: 'Wong Household', email: 'wong@email.com', contact: '+65 5555 6666' },
 ];
 
 export const MOCK_SALES_CANDIDATE_PROGRESS: SalesCandidateProgress[] = [
     {
         id: 1,
-        name: 'Arjun Sharma',
-        avatarUrl: 'https://i.pravatar.cc/150?u=arjun',
-        clientName: 'BuildWell Construction',
-        jobTitle: 'General Labourer',
+        candidateId: 101,
+        name: 'Maria Santos',
+        avatarUrl: 'https://i.pravatar.cc/150?u=maria',
+        clientName: 'Tan Household',
+        jobTitle: 'Domestic Helper',
+        status: CandidateApplicationStatus.InterviewInvited,
         steps: [
             { name: 'Interview Invite Sent', status: ProgressStatus.Completed },
             { name: 'Candidate Selected', status: ProgressStatus.InProgress },
@@ -431,43 +320,19 @@ export const MOCK_SALES_CANDIDATE_PROGRESS: SalesCandidateProgress[] = [
     },
     {
         id: 2,
-        name: 'Priya Patel',
-        avatarUrl: 'https://i.pravatar.cc/150?u=priya',
-        clientName: 'Rapid Logistics PH',
-        jobTitle: 'Warehouse Packer',
+        candidateId: 102,
+        name: 'Siti Rahma',
+        avatarUrl: 'https://i.pravatar.cc/150?u=siti',
+        clientName: 'Lee Household',
+        jobTitle: 'Nanny',
+        status: CandidateApplicationStatus.CandidateSelected,
         steps: [
             { name: 'Interview Invite Sent', status: ProgressStatus.Completed },
             { name: 'Candidate Selected', status: ProgressStatus.Completed },
             { name: 'Upload Other Documents', status: ProgressStatus.InProgress },
             { name: 'Send Contract', status: ProgressStatus.Pending },
         ]
-    },
-    {
-        id: 3,
-        name: 'Vikram Singh',
-        avatarUrl: 'https://i.pravatar.cc/150?u=vikram',
-        clientName: 'SG Manufacturing',
-        jobTitle: 'Assembly Line Worker',
-        steps: [
-            { name: 'Interview Invite Sent', status: ProgressStatus.Completed },
-            { name: 'Candidate Selected', status: ProgressStatus.Completed },
-            { name: 'Upload Other Documents', status: ProgressStatus.Completed },
-            { name: 'Send Contract', status: ProgressStatus.Completed },
-        ]
-    },
-     {
-        id: 4,
-        name: 'Deepika Verma',
-        avatarUrl: 'https://i.pravatar.cc/150?u=deepika',
-        clientName: 'BuildWell Construction',
-        jobTitle: 'General Labourer',
-        steps: [
-            { name: 'Interview Invite Sent', status: ProgressStatus.Completed },
-            { name: 'Candidate Selected', status: ProgressStatus.Rejected },
-            { name: 'Upload Other Documents', status: ProgressStatus.Pending },
-            { name: 'Send Contract', status: ProgressStatus.Pending },
-        ]
-    },
+    }
 ];
 
 // ============================================================================
@@ -479,6 +344,8 @@ export const MOCK_ADMIN_STATS: AdminDashboardStats = {
     activeEmployers: 2567,
     newJobPosts: 345,
     pendingApprovals: 12,
+    activeSalespersons: 15,
+    pendingPayments: 45,
     candidatesHired: {
         week: [120, 150, 180, 200, 250, 300, 350],
         month: [1000, 1200, 1300, 1500],
@@ -501,91 +368,122 @@ export const MOCK_ADMIN_STATS: AdminDashboardStats = {
     },
     jobsByCategory: [
         { category: 'Domestic Helper', value: 45 },
-        { category: 'Hospitality', value: 35 },
-        { category: 'Skilled Trades', value: 48 },
-        { category: 'Retail', value: 20 },
+        { category: 'Childcare', value: 35 },
+        { category: 'Elderly Care', value: 48 },
+        { category: 'Housekeeping', value: 20 },
         { category: 'Other', value: 15 },
     ]
 };
 
 export const MOCK_MANAGED_CANDIDATES: ManagedCandidate[] = [
-    { id: 1, name: 'Arjun Sharma', jobCategory: 'Domestic Helper', appliedCategories: ['Domestic Helper'] },
-    { id: 2, name: 'Priya Verma', jobCategory: 'Hospitality', appliedCategories: ['Hospitality', 'Retail'] },
-    { id: 3, name: 'Rahul Kapoor', jobCategory: 'Skilled Trades', appliedCategories: ['Skilled Trades'] },
-    { id: 4, name: 'Sneha Patel', jobCategory: 'Domestic Helper', appliedCategories: ['Domestic Helper'] },
-    { id: 5, name: 'Vikram Singh', jobCategory: 'Skilled Trades', appliedCategories: ['Skilled Trades', 'Construction'] },
+    { id: 1, name: 'Maria Santos', jobCategory: 'Domestic Helper', appliedCategories: ['Domestic Helper'], nationality: 'Philippines' },
+    { id: 2, name: 'Siti Rahma', jobCategory: 'Childcare', appliedCategories: ['Childcare'], nationality: 'Indonesia' },
+    { id: 3, name: 'Aya Maung', jobCategory: 'Elderly Care', appliedCategories: ['Elderly Care'], nationality: 'Myanmar' },
 ];
 
 export const MOCK_CANDIDATE_PROFILE: CandidateProfileData = {
     id: 1,
-    name: "Priya Sharma",
-    role: "Certified Welder",
-    avatarUrl: "https://i.pravatar.cc/150?u=priya-sharma",
+    name: "Maria Santos",
+    role: "Domestic Helper",
+    avatarUrl: "https://i.pravatar.cc/150?u=maria",
     personalInfo: {
-        fullName: "Priya Sharma",
-        email: "priya.sharma@email.com",
-        phone: "+65 9876 5432",
-        location: "Singapore",
+        fullName: "Maria Santos",
+        email: "maria.santos@email.com",
+        phone: "+63 9876 5432",
+        location: "Manila, Philippines",
         gender: "Female",
-        dob: "15th August 1995"
+        dob: "15th August 1990"
     },
-    skills: ["TIG Welding", "MIG Welding", "Stick Welding", "Blueprint Reading", "Metal Fabrication"],
-    jobCategories: ["Skilled Trades", "Construction"],
+    skills: ["Childcare", "Housekeeping", "Cooking"],
+    jobCategories: ["Domestic Helper", "Childcare"],
     processHistory: [
-        { jobTitle: 'Lead Welder', company: 'MetalWorks SG', status: 'Invited', date: '2023-10-20' },
-        { jobTitle: 'Pipefitter', company: 'BuildWell Construction', status: 'Accepted', date: '2023-11-15' },
-        { jobTitle: 'Fabricator', company: 'SG Fabricators', status: 'Rejected', date: '2023-12-05' },
+        { jobTitle: 'Helper', employer: 'Tan Household', status: 'Invited', date: '2023-10-20' },
     ]
 };
 
 export const MOCK_ADMIN_CANDIDATE_DOCS: AdminDocument[] = [
     { id: 1, name: 'Resume.pdf', category: 'Resume', uploaded: '2024-01-15' },
-    { id: 2, name: 'Welding_Certification.pdf', category: 'Certifications', uploaded: '2024-02-20' },
-    { id: 3, name: 'Safety_Training_Certificate.pdf', category: 'Certifications', uploaded: '2024-03-10' },
-    { id: 4, name: 'Medical_Report.pdf', category: 'Medical', uploaded: '2024-02-20' },
-    { id: 5, name: 'MOM_Work_Permit.pdf', category: 'Others', uploaded: '2024-02-20' },
+    { id: 2, name: 'Caregiver_Cert.pdf', category: 'Certifications', uploaded: '2024-02-20' },
 ];
 
 export const MOCK_MANAGED_EMPLOYERS: ManagedEmployer[] = [
-    { id: 1, name: 'Arjun Sharma', company: 'BuildWell Construction', status: EmployerStatus.Approved, email: 'arjun@buildwell.com', contact: '+65 9123 4567' },
-    { id: 2, name: 'Priya Verma', company: 'Rapid Logistics PH', status: EmployerStatus.Pending, email: 'priya@rapidlogistics.ph', contact: '+63 912 345 6789' },
-    { id: 3, name: 'Rahul Kapoor', company: 'SG Manufacturing', status: EmployerStatus.Approved, email: 'rahul@sgmfg.com', contact: '+65 6123 4567' },
-    { id: 4, name: 'Sneha Patel', company: 'CleanSweep Services', status: EmployerStatus.Declined, email: 'sneha@cleanswip.com', contact: '+65 6789 0123' },
-    { id: 5, name: 'Vikram Singh', company: 'Automotive Experts SG', status: EmployerStatus.Approved, email: 'vikram@autoexperts.sg', contact: '+65 8123 4567' },
+    { id: 1, name: 'Mr. Tan', employerName: 'Tan Household', status: EmployerStatus.Approved, email: 'tan@email.com', contact: '+65 9123 4567', nationality: 'Singapore' },
+    { id: 2, name: 'Mrs. Lee', employerName: 'Lee Household', status: EmployerStatus.Pending, email: 'lee@email.com', contact: '+65 912 345 6789', nationality: 'Singapore' },
+    { id: 3, name: 'Mr. Wong', employerName: 'Wong Household', status: EmployerStatus.Approved, email: 'wong@email.com', contact: '+65 6123 4567', nationality: 'Singapore' },
 ];
 
 export const MOCK_ADMIN_EMPLOYER_DOCS: AdminDocument[] = [
-    { id: 1, name: 'Business_Registration.pdf', category: 'Documents', uploaded: '2024-01-15' },
-    { id: 2, name: 'MOM_Approval.pdf', category: 'Others', uploaded: '2024-02-20' },
+    { id: 1, name: 'ID_Proof.pdf', category: 'Documents', uploaded: '2024-01-15' },
+    { id: 2, name: 'Address_Proof.pdf', category: 'Others', uploaded: '2024-02-20' },
 ];
 
 export const MOCK_EMPLOYER_PROFILE: EmployerProfileData = {
     id: 1,
-    companyName: 'BuildWell Construction',
-    employerName: 'Rajesh Kumar',
-    email: 'rajesh.kumar@buildwell.com',
-    description: 'BuildWell Construction is a leading construction company in Singapore, specializing in residential and commercial projects. We are committed to safety and quality workmanship.',
+    employerName: 'Tan Household',
+    contactPerson: 'Mr. Tan',
+    email: 'tan@email.com',
+    description: 'Family of 4 living in a condo in Bishan.',
     postedJobs: [
-        { id: 1, title: 'General Labourer', postedDate: '2024-07-15', status: JobStatus.Active },
-        { id: 2, title: 'Site Supervisor', postedDate: '2024-06-20', status: JobStatus.Inactive },
-        { id: 3, title: 'Safety Officer', postedDate: '2024-05-10', status: JobStatus.Active },
+        { id: 1, title: 'Domestic Helper', postedDate: '2024-07-15', status: JobStatus.Active },
     ]
 };
 
 export const MOCK_INTERVIEWED_CANDIDATES: InterviewedCandidate[] = [
-    { id: 1, name: 'Ethan', location: 'Singapore', avatarUrl: 'https://i.pravatar.cc/150?u=ethan-interviewed', status: 'Approve' },
-    { id: 2, name: 'Olivia', location: 'Singapore', avatarUrl: 'https://i.pravatar.cc/150?u=olivia-interviewed', status: 'Approve' },
-    { id: 3, name: 'Liam', location: 'Singapore', avatarUrl: 'https://i.pravatar.cc/150?u=liam-interviewed', status: 'Pending' },
+    { id: 1, name: 'Maria', location: 'Manila', avatarUrl: 'https://i.pravatar.cc/150?u=maria', status: 'Approve' },
+    { id: 2, name: 'Siti', location: 'Jakarta', avatarUrl: 'https://i.pravatar.cc/150?u=siti', status: 'Approve' },
 ];
 
 export const MOCK_EMPLOYER_REGISTRATIONS: EmployerRegistrationApproval[] = [
-    { id: 1, employer: 'BuildWell Construction', contact: 'Priya Sharma', email: 'priya.sharma@buildwell.com' },
-    { id: 2, employer: 'Rapid Logistics PH', contact: 'Arjun Verma', email: 'arjun.verma@rapidlogistics.com' },
-    { id: 3, employer: 'SG Manufacturing', contact: 'Divya Patel', email: 'divya.patel@sgmanufacturing.com' },
+    { id: 1, employer: 'Tan Household', contact: 'Mr. Tan', email: 'tan@email.com' },
+    { id: 2, employer: 'Lee Household', contact: 'Mrs. Lee', email: 'lee@email.com' },
 ];
 
 export const MOCK_CANDIDATE_PLACEMENTS: CandidatePlacementApproval[] = [
-    { id: 1, candidate: 'Rohan Kapoor', jobTitle: 'General Labourer', employer: 'BuildWell Construction', payment: PaymentStatus.Done },
-    { id: 2, candidate: 'Anika Desai', jobTitle: 'Warehouse Packer', employer: 'Rapid Logistics PH', payment: PaymentStatus.Pending },
-    { id: 3, candidate: 'Vikram Singh', jobTitle: 'Assembly Line Worker', employer: 'SG Manufacturing', payment: PaymentStatus.Done },
+    { id: 1, candidate: 'Maria Santos', jobTitle: 'Domestic Helper', employer: 'Tan Household', payment: PaymentStatus.Done },
+    { id: 2, candidate: 'Siti Rahma', jobTitle: 'Nanny', employer: 'Lee Household', payment: PaymentStatus.Pending },
+];
+
+export const MOCK_SALESPERSONS: Salesperson[] = [
+    { 
+        id: 1, 
+        name: "Alice Tan", 
+        email: "alice.tan@minghwee.com",
+        password: "password123",
+        phone: "+65 9111 2222",
+        joinedDate: "2023-01-15",
+        activeEmployers: 12, 
+        jobsPosted: 8,
+        activeJobs: 5,
+        successfulHires: 45, 
+        candidatesInProgress: 3,
+        efficiency: 92 
+    },
+    { 
+        id: 2, 
+        name: "Bob Lim", 
+        email: "bob.lim@minghwee.com",
+        password: "password123",
+        phone: "+65 9333 4444",
+        joinedDate: "2023-05-20",
+        activeEmployers: 8, 
+        jobsPosted: 4,
+        activeJobs: 2,
+        successfulHires: 30, 
+        candidatesInProgress: 1,
+        efficiency: 88 
+    },
+    { 
+        id: 3, 
+        name: "Charlie Ng", 
+        email: "charlie.ng@minghwee.com",
+        password: "password123",
+        phone: "+65 9555 6666",
+        joinedDate: "2022-11-10",
+        activeEmployers: 15, 
+        jobsPosted: 12,
+        activeJobs: 8,
+        successfulHires: 55, 
+        candidatesInProgress: 5,
+        efficiency: 95 
+    }
 ];

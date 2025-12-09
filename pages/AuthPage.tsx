@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Page, UserType, Country } from '../types';
 
@@ -14,7 +15,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialCountry, onAuthSuccess, navi
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [fullName, setFullName] = useState('');
-  const [companyName, setCompanyName] = useState('');
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,36 +74,20 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialCountry, onAuthSuccess, navi
                
                 <form onSubmit={handleAuthSubmit}>
                     {isRegisterMode && (
-                         <>
-                            <div className="mb-4">
-                                <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="fullName">
-                                Full Name
-                                </label>
-                                <input
-                                className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                id="fullName"
-                                type="text"
-                                placeholder="Enter your full name"
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                                required
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="companyName">
-                                Company Name
-                                </label>
-                                <input
-                                className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                id="companyName"
-                                type="text"
-                                placeholder="Enter your company name"
-                                value={companyName}
-                                onChange={(e) => setCompanyName(e.target.value)}
-                                required
-                                />
-                            </div>
-                        </>
+                         <div className="mb-4">
+                            <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="fullName">
+                            Full Name
+                            </label>
+                            <input
+                            className="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            id="fullName"
+                            type="text"
+                            placeholder="Enter your full name"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            required
+                            />
+                        </div>
                     )}
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="email">
