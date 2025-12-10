@@ -1,14 +1,15 @@
 
 import React, { useState } from 'react';
-import { Page, Country, UserType } from '../types';
+import { useNavigate } from 'react-router-dom';
+import { Country } from '../types';
 
 interface HeaderProps {
-  navigateTo: (page: Page, options?: { userType?: UserType }) => void;
   setCountry: (country: Country) => void;
   selectedCountry: Country | null;
 }
 
-const Header: React.FC<HeaderProps> = ({ navigateTo, setCountry, selectedCountry }) => {
+const Header: React.FC<HeaderProps> = ({ setCountry, selectedCountry }) => {
+  const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleCountrySelect = (e: React.MouseEvent<HTMLAnchorElement>, country: Country) => {
@@ -18,14 +19,14 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, setCountry, selectedCountry
   };
 
   // Common styles for nav links
-  const linkBaseClass = "text-lg font-semibold px-5 py-2.5 rounded-xl transition-all duration-200";
+  const linkBaseClass = "text-lg font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 cursor-pointer";
   const activeLinkClass = "bg-purple-100 text-purple-700 shadow-sm";
   const inactiveLinkClass = "text-gray-600 hover:bg-purple-50 hover:text-purple-600";
 
   return (
     <header className="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-purple-100 shadow-sm">
       <nav className="container mx-auto px-6 py-6 flex items-center justify-between">
-        <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer group" onClick={() => navigateTo(Page.Home)}>
+        <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
            <div className="bg-purple-600 text-white p-2 rounded-xl shadow-lg shadow-purple-600/20 group-hover:scale-105 transition-transform">
                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.28-1.25-.743-1.659M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.28-1.25.743-1.659M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 0c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79-4-4-1.79-4-4-4z" /></svg>
            </div>
@@ -33,10 +34,10 @@ const Header: React.FC<HeaderProps> = ({ navigateTo, setCountry, selectedCountry
         </div>
         
         <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
-            <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.Home); }} className={`${linkBaseClass} ${inactiveLinkClass}`}>Home</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.About); }} className={`${linkBaseClass} ${activeLinkClass}`}>About Us</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.Pricing); }} className={`${linkBaseClass} ${inactiveLinkClass}`}>Pricing</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); navigateTo(Page.Contact); }} className={`${linkBaseClass} ${inactiveLinkClass}`}>Contact</a>
+            <a onClick={() => navigate('/')} className={`${linkBaseClass} ${inactiveLinkClass}`}>Home</a>
+            <a onClick={() => navigate('/about')} className={`${linkBaseClass} ${activeLinkClass}`}>About Us</a>
+            <a onClick={() => navigate('/pricing')} className={`${linkBaseClass} ${inactiveLinkClass}`}>Pricing</a>
+            <a onClick={() => navigate('/contact')} className={`${linkBaseClass} ${inactiveLinkClass}`}>Contact</a>
         </div>
 
         <div className="flex items-center space-x-4">
@@ -70,15 +71,14 @@ const Footer: React.FC = () => (
 );
 
 interface AboutPageProps {
-  navigateTo: (page: Page, options?: { userType?: UserType }) => void;
   setCountry: (country: Country) => void;
   selectedCountry: Country | null;
 }
 
-const AboutPage: React.FC<AboutPageProps> = ({ navigateTo, setCountry, selectedCountry }) => {
+const AboutPage: React.FC<AboutPageProps> = ({ setCountry, selectedCountry }) => {
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
-      <Header navigateTo={navigateTo} setCountry={setCountry} selectedCountry={selectedCountry} />
+      <Header setCountry={setCountry} selectedCountry={selectedCountry} />
       <main className="flex-grow container mx-auto px-6 py-16">
         <div className="bg-white p-8 md:p-12 rounded-lg shadow-xl max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">About Us</h1>

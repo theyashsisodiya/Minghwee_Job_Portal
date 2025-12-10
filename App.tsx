@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { Page, UserType, Country, Notification } from './types';
 import HomePage from './pages/HomePage';
 import AuthPage from './pages/AuthPage';
@@ -46,30 +48,51 @@ const Toast: React.FC<{ notification: Notification; onDismiss: (id: number) => v
   );
 };
 
+// Protected Route Component
+const ProtectedRoute = ({ allowedTypes }: { allowedTypes?: UserType[] }) => {
+    const userStr = localStorage.getItem('userData');
+    const user = userStr ? JSON.parse(userStr) : null;
+    const location = useLocation();
+
+    if (!user) {
+        return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+
+    if (allowedTypes && !allowedTypes.includes(user.type)) {
+        // Redirect to appropriate dashboard if logged in but wrong role
+        switch(user.type) {
+            case UserType.Candidate: return <Navigate to="/dashboard/candidate" replace />;
+            case UserType.Employer: return <Navigate to="/dashboard/employer" replace />;
+            case UserType.Admin: return <Navigate to="/dashboard/admin" replace />;
+            case UserType.Sales: return <Navigate to="/dashboard/sales" replace />;
+            default: return <Navigate to="/" replace />;
+        }
+    }
+
+    return <Outlet />;
+};
+
 const AppContent: React.FC = () => {
-  const [page, setPage] = useState<Page>(Page.Home);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [user, setUser] = useState<{ type: UserType; name: string; email?: string } | null>(null);
+  const navigate = useNavigate();
+  const [user, setUser] = useState<{ type: UserType; name: string; email?: string } | null>(() => {
+      const saved = localStorage.getItem('userData');
+      return saved ? JSON.parse(saved) : null;
+  });
+  
   const [country, setCountry] = useState<Country | null>(null);
-  const [loginUserType, setLoginUserType] = useState<UserType>(UserType.Candidate);
-  const [isNewUser, setIsNewUser] = useState(true);
+  const [isNewUser, setIsNewUser] = useState(true); // This could also be persisted if needed
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   // Automatically detect location on mount
   useEffect(() => {
     const detectCountry = async () => {
       try {
-        // Using get.geojs.io which is CORS-friendly and free
         const response = await fetch('https://get.geojs.io/v1/ip/country.json');
-        
         if (!response.ok) {
-            // Silently fallback to default
             setCountry(Country.Singapore);
             return;
         }
-
         const data = await response.json();
-        // Returns 2-letter ISO code (e.g., "SG", "PH")
         console.log("Detected Country Code:", data.country);
 
         if (data.country === 'SG') {
@@ -77,11 +100,9 @@ const AppContent: React.FC = () => {
         } else if (data.country === 'PH') {
           setCountry(Country.Philippines);
         } else {
-          // Default to Singapore for any other location
           setCountry(Country.Singapore);
         }
       } catch (error) {
-        // Fallback to Singapore on any network/parsing error
         setCountry(Country.Singapore); 
       }
     };
@@ -100,15 +121,23 @@ const AppContent: React.FC = () => {
   };
 
   const handleLogin = (userType: UserType, name: string, email?: string) => {
-    setIsLoggedIn(true);
-    setUser({ type: userType, name: name, email: email });
-    setPage(Page.Dashboard);
+    const userData = { type: userType, name, email };
+    setUser(userData);
+    localStorage.setItem('userData', JSON.stringify(userData));
+    
+    // Redirect based on user type
+    switch(userType) {
+        case UserType.Candidate: navigate('/dashboard/candidate'); break;
+        case UserType.Employer: navigate('/dashboard/employer'); break;
+        case UserType.Admin: navigate('/dashboard/admin'); break;
+        case UserType.Sales: navigate('/dashboard/sales'); break;
+    }
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
     setUser(null);
-    setPage(Page.Home);
+    localStorage.removeItem('userData');
+    navigate('/');
   };
   
   const handleProfileComplete = () => {
@@ -119,49 +148,63 @@ const AppContent: React.FC = () => {
   const handleSetCountry = (selectedCountry: Country) => {
     setCountry(selectedCountry);
   };
- 
-  const navigateTo = (newPage: Page, options?: { userType?: UserType }) => {
-    if (options?.userType) {
-        setLoginUserType(options.userType);
-    }
-    setPage(newPage);
-  }
-
-  const renderPage = () => {
-    if (isLoggedIn) {
-        if (user?.type === UserType.Candidate) {
-            return <CandidateDashboard userName={user.name} onLogout={handleLogout} isNewUser={isNewUser} onProfileComplete={handleProfileComplete} addNotification={addNotification} />;
-        }
-        if (user?.type === UserType.Employer) {
-            return <EmployerDashboard userName={user.name} country={country!} onLogout={handleLogout} userEmail={user.email} />;
-        }
-        if (user?.type === UserType.Admin) {
-            return <AdminDashboard userName={user.name} onLogout={handleLogout} />;
-        }
-        if (user?.type === UserType.Sales) {
-            return <SalesDashboard userName={user.name} onLogout={handleLogout} />;
-        }
-    }
-   
-    switch (page) {
-      case Page.Home:
-        return <HomePage navigateTo={navigateTo} setCountry={handleSetCountry} selectedCountry={country} />;
-      case Page.Login:
-        return <AuthPage initialCountry={country} onAuthSuccess={handleLogin} navigateTo={navigateTo} initialUserType={loginUserType} />;
-      case Page.About:
-        return <AboutPage navigateTo={navigateTo} setCountry={handleSetCountry} selectedCountry={country} />;
-      case Page.Contact:
-        return <ContactPage navigateTo={navigateTo} setCountry={handleSetCountry} selectedCountry={country} />;
-      case Page.Pricing:
-        return <PricingPage navigateTo={navigateTo} setCountry={handleSetCountry} selectedCountry={country} />;
-      default:
-        return <HomePage navigateTo={navigateTo} setCountry={handleSetCountry} selectedCountry={country} />;
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
-        {renderPage()}
+        <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<HomePage setCountry={handleSetCountry} selectedCountry={country} />} />
+            <Route path="/about" element={<AboutPage setCountry={handleSetCountry} selectedCountry={country} />} />
+            <Route path="/contact" element={<ContactPage setCountry={handleSetCountry} selectedCountry={country} />} />
+            <Route path="/pricing" element={<PricingPage setCountry={handleSetCountry} selectedCountry={country} />} />
+            <Route path="/login" element={<AuthPage initialCountry={country} onAuthSuccess={handleLogin} />} />
+
+            {/* Protected Routes */}
+            <Route element={<ProtectedRoute allowedTypes={[UserType.Candidate]} />}>
+                <Route path="/dashboard/candidate" element={
+                    <CandidateDashboard 
+                        userName={user?.name || 'Candidate'} 
+                        onLogout={handleLogout} 
+                        isNewUser={isNewUser} 
+                        onProfileComplete={handleProfileComplete} 
+                        addNotification={addNotification} 
+                    />
+                } />
+            </Route>
+
+            <Route element={<ProtectedRoute allowedTypes={[UserType.Employer]} />}>
+                <Route path="/dashboard/employer" element={
+                    <EmployerDashboard 
+                        userName={user?.name || 'Employer'} 
+                        country={country!} 
+                        onLogout={handleLogout} 
+                        userEmail={user?.email} 
+                    />
+                } />
+            </Route>
+
+            <Route element={<ProtectedRoute allowedTypes={[UserType.Admin]} />}>
+                <Route path="/dashboard/admin" element={
+                    <AdminDashboard 
+                        userName={user?.name || 'Admin'} 
+                        onLogout={handleLogout} 
+                    />
+                } />
+            </Route>
+
+            <Route element={<ProtectedRoute allowedTypes={[UserType.Sales]} />}>
+                <Route path="/dashboard/sales" element={
+                    <SalesDashboard 
+                        userName={user?.name || 'Sales'} 
+                        onLogout={handleLogout} 
+                    />
+                } />
+            </Route>
+
+            {/* Catch all */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+
         <div aria-live="assertive" className="fixed inset-0 flex items-end px-4 py-6 pointer-events-none sm:p-6 sm:items-start z-[100]">
             <div className="w-full flex flex-col items-center space-y-4 sm:items-end">
                 {notifications.map(n => (

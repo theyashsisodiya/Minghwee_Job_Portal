@@ -6,10 +6,11 @@ import {
   ShieldCheck, Target, Zap, HeartHandshake,
   Home, Sparkles, Briefcase, TrendingUp, ChevronDown
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Lenis from 'lenis';
 import { NAV_LINKS, TESTIMONIALS, FAQS } from '../constants';
 import { Assistant } from '../components/Assistant';
-import { Page, UserType, Country } from '../types';
+import { UserType, Country } from '../types';
 
 // Access global GSAP objects from CDN
 const getGsap = () => (window as any).gsap;
@@ -21,12 +22,12 @@ const MotionDiv = motion.div as any;
 const MotionSpan = motion.span as any;
 
 interface HomePageProps {
-  navigateTo: (page: Page, options?: { userType?: UserType }) => void;
   setCountry: (country: Country) => void;
   selectedCountry: Country | null;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ navigateTo, selectedCountry, setCountry }) => {
+const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
@@ -158,7 +159,7 @@ const HomePage: React.FC<HomePageProps> = ({ navigateTo, selectedCountry, setCou
               </a>
             ))}
             <button 
-                onClick={() => navigateTo(Page.Login)}
+                onClick={() => navigate('/login')}
                 className="bg-brand-terracotta text-white px-6 py-2 rounded-full hover:bg-brand-coral transition-all transform hover:scale-105 shadow-lg shadow-brand-terracotta/20"
             >
               Get Started
@@ -184,7 +185,7 @@ const HomePage: React.FC<HomePageProps> = ({ navigateTo, selectedCountry, setCou
             </a>
           ))}
           <button 
-            onClick={() => { setIsMobileMenuOpen(false); navigateTo(Page.Login); }}
+            onClick={() => { setIsMobileMenuOpen(false); navigate('/login'); }}
             className="bg-brand-terracotta text-white px-8 py-3 rounded-full text-lg shadow-xl"
           >
             Get Started
@@ -216,13 +217,13 @@ const HomePage: React.FC<HomePageProps> = ({ navigateTo, selectedCountry, setCou
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <button 
-                    onClick={() => navigateTo(Page.Login, { userType: UserType.Employer })}
+                    onClick={() => navigate('/login?type=employer')}
                     className="bg-brand-terracotta text-white px-8 py-4 rounded-full font-medium hover:bg-brand-coral transition-all shadow-lg shadow-brand-terracotta/25 flex items-center justify-center gap-2 group"
                   >
                     Find a Helper <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </button>
                   <button 
-                    onClick={() => navigateTo(Page.Login, { userType: UserType.Candidate })}
+                    onClick={() => navigate('/login?type=candidate')}
                     className="bg-white text-brand-terracotta border-2 border-brand-terracotta/20 px-8 py-4 rounded-full font-medium hover:bg-brand-beige transition-all flex items-center justify-center gap-2"
                   >
                     Find a Job
@@ -290,7 +291,7 @@ const HomePage: React.FC<HomePageProps> = ({ navigateTo, selectedCountry, setCou
 
                   <div className="pt-4 flex flex-col sm:flex-row gap-4">
                       <button 
-                        onClick={() => navigateTo(Page.Login, { userType: UserType.Employer })}
+                        onClick={() => navigate('/login?type=employer')}
                         className="bg-brand-terracotta text-white px-8 py-4 rounded-full font-bold hover:bg-brand-coral transition-all shadow-lg shadow-brand-terracotta/25"
                       >
                         Find a Helper
@@ -364,7 +365,7 @@ const HomePage: React.FC<HomePageProps> = ({ navigateTo, selectedCountry, setCou
                   </div>
 
                   <button 
-                    onClick={() => navigateTo(Page.Login, { userType: UserType.Candidate })}
+                    onClick={() => navigate('/login?type=candidate')}
                     className="bg-brand-honey text-brand-burgundy px-8 py-4 rounded-full font-bold hover:bg-yellow-300 transition-colors shadow-lg shadow-yellow-200/50"
                   >
                     Get a Job
@@ -453,13 +454,13 @@ const HomePage: React.FC<HomePageProps> = ({ navigateTo, selectedCountry, setCou
               <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto">Join thousands of families and helpers building better lives together.</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button 
-                    onClick={() => navigateTo(Page.Login)}
+                    onClick={() => navigate('/login')}
                     className="bg-white text-brand-terracotta px-10 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-colors shadow-xl"
                 >
                   Get Started Today
                 </button>
                 <button 
-                    onClick={() => navigateTo(Page.Contact)}
+                    onClick={() => navigate('/contact')}
                     className="bg-transparent border-2 border-white/30 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/10 transition-colors"
                 >
                   Contact Support

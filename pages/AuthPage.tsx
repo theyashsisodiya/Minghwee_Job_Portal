@@ -1,7 +1,8 @@
 
-import React, { useState, useRef } from 'react';
-import { Page, UserType, Country } from '../types';
+import React, { useState, useRef, useEffect } from 'react';
+import { UserType, Country } from '../types';
 import { manatalApi } from '../services/manatalApi';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const SettingsIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -13,14 +14,16 @@ const SettingsIcon = () => (
 interface AuthPageProps {
   initialCountry: Country | null;
   onAuthSuccess: (userType: UserType, name: string, email?: string) => void;
-  navigateTo: (page: Page, options?: { userType?: UserType }) => void;
-  initialUserType?: UserType;
 }
 
-const AuthPage: React.FC<AuthPageProps> = ({ initialCountry, onAuthSuccess, navigateTo, initialUserType }) => {
+const AuthPage: React.FC<AuthPageProps> = ({ initialCountry, onAuthSuccess }) => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialUserType = searchParams.get('type') === 'employer' ? UserType.Employer : UserType.Candidate;
+
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [registerType, setRegisterType] = useState<'employer' | 'candidate'>('employer');
-  const [userType, setUserType] = useState<UserType>(initialUserType || UserType.Candidate);
+  const [userType, setUserType] = useState<UserType>(initialUserType);
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   
@@ -47,6 +50,13 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialCountry, onAuthSuccess, navi
   const [showAdminMenu, setShowAdminMenu] = useState(false);
   const [adminLoginType, setAdminLoginType] = useState<'sales' | 'admin' | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+      // Sync state if query param changes
+      const typeParam = searchParams.get('type');
+      if (typeParam === 'employer') setUserType(UserType.Employer);
+      else if (typeParam === 'candidate') setUserType(UserType.Candidate);
+  }, [searchParams]);
 
   const scrollToTop = () => {
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -173,7 +183,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialCountry, onAuthSuccess, navi
                   src="https://ik.imagekit.io/ui4mpbzoy/removed-background.png?updatedAt=1764657414508"
                   alt="MingHwee Logo" 
                   className="h-12 w-auto object-contain cursor-pointer" 
-                  onClick={() => navigateTo(Page.Home)}
+                  onClick={() => navigate('/')}
                 />
                 <div className="flex items-center space-x-4">
                     <span className="text-gray-700">{initialCountry ? `Country: ${initialCountry}`: "No Country Selected"}</span>
