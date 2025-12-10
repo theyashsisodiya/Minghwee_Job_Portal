@@ -3,124 +3,180 @@ import React from 'react';
 
 const AnalyticsView: React.FC = () => {
     return (
-        <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-8">Analytics & Hiring Insights</h1>
+        <div className="animate-fade-in pb-12">
+            <header className="mb-12">
+                <h1 className="text-4xl font-bold text-gray-800 mb-2 tracking-tight">Analytics & Insights</h1>
+                <p className="text-gray-500 font-medium text-lg">Real-time performance metrics and pipeline analysis.</p>
+            </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <p className="text-sm font-medium text-gray-500">Avg. Time to Hire</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">18 Days</p>
-                    <p className="text-xs text-green-600 mt-1 font-semibold flex items-center">
-                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                        2 days faster than last month
-                    </p>
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div className="bg-white/90 backdrop-blur-md p-8 rounded-[1.5rem] border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+                    <div className="flex justify-between items-start mb-6">
+                        <div className="p-4 bg-green-50 rounded-2xl group-hover:bg-green-100 transition-colors">
+                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <span className="text-xs font-bold text-green-700 bg-green-50 px-3 py-1 rounded-full border border-green-100">
+                            -10% vs avg
+                        </span>
+                    </div>
+                    <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Time to Hire</p>
+                    <p className="text-5xl font-bold text-gray-800 group-hover:text-gray-900 transition-colors tracking-tight">18 Days</p>
+                    <div className="mt-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-green-500 w-[85%] rounded-full"></div>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-2 text-right">Target: 21 Days</p>
                 </div>
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <p className="text-sm font-medium text-gray-500">Interview Success Rate</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">42%</p>
-                    <p className="text-xs text-gray-500 mt-1">Candidates hired / interviewed</p>
+
+                <div className="bg-white/90 backdrop-blur-md p-8 rounded-[1.5rem] border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+                    <div className="flex justify-between items-start mb-6">
+                        <div className="p-4 bg-purple-50 rounded-2xl group-hover:bg-purple-100 transition-colors">
+                            <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <span className="text-xs font-bold text-purple-700 bg-purple-50 px-3 py-1 rounded-full border border-purple-100">
+                            Top Tier
+                        </span>
+                    </div>
+                    <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Interview Success</p>
+                    <p className="text-5xl font-bold text-gray-800 group-hover:text-gray-900 transition-colors tracking-tight">42%</p>
+                    <div className="mt-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-purple-500 w-[42%] rounded-full"></div>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-2 text-right">Conversion Rate</p>
                 </div>
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <p className="text-sm font-medium text-gray-500">Most Demanded Nationality</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">Philippines</p>
-                    <p className="text-xs text-blue-600 mt-1 font-semibold">60% of total requests</p>
+
+                <div className="bg-white/90 backdrop-blur-md p-8 rounded-[1.5rem] border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+                    <div className="flex justify-between items-start mb-6">
+                        <div className="p-4 bg-blue-50 rounded-2xl group-hover:bg-blue-100 transition-colors">
+                            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <span className="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+                            Most Active
+                        </span>
+                    </div>
+                    <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Top Source</p>
+                    <p className="text-4xl font-bold text-gray-800 group-hover:text-gray-900 transition-colors tracking-tight truncate">Philippines</p>
+                    <div className="mt-4 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-blue-500 w-[60%] rounded-full"></div>
+                    </div>
+                    <p className="text-xs text-blue-600 font-bold mt-2 text-right">60% Volume</p>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
-                    <h2 className="text-lg font-bold text-gray-800 mb-6">Hiring Speed Analysis</h2>
-                    <div className="h-64 flex flex-col justify-end px-4">
-                        <div className="flex justify-around items-end h-full w-full space-x-6">
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                {/* Hiring Speed Bar Chart */}
+                <div className="bg-white/90 backdrop-blur-md p-8 rounded-[2rem] border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-all duration-300">
+                    <div className="absolute -top-10 -right-10 w-64 h-64 bg-blue-50/20 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <h2 className="text-xl font-bold text-gray-800 mb-10 flex items-center gap-3 relative z-10">
+                        <span className="w-1.5 h-6 bg-blue-500 rounded-full"></span>
+                        Hiring Velocity
+                    </h2>
+                    
+                    <div className="h-64 flex flex-col justify-end px-4 relative z-10">
+                        <div className="flex justify-around items-end h-full w-full space-x-8">
                             {[
-                                { label: '< 1 Week', height: '25%', value: '15%', color: 'bg-blue-300' },
-                                { label: '1-2 Weeks', height: '65%', value: '45%', color: 'bg-blue-500' },
-                                { label: '3-4 Weeks', height: '40%', value: '25%', color: 'bg-indigo-500' },
-                                { label: '> 1 Month', height: '25%', value: '15%', color: 'bg-purple-500' },
+                                { label: '< 1 Wk', height: '25%', value: '15%', from: 'from-blue-200', to: 'to-blue-300' },
+                                { label: '1-2 Wks', height: '65%', value: '45%', from: 'from-blue-400', to: 'to-indigo-400' },
+                                { label: '3-4 Wks', height: '40%', value: '25%', from: 'from-indigo-300', to: 'to-purple-300' },
+                                { label: '> 1 Mo', height: '25%', value: '15%', from: 'from-purple-200', to: 'to-pink-200' },
                             ].map((bar, idx) => (
-                                <div key={idx} className="flex flex-col items-center justify-end w-full h-full group relative">
-                                    <span className="text-xs font-bold text-gray-600 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">{bar.value}</span>
+                                <div key={idx} className="flex flex-col items-center justify-end w-full h-full group/bar relative">
                                     <div 
-                                        className={`w-full max-w-[60px] rounded-t-lg transition-all duration-500 hover:brightness-110 ${bar.color}`} 
+                                        className={`w-full max-w-[50px] rounded-t-lg bg-gradient-to-t ${bar.from} ${bar.to} transition-all duration-500 hover:brightness-105 relative hover:-translate-y-1 shadow-sm`} 
                                         style={{ height: bar.height }}
-                                    ></div>
-                                    <span className="text-xs text-gray-500 mt-3 font-medium">{bar.label}</span>
+                                    >
+                                        <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs font-bold px-2 py-1 rounded opacity-0 group-hover/bar:opacity-100 transition-all duration-200 translate-y-1 group-hover/bar:translate-y-0 shadow-lg">
+                                            {bar.value}
+                                        </div>
+                                    </div>
+                                    <span className="text-xs font-bold text-gray-400 mt-3 uppercase tracking-wide group-hover/bar:text-indigo-600 transition-colors">{bar.label}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <p className="text-xs text-gray-400 mt-6 text-center">Distribution of time taken from job posting to contract signing.</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
-                    <h2 className="text-lg font-bold text-gray-800 mb-6">Candidate Demand by Skill</h2>
-                    <div className="space-y-6">
+                {/* Skill Demand Progress */}
+                <div className="bg-white/90 backdrop-blur-md p-8 rounded-[2rem] border border-gray-100 shadow-sm relative overflow-hidden hover:shadow-md transition-all duration-300">
+                    <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-purple-50/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <div className="flex justify-between items-center mb-10 relative z-10">
+                        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                            <span className="w-1.5 h-6 bg-purple-500 rounded-full"></span>
+                            Demand by Skill
+                        </h2>
+                        <span className="text-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Total: 300 Active</span>
+                    </div>
+                    
+                    <div className="space-y-8 relative z-10">
                         {[
-                            { skill: 'Elderly Care', pct: '45%', count: 135, color: 'bg-blue-600' },
-                            { skill: 'Infant/Childcare', pct: '30%', count: 90, color: 'bg-green-500' },
-                            { skill: 'Cooking & Housekeeping', pct: '25%', count: 75, color: 'bg-purple-500' },
+                            { skill: 'Elderly Care', pct: '45%', count: 135, color: 'from-blue-500 to-cyan-400' },
+                            { skill: 'Infant/Childcare', pct: '30%', count: 90, color: 'from-green-500 to-emerald-400' },
+                            { skill: 'Cooking & Housekeeping', pct: '25%', count: 75, color: 'from-purple-500 to-pink-400' },
                         ].map((item, idx) => (
-                            <div key={idx}>
+                            <div key={idx} className="group cursor-default">
                                 <div className="flex justify-between text-sm mb-2 font-medium">
-                                    <span className="text-gray-700">{item.skill}</span>
-                                    <span className="text-gray-900">{item.pct} <span className="text-gray-400 font-normal ml-1">({item.count} candidates)</span></span>
+                                    <span className="text-gray-700 font-bold group-hover:text-gray-900 transition-colors">{item.skill}</span>
+                                    <span className="text-gray-900 font-bold bg-white/50 px-2 rounded">{item.pct}</span>
                                 </div>
-                                <div className="w-full bg-gray-100 rounded-full h-3">
-                                    <div className={`${item.color} h-3 rounded-full transition-all duration-700 ease-out`} style={{ width: item.pct }}></div>
+                                <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                                    <div 
+                                        className={`bg-gradient-to-r ${item.color} h-3 rounded-full transition-all duration-1000 ease-out relative`} 
+                                        style={{ width: item.pct }}
+                                    >
+                                    </div>
                                 </div>
+                                <p className="text-right text-xs text-gray-400 mt-2 font-medium group-hover:text-gray-600 transition-colors">{item.count} candidates active</p>
                             </div>
                         ))}
-                        <div className="pt-4 border-t border-gray-100">
-                            <p className="text-sm text-gray-500">Total Active Requirements: <span className="font-bold text-gray-800">300</span></p>
-                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
-                <h2 className="text-lg font-bold text-gray-800 mb-4">Country-Specific Workflow Tracker</h2>
+            {/* Glass Table */}
+            <div className="bg-white/90 backdrop-blur-md rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300">
+                <div className="p-8 border-b border-gray-100">
+                    <h2 className="text-xl font-bold text-gray-800 tracking-tight">Workflow Tracker</h2>
+                    <p className="text-sm text-gray-500 mt-1 font-medium">Real-time status of international candidate pipelines.</p>
+                </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left">
+                    <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="border-b border-gray-200 bg-gray-50">
-                                <th className="py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Country</th>
-                                <th className="py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Active Candidates</th>
-                                <th className="py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Embassy Processing</th>
-                                <th className="py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Pending Arrival</th>
-                                <th className="py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Avg. Delay</th>
+                            <tr className="text-gray-400 border-b border-gray-100 bg-gray-50/50">
+                                <th className="py-5 px-8 text-xs font-bold uppercase tracking-widest">Country</th>
+                                <th className="py-5 px-8 text-xs font-bold uppercase tracking-widest text-center">Active</th>
+                                <th className="py-5 px-8 text-xs font-bold uppercase tracking-widest text-center">Embassy</th>
+                                <th className="py-5 px-8 text-xs font-bold uppercase tracking-widest text-center">Pending Arrival</th>
+                                <th className="py-5 px-8 text-xs font-bold uppercase tracking-widest text-right">Avg. Delay</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            <tr className="hover:bg-gray-50">
-                                <td className="py-4 px-4 font-medium text-gray-800 flex items-center">
-                                    <span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
-                                    Philippines
-                                </td>
-                                <td className="py-4 px-4 text-gray-600">120</td>
-                                <td className="py-4 px-4 text-amber-600 font-bold">15</td>
-                                <td className="py-4 px-4 text-gray-600">8</td>
-                                <td className="py-4 px-4 text-sm"><span className="bg-green-100 text-green-800 px-2 py-1 rounded">3 days</span></td>
-                            </tr>
-                            <tr className="hover:bg-gray-50">
-                                <td className="py-4 px-4 font-medium text-gray-800 flex items-center">
-                                    <span className="w-2 h-2 rounded-full bg-red-500 mr-2"></span>
-                                    Indonesia
-                                </td>
-                                <td className="py-4 px-4 text-gray-600">85</td>
-                                <td className="py-4 px-4 text-amber-600 font-bold">10</td>
-                                <td className="py-4 px-4 text-gray-600">5</td>
-                                <td className="py-4 px-4 text-sm"><span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">5 days</span></td>
-                            </tr>
-                            <tr className="hover:bg-gray-50">
-                                <td className="py-4 px-4 font-medium text-gray-800 flex items-center">
-                                    <span className="w-2 h-2 rounded-full bg-yellow-500 mr-2"></span>
-                                    Myanmar
-                                </td>
-                                <td className="py-4 px-4 text-gray-600">60</td>
-                                <td className="py-4 px-4 text-amber-600 font-bold">12</td>
-                                <td className="py-4 px-4 text-gray-600">4</td>
-                                <td className="py-4 px-4 text-sm"><span className="bg-red-100 text-red-800 px-2 py-1 rounded">7 days</span></td>
-                            </tr>
+                        <tbody className="divide-y divide-gray-50">
+                            {[
+                                { country: 'Philippines', active: 120, embassy: 15, pending: 8, delay: '3 days', color: 'bg-blue-500', shadow: 'shadow-blue-200' },
+                                { country: 'Indonesia', active: 85, embassy: 10, pending: 5, delay: '5 days', color: 'bg-red-500', shadow: 'shadow-red-200' },
+                                { country: 'Myanmar', active: 60, embassy: 12, pending: 4, delay: '7 days', color: 'bg-yellow-500', shadow: 'shadow-yellow-200' },
+                            ].map((row, idx) => (
+                                <tr key={idx} className="hover:bg-blue-50/30 transition-colors group cursor-pointer">
+                                    <td className="py-5 px-8 font-bold text-gray-800 flex items-center">
+                                        <div className={`w-3 h-3 rounded-full ${row.color} mr-4`}></div>
+                                        {row.country}
+                                    </td>
+                                    <td className="py-5 px-8 text-center text-gray-600 font-bold">{row.active}</td>
+                                    <td className="py-5 px-8 text-center text-amber-600 font-bold">{row.embassy}</td>
+                                    <td className="py-5 px-8 text-center text-gray-600 font-medium">{row.pending}</td>
+                                    <td className="py-5 px-8 text-right">
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                                            parseInt(row.delay) > 5 
+                                            ? 'bg-red-50 text-red-600 border-red-100' 
+                                            : 'bg-green-50 text-green-600 border-green-100'
+                                        }`}>
+                                            {row.delay}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>

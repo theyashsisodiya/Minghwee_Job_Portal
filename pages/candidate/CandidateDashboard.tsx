@@ -25,46 +25,52 @@ interface SidebarProps {
 
 const CandidateSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout }) => {
   const navItems = [
-    { id: 'myDetails', label: 'My Details', icon: <UserIcon /> },
-    { id: 'invites', label: 'Interview Invites', icon: <MailIcon /> },
-    { id: 'progress', label: 'Progress Tracker', icon: <ChartBarIcon /> },
-    { id: 'scheduled', label: 'Scheduled Interviews', icon: <CalendarIcon /> },
+    { id: 'myDetails', label: 'My Profile', icon: <UserIcon /> },
+    { id: 'invites', label: 'Invites', icon: <MailIcon /> },
+    { id: 'progress', label: 'Progress', icon: <ChartBarIcon /> },
+    { id: 'scheduled', label: 'Interviews', icon: <CalendarIcon /> },
   ];
 
   return (
-    <div className="w-64 bg-white min-h-screen flex flex-col p-4 border-r border-gray-200">
-      <div className="mb-10 px-2">
-        <div className="text-2xl font-bold text-gray-800">MingHwee</div>
+    <div className="w-72 bg-white/80 backdrop-blur-xl border-r border-gray-200 min-h-screen flex flex-col shadow-2xl z-20 relative">
+      <div className="p-8 border-b border-gray-100">
+        <div className="text-3xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-cyan-600 tracking-tight">MingHwee</div>
+        <p className="text-[10px] text-gray-400 mt-2 font-bold tracking-[0.2em] uppercase">Candidate Portal</p>
       </div>
-      <p className="text-xs text-gray-500 mb-4 uppercase font-bold px-4">Candidate Dashboard</p>
-      <nav className="flex-grow space-y-2">
+      
+      <nav className="flex-grow p-4 space-y-3 mt-4">
         {navItems.map(item => (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg text-left transition-colors duration-200 ${
+            className={`w-full flex items-center space-x-4 px-5 py-4 rounded-2xl text-left transition-all duration-300 group relative overflow-hidden ${
               activeTab === item.id 
-                ? 'bg-blue-100 text-blue-700 font-semibold' 
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'text-blue-700 font-bold bg-blue-50 shadow-sm translate-x-1' 
+                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 hover:translate-x-1'
             }`}
           >
-            {item.icon}
-            <span>{item.label}</span>
+            {activeTab === item.id && (
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-r-full"></div>
+            )}
+            <span className={`transition-all duration-300 ${activeTab === item.id ? 'text-blue-600 scale-110' : 'text-gray-400 group-hover:text-blue-500'}`}>
+                {item.icon}
+            </span>
+            <span className="text-sm tracking-wide">{item.label}</span>
           </button>
         ))}
       </nav>
-      <div className="mt-auto">
+      
+      <div className="p-6 border-t border-gray-100 space-y-2">
+        <button className="w-full flex items-center space-x-3 px-6 py-3 rounded-2xl text-left text-gray-500 hover:bg-gray-50 transition-all duration-300">
+          <HelpIcon />
+          <span className="font-medium text-sm">Help & Support</span>
+        </button>
         <button
           onClick={onLogout}
-          className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg text-left text-red-600 hover:bg-red-50 transition-colors duration-200"
+          className="w-full flex items-center space-x-3 px-6 py-3 rounded-2xl text-left text-red-500 hover:bg-red-50 hover:text-red-600 transition-all duration-300"
         >
           <LogoutIcon />
-          <span>Log out</span>
-        </button>
-        <button className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg text-left text-gray-600 hover:bg-gray-100 transition-colors duration-200"
-        >
-          <HelpIcon />
-          <span>Help</span>
+          <span className="font-medium text-sm">Sign Out</span>
         </button>
       </div>
     </div>
@@ -131,12 +137,19 @@ const CandidateDashboard: React.FC<CandidateDashboardProps> = ({ userName, onLog
   }
 
   return (
-    <div className="flex bg-gray-100">
+    <div className="flex bg-[#F8FAFC] font-sans min-h-screen relative overflow-hidden selection:bg-blue-100 selection:text-blue-900">
+      {/* Ambient Background Orbs */}
+      <div className="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-100/30 rounded-full blur-[120px] pointer-events-none z-0 animate-float" />
+      <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-100/20 rounded-full blur-[100px] pointer-events-none z-0 animate-float-delayed" />
+
       <CandidateSidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={onLogout} />
-      <main className="flex-1 overflow-auto h-screen">
+      
+      <main className="flex-1 overflow-hidden h-screen relative z-10 flex flex-col">
         <DashboardHeader userName={userName} userType={UserType.Candidate} userId={currentUserId} />
-        <div className="px-8 pb-8">
-            {renderContent()}
+        <div className="flex-1 overflow-auto p-8 pt-4 lg:p-12 lg:pt-6 scroll-smooth">
+            <div className="max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {renderContent()}
+            </div>
         </div>
       </main>
     </div>

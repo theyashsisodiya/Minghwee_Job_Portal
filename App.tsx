@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Page, UserType, Country, Notification } from './types';
 import HomePage from './pages/HomePage';
@@ -50,7 +49,7 @@ const Toast: React.FC<{ notification: Notification; onDismiss: (id: number) => v
 const AppContent: React.FC = () => {
   const [page, setPage] = useState<Page>(Page.Home);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [user, setUser] = useState<{ type: UserType; name: string } | null>(null);
+  const [user, setUser] = useState<{ type: UserType; name: string; email?: string } | null>(null);
   const [country, setCountry] = useState<Country | null>(null);
   const [loginUserType, setLoginUserType] = useState<UserType>(UserType.Candidate);
   const [isNewUser, setIsNewUser] = useState(true);
@@ -100,9 +99,9 @@ const AppContent: React.FC = () => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
-  const handleLogin = (userType: UserType, name: string) => {
+  const handleLogin = (userType: UserType, name: string, email?: string) => {
     setIsLoggedIn(true);
-    setUser({ type: userType, name: name });
+    setUser({ type: userType, name: name, email: email });
     setPage(Page.Dashboard);
   };
 
@@ -134,7 +133,7 @@ const AppContent: React.FC = () => {
             return <CandidateDashboard userName={user.name} onLogout={handleLogout} isNewUser={isNewUser} onProfileComplete={handleProfileComplete} addNotification={addNotification} />;
         }
         if (user?.type === UserType.Employer) {
-            return <EmployerDashboard userName={user.name} country={country!} onLogout={handleLogout} />;
+            return <EmployerDashboard userName={user.name} country={country!} onLogout={handleLogout} userEmail={user.email} />;
         }
         if (user?.type === UserType.Admin) {
             return <AdminDashboard userName={user.name} onLogout={handleLogout} />;

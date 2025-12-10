@@ -341,12 +341,16 @@ export interface Notification {
 
 export interface UserNotification {
     id: number;
-    userId: number; // Receiver ID
+    userId: number; // Receiver ID (0 for all admins)
     userType: UserType; // Receiver Type
     message: string;
     timestamp: string;
     read: boolean;
     sender: string;
+    // New fields for Help Request functionality
+    type?: 'help_request' | 'general';
+    senderId?: number; // The ID of the salesperson/user sending the message
+    senderName?: string;
 }
 
 // --- GLOBAL STATE TYPES ---

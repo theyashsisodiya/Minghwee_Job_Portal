@@ -1,4 +1,5 @@
-import React, { useState, useRef, useCallback } from 'react';
+
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { MOCK_PRE_UPLOADED_DOCUMENTS, PREDEFINED_SKILLS, JOB_CATEGORIES } from '../../../constants';
 import { PreUploadedDocument, Notification, CandidateProfileData } from '../../../types';
 
@@ -48,6 +49,13 @@ const MyDetails: React.FC<MyDetailsProps> = ({ addNotification, profileData }) =
     const [videoUrl, setVideoUrl] = useState<string | null>(null); 
     const [consent, setConsent] = useState(false);
 
+    // Apply stream to video element when it becomes available
+    useEffect(() => {
+        if (videoRef.current && stream) {
+            videoRef.current.srcObject = stream;
+        }
+    }, [stream]);
+
     const cleanup = useCallback(() => {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
@@ -70,10 +78,7 @@ const MyDetails: React.FC<MyDetailsProps> = ({ addNotification, profileData }) =
         try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             setStream(mediaStream);
-            if (videoRef.current) {
-                videoRef.current.srcObject = mediaStream;
-                videoRef.current.play();
-            }
+            
             const mediaRecorder = new MediaRecorder(mediaStream);
             mediaRecorderRef.current = mediaRecorder;
             mediaRecorder.ondataavailable = (event) => {
@@ -89,6 +94,8 @@ const MyDetails: React.FC<MyDetailsProps> = ({ addNotification, profileData }) =
                 } else {
                     const url = URL.createObjectURL(videoBlob);
                     setVideoUrl(url);
+                    // Mock save to local storage
+                    localStorage.setItem('saved_video_profile', url);
                 }
                 cleanup();
             };
@@ -115,7 +122,9 @@ const MyDetails: React.FC<MyDetailsProps> = ({ addNotification, profileData }) =
                  return;
             }
             cleanup();
-            setVideoUrl(URL.createObjectURL(file));
+            const url = URL.createObjectURL(file);
+            setVideoUrl(url);
+            localStorage.setItem('saved_video_profile', url);
             addNotification("Video uploaded successfully.", 'info');
         }
     };
@@ -218,12 +227,27 @@ const MyDetails: React.FC<MyDetailsProps> = ({ addNotification, profileData }) =
                         <div className="bg-white p-6 rounded-lg shadow-sm">
                             <h3 className="text-lg font-semibold text-gray-900">One-way Video Interview</h3>
                             <p className="mt-1 text-sm text-gray-500">A pre-recorded video helps employers get to know you better. Maximum 4 minutes, 50MB limit.</p>
-                            <div className="mt-6 bg-gray-100 rounded-lg overflow-hidden aspect-video">
-                                <div className="w-full h-full flex items-center justify-center text-gray-500">
-                                    <video ref={videoRef} className="w-full h-full" muted={isRecording || !videoUrl} controls={!!videoUrl} src={videoUrl || undefined} key={videoUrl}>
-                                        Your browser does not support the video tag.
-                                    </video>
-                                </div>
+                            <div className="mt-6 bg-gray-900 rounded-lg overflow-hidden aspect-video relative">
+                                <video 
+                                    ref={videoRef} 
+                                    className="w-full h-full object-cover" 
+                                    muted={isRecording || !videoUrl} // Mute when recording to prevent echo
+                                    playsInline
+                                    autoPlay={isRecording}
+                                    controls={!!videoUrl && !isRecording} 
+                                    src={videoUrl || undefined} 
+                                    key={videoUrl}
+                                >
+                                    Your browser does not support the video tag.
+                                </video>
+                                {isRecording && (
+                                    <div className="absolute top-4 right-4 w-4 h-4 bg-red-600 rounded-full animate-pulse shadow-lg"></div>
+                                )}
+                                {!isRecording && !videoUrl && (
+                                    <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                                        <p>No video recorded yet</p>
+                                    </div>
+                                )}
                             </div>
                             <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
                                 <div className="flex items-center">

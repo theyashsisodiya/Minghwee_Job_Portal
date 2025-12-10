@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Country } from '../../../types';
 import { JOB_CATEGORIES } from '../../../constants';
 import { useGlobalState } from '../../../contexts/StateContext';
+import { manatalApi } from '../../../services/manatalApi';
 
 interface PostJobFormProps {
     country: Country;
@@ -10,12 +11,14 @@ interface PostJobFormProps {
     isEditing?: boolean;
     employerId: number;
     initialData?: any; // To pre-fill from a Requirement
+    employerEmail?: string;
 }
 
-const PostJobForm: React.FC<PostJobFormProps> = ({ country, navigate, isEditing = false, employerId, initialData }) => {
+const PostJobForm: React.FC<PostJobFormProps> = ({ country, navigate, isEditing = false, employerId, initialData, employerEmail }) => {
     const isSingapore = country === Country.Singapore;
     const currency = isSingapore ? 'SGD' : 'PHP';
     const domesticHelperDuties = ['Childcare', 'Eldercare', 'Cooking', 'General Housekeeping', 'Pet Care'];
+    const [isSubmitting, setIsSubmitting] = useState(false);
     
     const { addJob } = useGlobalState();
 
@@ -52,8 +55,9 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ country, navigate, isEditing 
         setFormDataState(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setIsSubmitting(true);
         const formData = new FormData(e.currentTarget);
         
         // Extract values using name attributes
@@ -74,9 +78,29 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ country, navigate, isEditing 
             // Mock edit logic or add update function to context
             console.log("Editing job", newJob);
         } else {
+            // 1. Update Local State (Immediate Feedback)
             addJob(newJob);
+
+            // 2. Send to Manatal API (Background / Async)
+            if (employerEmail) {
+                try {
+                    const result = await manatalApi.createJob(newJob, employerEmail);
+                    if (result.success) {
+                        console.log('Job created in Manatal:', result.data);
+                        alert('Job posted successfully to Manatal!');
+                    } else {
+                        console.error('Manatal Error:', result.error);
+                        alert(`Job posted locally, but failed to sync with Manatal: ${result.error}`);
+                    }
+                } catch (err) {
+                    console.error('API Error:', err);
+                }
+            } else {
+                console.warn('No employer email provided, skipping Manatal sync.');
+            }
         }
         
+        setIsSubmitting(false);
         navigate('viewJobs');
     };
 
@@ -202,11 +226,12 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ country, navigate, isEditing 
                         )}
                     </div>
                     <div className="mt-8 flex justify-end space-x-4">
-                         <button type="button" onClick={() => navigate('viewJobs')} className="px-8 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition duration-300">
+                         <button type="button" onClick={() => navigate('viewJobs')} className="px-8 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition duration-300" disabled={isSubmitting}>
                             Cancel
                         </button>
-                        <button type="submit" className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300">
-                            {isEditing ? 'Save Changes' : 'Submit Job'}
+                        <button type="submit" className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300 flex items-center" disabled={isSubmitting}>
+                            {isSubmitting && <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
+                            {isEditing ? 'Save Changes' : (isSubmitting ? 'Posting...' : 'Submit Job')}
                         </button>
                     </div>
                 </form>

@@ -1,5 +1,6 @@
+
 import React, { useState, useMemo } from 'react';
-import { MatchedCandidate } from '../../../types';
+import { MatchedCandidate, CandidateApplicationStatus } from '../../../types';
 import { useGlobalState } from '../../../contexts/StateContext';
 
 interface JobDetailsProps {
@@ -24,7 +25,7 @@ interface CandidateCardProps {
     onToggleExpand: (id: number) => void;
 }
 const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, applicationId, isInvited, onInvite, isExpanded, onToggleExpand }) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-300">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-300 hover:border-blue-300">
         <div
             className="p-4 flex items-center justify-between cursor-pointer"
             onClick={() => onToggleExpand(candidate.id)}
@@ -48,11 +49,11 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ candidate, applicationId,
                     disabled={isInvited}
                     className={`px-5 py-2 font-semibold rounded-md transition-colors text-sm ${
                         isInvited
-                            ? 'bg-gray-200 text-gray-600 cursor-not-allowed'
+                            ? 'bg-green-100 text-green-700 cursor-default'
                             : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                 >
-                    {isInvited ? 'Invited' : 'Invite for Interview'}
+                    {isInvited ? 'Invite Sent' : 'Invite for Interview'}
                 </button>
                 <button onClick={(e) => e.stopPropagation()} className="p-1 rounded-full hover:bg-gray-100">
                     <OptionsIcon />
@@ -147,8 +148,8 @@ const ReadOnlyJobView: React.FC<{ onBack: () => void, jobId: number | null }> = 
     );
 };
 
-const JobDetails: React.FC<JobDetailsProps> = ({ onBack, isAdminView = false, jobId = null, onInvite = () => {} }) => {
-    const { jobs, applications, candidates } = useGlobalState();
+const JobDetails: React.FC<JobDetailsProps> = ({ onBack, isAdminView = false, jobId = null, onInvite }) => {
+    const { jobs, applications, candidates, updateApplicationStatus } = useGlobalState();
     const [expandedCandidateId, setExpandedCandidateId] = useState<number | null>(null);
 
     const job = jobs.find(j => j.id === jobId);
@@ -162,7 +163,7 @@ const JobDetails: React.FC<JobDetailsProps> = ({ onBack, isAdminView = false, jo
                 if (!candidateProfile) return null;
                 return {
                     applicationId: app.id,
-                    isInvited: app.status !== 'Matched',
+                    isInvited: app.status !== CandidateApplicationStatus.Matched,
                     candidate: {
                         id: candidateProfile.id,
                         name: candidateProfile.name,
@@ -190,6 +191,17 @@ const JobDetails: React.FC<JobDetailsProps> = ({ onBack, isAdminView = false, jo
         setExpandedCandidateId(prevId => (prevId === candidateId ? null : candidateId));
     };
 
+    const handleInviteInternal = (applicationId: number) => {
+        // If an onInvite prop is provided (e.g. from Sales Dashboard), use it.
+        // Otherwise, use internal logic to update state.
+        if (onInvite) {
+            onInvite(applicationId);
+        } else {
+            updateApplicationStatus(applicationId, CandidateApplicationStatus.InterviewInvited);
+            alert("Invitation sent to candidate!");
+        }
+    }
+
     return (
         <div>
              <div className="flex justify-between items-center mb-8">
@@ -209,17 +221,21 @@ const JobDetails: React.FC<JobDetailsProps> = ({ onBack, isAdminView = false, jo
             <div>
                 <h3 className="text-xl font-semibold text-gray-700 mb-4">Matched Candidates</h3>
                 <div className="space-y-4">
-                    {matchedCandidates.map(match => (
-                        match && <CandidateCard
-                            key={match.candidate.id}
-                            candidate={match.candidate}
-                            applicationId={match.applicationId}
-                            isInvited={match.isInvited}
-                            onInvite={onInvite}
-                            isExpanded={expandedCandidateId === match.candidate.id}
-                            onToggleExpand={handleToggleExpand}
-                        />
-                    ))}
+                    {matchedCandidates.length > 0 ? (
+                        matchedCandidates.map(match => (
+                            match && <CandidateCard
+                                key={match.candidate.id}
+                                candidate={match.candidate}
+                                applicationId={match.applicationId}
+                                isInvited={match.isInvited}
+                                onInvite={handleInviteInternal}
+                                isExpanded={expandedCandidateId === match.candidate.id}
+                                onToggleExpand={handleToggleExpand}
+                            />
+                        ))
+                    ) : (
+                        <p className="text-gray-500 italic">No candidates matched yet.</p>
+                    )}
                 </div>
             </div>
              <div className="mt-8">

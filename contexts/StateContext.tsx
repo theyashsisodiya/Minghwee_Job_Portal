@@ -10,6 +10,14 @@ import {
     MOCK_CLIENTS, MOCK_SALESPERSONS
 } from '../constants';
 
+interface AdminProfile {
+    name: string;
+    email: string;
+    phone: string;
+    role: string;
+    employeeId: string;
+}
+
 interface StateContextType {
     jobs: JobPosting[];
     employers: ManagedEmployer[];
@@ -19,6 +27,7 @@ interface StateContextType {
     jobRequirements: JobRequirement[];
     salespersons: Salesperson[];
     userNotifications: UserNotification[];
+    adminProfile: AdminProfile;
     
     addJob: (job: Omit<JobPosting, 'id' | 'postedDate' | 'status'>) => void;
     addEmployer: (employer: Omit<ManagedEmployer, 'id' | 'status'>) => number; // Returns ID
@@ -34,14 +43,19 @@ interface StateContextType {
 
     createApplication: (candidateId: number, jobId: number, employerId: number) => void;
     updateApplicationStatus: (appId: number, status: CandidateApplicationStatus) => void;
+    revertApplicationStatus: (appId: number) => void;
     getApplicationsByEmployer: (employerId: number) => GlobalApplication[];
     getApplicationsByCandidate: (candidateId: number) => GlobalApplication[];
     getRequirementsByEmployer: (employerId: number) => JobRequirement[];
 
-    // Notifications
+    // Notifications & Messages
     sendNotification: (notification: Omit<UserNotification, 'id' | 'timestamp' | 'read'>) => void;
+    sendHelpMessage: (senderId: number, senderName: string, message: string) => void;
     markNotificationAsRead: (id: number) => void;
     getNotificationsForUser: (userId: number, userType: UserType) => UserNotification[];
+
+    // Admin Profile
+    updateAdminProfile: (data: Partial<AdminProfile>) => void;
 }
 
 const StateContext = createContext<StateContextType | undefined>(undefined);
@@ -56,7 +70,29 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [clients, setClients] = useState<Client[]>(MOCK_CLIENTS);
     const [jobRequirements, setJobRequirements] = useState<JobRequirement[]>([]);
     const [salespersons, setSalespersons] = useState<Salesperson[]>(MOCK_SALESPERSONS);
-    const [userNotifications, setUserNotifications] = useState<UserNotification[]>([]);
+    
+    // Admin Profile State
+    const [adminProfile, setAdminProfile] = useState<AdminProfile>({
+        name: 'Administrator',
+        email: 'admin@minghwee.com',
+        phone: '+65 6789 0123',
+        role: 'Super Admin',
+        employeeId: 'ADM-001'
+    });
+
+    // Initial notifications (Mock data for demo)
+    const [userNotifications, setUserNotifications] = useState<UserNotification[]>([
+        {
+            id: 1,
+            userId: 0,
+            userType: UserType.Admin,
+            message: "System maintenance scheduled for midnight.",
+            sender: "System",
+            timestamp: new Date().toISOString(),
+            read: false,
+            type: 'general'
+        }
+    ]);
 
     // Load candidates from localStorage or fallback to mock data
     const [candidates, setCandidates] = useState<CandidateProfileData[]>(() => {
@@ -232,6 +268,7 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setApplications(prev => prev.map(app => {
             if (app.id !== appId) return app;
             
+            // Logic to update step statuses based on the global Application Status
             const newSteps = [...app.steps];
             const completeUpTo = (stepName: string) => {
                 let found = false;
@@ -246,19 +283,62 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             };
 
             let updatedSteps = newSteps;
-            if (status === CandidateApplicationStatus.InterviewInvited) updatedSteps = completeUpTo('Interview');
-            if (status === CandidateApplicationStatus.CandidateSelected) updatedSteps = completeUpTo('Selected');
-            if (status === CandidateApplicationStatus.MedicalAccepted) updatedSteps = completeUpTo('Medical');
-            if (status === CandidateApplicationStatus.SendContract) updatedSteps = completeUpTo('Contract');
-            if (status === CandidateApplicationStatus.Hired) {
-                 updatedSteps = newSteps.map(s => ({ ...s, status: ProgressStatus.Completed }));
+            
+            // Special handling for rejection
+            if (status === CandidateApplicationStatus.CandidateRejected || status === CandidateApplicationStatus.MedicalRejected) {
+                // Find current in-progress and mark as rejected
+                updatedSteps = newSteps.map(s => 
+                    s.status === ProgressStatus.InProgress ? { ...s, status: ProgressStatus.Rejected } : s
+                );
+            } else if (status === CandidateApplicationStatus.Matched) {
+                // Reset
+                updatedSteps = newSteps.map((s, i) => ({ 
+                    ...s, 
+                    status: i === 0 ? ProgressStatus.Completed : (i === 1 ? ProgressStatus.Pending : ProgressStatus.Pending) 
+                }));
+            } else {
+                // Normal progression
+                if (status === CandidateApplicationStatus.InterviewInvited) updatedSteps = completeUpTo('Interview');
+                if (status === CandidateApplicationStatus.CandidateSelected) updatedSteps = completeUpTo('Selected');
+                if (status === CandidateApplicationStatus.MedicalAccepted) updatedSteps = completeUpTo('Medical');
+                if (status === CandidateApplicationStatus.SendContract) updatedSteps = completeUpTo('Contract');
+                if (status === CandidateApplicationStatus.Hired) {
+                     updatedSteps = newSteps.map(s => ({ ...s, status: ProgressStatus.Completed }));
+                }
             }
 
             return { ...app, status, steps: updatedSteps };
         }));
     };
 
-    // --- Notification Logic ---
+    const revertApplicationStatus = (appId: number) => {
+        const app = applications.find(a => a.id === appId);
+        if (!app) return;
+
+        let prevStatus = app.status;
+        switch (app.status) {
+            case CandidateApplicationStatus.Hired: prevStatus = CandidateApplicationStatus.SendContract; break;
+            case CandidateApplicationStatus.SendContract: prevStatus = CandidateApplicationStatus.MedicalAccepted; break;
+            case CandidateApplicationStatus.MedicalAccepted: prevStatus = CandidateApplicationStatus.CandidateSelected; break;
+            case CandidateApplicationStatus.CandidateSelected: prevStatus = CandidateApplicationStatus.InterviewInvited; break;
+            case CandidateApplicationStatus.InterviewInvited: prevStatus = CandidateApplicationStatus.Matched; break;
+            // If rejected, allow reset to Matched or the step before rejection? 
+            // For simplicity, reactivating implies starting fresh or going to Matched/Invited.
+            // Let's go to Matched to be safe and let user fast forward.
+            case CandidateApplicationStatus.CandidateRejected:
+            case CandidateApplicationStatus.MedicalRejected:
+                prevStatus = CandidateApplicationStatus.Matched; 
+                break;
+            default: break;
+        }
+        
+        if (prevStatus !== app.status) {
+            updateApplicationStatus(appId, prevStatus);
+        }
+    };
+
+    // --- Notification & Message Logic ---
+    
     const sendNotification = (notification: Omit<UserNotification, 'id' | 'timestamp' | 'read'>) => {
         const newNotification: UserNotification = {
             ...notification,
@@ -269,17 +349,36 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setUserNotifications(prev => [newNotification, ...prev]);
     };
 
+    // New Function specifically for Salesperson -> Admin Help Requests
+    const sendHelpMessage = (senderId: number, senderName: string, message: string) => {
+        const newNotification: UserNotification = {
+            id: Date.now(),
+            userId: 0, // 0 usually targets All Admins in this logic
+            userType: UserType.Admin,
+            message: message,
+            sender: senderName, // Display name
+            senderId: senderId, // ID for profile lookup
+            timestamp: new Date().toISOString(),
+            read: false,
+            type: 'help_request' // Distinction for UI logic
+        };
+        // Persist to state immediately
+        setUserNotifications(prev => [newNotification, ...prev]);
+        console.log("Help message stored in global state:", newNotification);
+    };
+
     const markNotificationAsRead = (id: number) => {
         setUserNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
     };
 
     const getNotificationsForUser = (userId: number, userType: UserType) => {
-        // For demonstration, if userId is 0 or -1, return all for that type, or filter by specific ID
-        // In a real app, strict filtering by ID is needed.
-        // Here, we'll try to match exact ID if possible, otherwise mostly match type.
-        
-        // Using a loose match for demo simplicity since we use mock IDs like '1' for everyone
+        // userId 0 implies broadcast to all users of that type (e.g. all admins)
         return userNotifications.filter(n => n.userType === userType && (n.userId === userId || n.userId === 0)); 
+    };
+
+    // --- Admin Profile ---
+    const updateAdminProfile = (data: Partial<AdminProfile>) => {
+        setAdminProfile(prev => ({ ...prev, ...data }));
     };
 
     // --- Selectors ---
@@ -298,12 +397,13 @@ export const StateProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     return (
         <StateContext.Provider value={{
-            jobs, employers, candidates, applications, clients, jobRequirements, salespersons, userNotifications,
+            jobs, employers, candidates, applications, clients, jobRequirements, salespersons, userNotifications, adminProfile,
             addJob, addEmployer, addCandidate, addClient, addEmployerAsClient,
             addJobRequirement, markRequirementConverted, addSalesperson, removeSalesperson,
-            createApplication, updateApplicationStatus,
+            createApplication, updateApplicationStatus, revertApplicationStatus,
             getApplicationsByEmployer, getApplicationsByCandidate, getRequirementsByEmployer,
-            sendNotification, markNotificationAsRead, getNotificationsForUser
+            sendNotification, sendHelpMessage, markNotificationAsRead, getNotificationsForUser,
+            updateAdminProfile
         }}>
             {children}
         </StateContext.Provider>

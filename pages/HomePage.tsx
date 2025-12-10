@@ -144,7 +144,7 @@ const HomePage: React.FC<HomePageProps> = ({ navigateTo, selectedCountry, setCou
         <div className="container mx-auto px-6 flex justify-between items-center">
           <a href="#" className="flex items-center" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
             <img 
-              src="https://github.com/theyashsisodiya/Minghwee_Job_Portal/blob/main/removed-background.png?raw=true" 
+              src="https://ik.imagekit.io/ui4mpbzoy/removed-background.png?updatedAt=1764657414508" 
               alt="MingHwee Logo" 
               className="h-12 w-auto object-contain" 
             />
@@ -249,7 +249,7 @@ const HomePage: React.FC<HomePageProps> = ({ navigateTo, selectedCountry, setCou
               >
                 <div className="relative z-10 rounded-[2rem] overflow-hidden shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500 border-8 border-white">
                   <img 
-                    src="https://github.com/theyashsisodiya/MingHwee_Detailed_Workflow/blob/main/nano-edit-17641511983161.png?raw=true" 
+                    src="https://github.com/theyashsisodiya/MingHwee_Detailed_Workflow/blob/main/nano-edit-17641511983161.png?raw=true"
                     alt="Happy multi-generational family" 
                     className="w-full h-auto object-cover"
                   />

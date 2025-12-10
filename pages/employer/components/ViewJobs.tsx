@@ -1,18 +1,31 @@
-import React, { useState, useMemo } from 'react';
+
+import React, { useState, useMemo, useEffect } from 'react';
 import { JOB_CATEGORIES } from '../../../constants';
 import { JobStatus, JobPosting, Country } from '../../../types';
+import { manatalApi } from '../../../services/manatalApi';
 import { useGlobalState } from '../../../contexts/StateContext';
+
+interface ManatalJob {
+    id: number;
+    position_name: string;
+    status: string;
+    created_at: string;
+    department?: string;
+    location?: string;
+    description?: string;
+}
 
 interface ViewJobsProps {
     navigate: (page: 'postJob' | 'jobDetails' | 'editJob', jobId?: number) => void;
     country: Country;
     employerId: number;
     allowPosting?: boolean;
+    employerEmail?: string;
 }
 
 // Icons
 const CalendarIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
-const EmptyStateIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2-2H5a2 2 0 01-2-2z" /></svg>;
+const EmptyStateIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>;
 const PlusIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>;
 
 const JobCard: React.FC<{ job: JobPosting; onStatusToggle: (id: number) => void; navigate: ViewJobsProps['navigate']; allowPosting: boolean }> = ({ job, onStatusToggle, navigate, allowPosting }) => {
@@ -73,15 +86,17 @@ const JobCard: React.FC<{ job: JobPosting; onStatusToggle: (id: number) => void;
 };
 
 
-const ViewJobs: React.FC<ViewJobsProps> = ({ navigate, country, employerId, allowPosting = false }) => {
-    const { jobs } = useGlobalState(); // Fetch jobs from global state
+const ViewJobs: React.FC<ViewJobsProps> = ({ navigate, country, employerId, allowPosting = false, employerEmail }) => {
+    const { jobs: globalJobs } = useGlobalState(); // Get jobs from global state
     const [filterCategory, setFilterCategory] = useState<string>('all');
     const [timeFilter, setTimeFilter] = useState<string>('all');
+    const [isLoading, setIsLoading] = useState(false);
 
-    // Filter jobs for the specific employer
+    // Merge Manatal API jobs (if needed in future) with Global State jobs
+    // For this implementation, we prioritize Global State to ensure Sales-posted jobs appear instantly
     const employerJobs = useMemo(() => {
-        return jobs.filter(job => job.employerId === employerId);
-    }, [jobs, employerId]);
+        return globalJobs.filter(job => job.employerId === employerId);
+    }, [globalJobs, employerId]);
 
     const toggleStatus = (id: number) => {
         // In a real app, you would call an update function from global state here.
@@ -106,6 +121,17 @@ const ViewJobs: React.FC<ViewJobsProps> = ({ navigate, country, employerId, allo
         filtered.sort((a, b) => new Date(b.postedDate).getTime() - new Date(a.postedDate).getTime());
         return filtered;
     }, [employerJobs, filterCategory, timeFilter]);
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading your job postings...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div>

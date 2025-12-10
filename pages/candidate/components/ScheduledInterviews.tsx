@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
-import { MOCK_SCHEDULED_INTERVIEWS } from '../../../constants';
-import { ScheduledInterview } from '../../../types';
+import React, { useState, useMemo } from 'react';
+import { ScheduledInterview, CandidateApplicationStatus } from '../../../types';
+import { useGlobalState } from '../../../contexts/StateContext';
 
 const Calendar: React.FC<{ selectedDate: Date, setSelectedDate: (date: Date) => void }> = ({ selectedDate, setSelectedDate }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date(2024, 8, 1)); // September 2024
@@ -90,9 +90,31 @@ const InterviewCard: React.FC<{ interview: ScheduledInterview }> = ({ interview 
 );
 
 const ScheduledInterviews: React.FC = () => {
-    const [selectedDate, setSelectedDate] = useState(new Date('2024-09-11T00:00:00'));
+    const { getApplicationsByCandidate, employers, jobs } = useGlobalState();
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
-    const interviewsForDay = MOCK_SCHEDULED_INTERVIEWS.filter(iv => new Date(iv.date).toDateString() === selectedDate.toDateString());
+    // Mock candidate ID 1
+    const myApplications = getApplicationsByCandidate(1);
+
+    const interviews = useMemo(() => {
+        return myApplications
+            .filter(app => app.status === CandidateApplicationStatus.CandidateSelected) // Confirmed schedule
+            .map(app => {
+                const employer = employers.find(e => e.id === app.employerId);
+                const job = jobs.find(j => j.id === app.jobId);
+                return {
+                    id: app.id,
+                    employerName: employer?.employerName || 'Employer',
+                    jobTitle: job?.title || 'Job',
+                    date: new Date().toISOString(), // Mocking date
+                    time: '10:00 AM',
+                    timezone: 'SGT',
+                    videoLink: '#',
+                    logoUrl: 'https://ui-avatars.com/api/?name=' + (employer?.employerName || 'E') + '&background=random',
+                    candidateName: 'Me'
+                } as ScheduledInterview;
+            });
+    }, [myApplications, employers, jobs]);
 
     return (
         <div>
@@ -103,16 +125,16 @@ const ScheduledInterviews: React.FC = () => {
                 </div>
                 <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg border border-gray-200">
                     <h2 className="text-2xl font-bold text-gray-800 mb-6 pb-4 border-b">
-                        Interviews for <span className="text-blue-600">{selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+                        Confirmed Interviews
                     </h2>
                     <div className="space-y-4">
-                        {interviewsForDay.length > 0 ? (
-                            interviewsForDay.map(interview => (
+                        {interviews.length > 0 ? (
+                            interviews.map(interview => (
                                 <InterviewCard key={interview.id} interview={interview} />
                             ))
                         ) : (
                             <div className="bg-gray-50 p-6 rounded-lg text-center border border-gray-200">
-                                 <p className="text-gray-600 font-medium">No interviews scheduled for this date.</p>
+                                 <p className="text-gray-600 font-medium">No confirmed interviews yet. Accept an invite to schedule.</p>
                             </div>
                         )}
                     </div>

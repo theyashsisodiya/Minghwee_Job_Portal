@@ -1,4 +1,5 @@
-import React, { useState, useRef, useCallback } from 'react';
+
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { JOB_CATEGORIES, PREDEFINED_SKILLS } from '../../../constants';
 import { Notification } from '../../../types';
 
@@ -233,7 +234,7 @@ const StepDSkills: React.FC<StepProps> = ({ data, onChange }) => {
     );
 };
 
-// --- Uploads & Final Steps (No data capture needed for this fix) ---
+// --- Uploads & Final Steps ---
 
 const FileUploadField: React.FC<{ label: string; description: string; addNotification: (message: string, type: Notification['type']) => void; acceptedTypes: string; isPassport?: boolean; }> = ({ label, description, addNotification, acceptedTypes, isPassport = false }) => {
     const [fileName, setFileName] = useState('');
@@ -297,15 +298,18 @@ const VideoRecorder: React.FC<{addNotification: (message: string, type: Notifica
     const [recordedVideoUrl, setRecordedVideoUrl] = useState<string | null>(null);
     const [consent, setConsent] = useState(false);
 
+    // Effect to attach stream to video element whenever stream changes
+    useEffect(() => {
+        if (videoRef.current && stream) {
+            videoRef.current.srcObject = stream;
+        }
+    }, [stream]);
+
     const cleanup = useCallback(() => {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
         }
-        if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-            mediaRecorderRef.current.stop();
-        }
         setStream(null);
-        mediaRecorderRef.current = null;
     }, [stream]);
 
     const startRecording = async () => {
@@ -319,17 +323,16 @@ const VideoRecorder: React.FC<{addNotification: (message: string, type: Notifica
         try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             setStream(mediaStream);
-            if (videoRef.current) {
-                videoRef.current.srcObject = mediaStream;
-                videoRef.current.play();
-            }
+            
             const mediaRecorder = new MediaRecorder(mediaStream);
             mediaRecorderRef.current = mediaRecorder;
+            
             mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
                     setRecordedChunks(prev => [...prev, event.data]);
                 }
             };
+            
             mediaRecorder.onstop = () => {
                 const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
                 if (videoBlob.size > 50 * 1024 * 1024) { // 50MB limit
@@ -338,9 +341,12 @@ const VideoRecorder: React.FC<{addNotification: (message: string, type: Notifica
                 } else {
                     const url = URL.createObjectURL(videoBlob);
                     setRecordedVideoUrl(url);
+                    // Mock storing to local storage (In real app, this would be uploading)
+                    localStorage.setItem('temp_video_blob', url);
                 }
                 cleanup();
             };
+            
             mediaRecorder.start();
             setIsRecording(true);
         } catch (err) {
@@ -350,7 +356,7 @@ const VideoRecorder: React.FC<{addNotification: (message: string, type: Notifica
     };
     
     const stopRecording = () => {
-        if (mediaRecorderRef.current) {
+        if (mediaRecorderRef.current && isRecording) {
             mediaRecorderRef.current.stop();
             setIsRecording(false);
         }
@@ -364,10 +370,21 @@ const VideoRecorder: React.FC<{addNotification: (message: string, type: Notifica
     
     return (
         <div className="md:col-span-2">
-            <div className="bg-gray-900 rounded-lg overflow-hidden aspect-video mb-4">
-                 <video ref={videoRef} className="w-full h-full" muted={isRecording || !recordedVideoUrl} controls={!!recordedVideoUrl} src={recordedVideoUrl || undefined}>
+            <div className="bg-gray-900 rounded-lg overflow-hidden aspect-video mb-4 relative">
+                 <video 
+                    ref={videoRef} 
+                    className="w-full h-full object-cover" 
+                    autoPlay 
+                    muted={true} // Muted to prevent feedback loop while recording
+                    playsInline
+                    controls={!!recordedVideoUrl && !isRecording}
+                    src={recordedVideoUrl || undefined}
+                 >
                      Your browser does not support the video tag.
                  </video>
+                 {isRecording && (
+                    <div className="absolute top-4 right-4 w-4 h-4 bg-red-600 rounded-full animate-pulse shadow-lg"></div>
+                 )}
             </div>
              <div className="flex items-center mb-4">
                 <input type="checkbox" id="video-consent" checked={consent} onChange={e => setConsent(e.target.checked)} className="form-checkbox rounded text-blue-600" />

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { MOCK_SCHEDULED_INTERVIEWS } from '../../../constants';
-import { ScheduledInterview } from '../../../types';
+
+import React, { useState, useMemo } from 'react';
+import { ScheduledInterview, CandidateApplicationStatus } from '../../../types';
+import { useGlobalState } from '../../../contexts/StateContext';
 
 const Calendar: React.FC<{ selectedDate: Date, setSelectedDate: (date: Date) => void }> = ({ selectedDate, setSelectedDate }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date(2024, 8, 1)); // September 2024
@@ -89,9 +90,34 @@ const InterviewCard: React.FC<{ interview: ScheduledInterview }> = ({ interview 
 );
 
 const ScheduledInterviews: React.FC = () => {
-    const [selectedDate, setSelectedDate] = useState(new Date('2024-09-11T00:00:00'));
+    const { applications, candidates, jobs, employers } = useGlobalState();
+    const [selectedDate, setSelectedDate] = useState(new Date()); // Default to today/current context
 
-    const interviewsForDay = MOCK_SCHEDULED_INTERVIEWS.filter(iv => new Date(iv.date).toDateString() === selectedDate.toDateString());
+    // Filter real applications for Interviews
+    const interviews = useMemo(() => {
+        return applications
+            .filter(app => [CandidateApplicationStatus.InterviewInvited, CandidateApplicationStatus.CandidateSelected].includes(app.status))
+            .map(app => {
+                const candidate = candidates.find(c => c.id === app.candidateId);
+                const job = jobs.find(j => j.id === app.jobId);
+                // In a real app, date/time would be stored in the application or a separate interview object.
+                // Mocking it to 'today' for demo visibility if status is invited
+                return {
+                    id: app.id,
+                    candidateName: candidate?.name || 'Unknown Candidate',
+                    jobTitle: job?.title || 'Unknown Job',
+                    date: new Date().toISOString(), // Mocking current date for demo
+                    time: '10:00 AM',
+                    timezone: 'SGT',
+                    videoLink: '#',
+                    avatarUrl: candidate?.avatarUrl || '',
+                    employerName: 'Me', // Since this is employer view
+                } as ScheduledInterview;
+            });
+    }, [applications, candidates, jobs]);
+
+    // For demo purposes, show all "Upcoming" if date matching is tricky with mocks
+    const displayInterviews = interviews;
 
     return (
         <div>
@@ -102,16 +128,16 @@ const ScheduledInterviews: React.FC = () => {
                 </div>
                 <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg border border-gray-200">
                     <h2 className="text-2xl font-bold text-gray-800 mb-6 pb-4 border-b">
-                        Interviews for <span className="text-blue-600">{selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+                        Upcoming Interviews
                     </h2>
                     <div className="space-y-4">
-                        {interviewsForDay.length > 0 ? (
-                            interviewsForDay.map(interview => (
+                        {displayInterviews.length > 0 ? (
+                            displayInterviews.map(interview => (
                                 <InterviewCard key={interview.id} interview={interview} />
                             ))
                         ) : (
                             <div className="bg-gray-50 p-6 rounded-lg text-center border border-gray-200">
-                                 <p className="text-gray-600 font-medium">No interviews scheduled for this date.</p>
+                                 <p className="text-gray-600 font-medium">No interviews scheduled.</p>
                             </div>
                         )}
                     </div>
