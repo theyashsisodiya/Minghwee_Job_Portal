@@ -137,12 +137,22 @@ const MyDetails: React.FC<MyDetailsProps> = ({ addNotification, profileData }) =
         }
     };
 
+    const handleProfileUpdate = () => {
+        setIsEditingProfile(false);
+        addNotification("Profile information updated successfully.", 'success');
+    };
+
+    const handlePreferencesUpdate = () => {
+        setIsEditingPreferences(false);
+        addNotification("Employment preferences updated successfully.", 'success');
+    };
+
     return (
         <div className="px-8 py-10 lg:px-12">
             <div className="max-w-7xl mx-auto">
                 <div className="flex items-center gap-6">
                     <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center text-white text-3xl font-bold">
-                        {profileData?.name.substring(0, 2).toUpperCase() || 'JD'}
+                        {personalInfo.fullName.substring(0, 2).toUpperCase() || 'JD'}
                     </div>
                     <div>
                         <h2 className="text-3xl font-bold text-gray-900">{personalInfo.fullName}</h2>
@@ -160,15 +170,94 @@ const MyDetails: React.FC<MyDetailsProps> = ({ addNotification, profileData }) =
                         <div className="bg-white p-6 rounded-lg shadow-sm">
                             <div className="flex justify-between items-center pb-4 border-b border-gray-200">
                                 <h3 className="text-lg font-semibold text-gray-900">Profile Information</h3>
-                                <button onClick={() => setIsEditingProfile(!isEditingProfile)} className="px-4 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors">{isEditingProfile ? 'Cancel' : 'Edit'}</button>
+                                <button 
+                                    onClick={isEditingProfile ? handleProfileUpdate : () => setIsEditingProfile(true)} 
+                                    className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${isEditingProfile ? 'text-white bg-green-600 hover:bg-green-700' : 'text-blue-600 bg-blue-100 hover:bg-blue-200'}`}
+                                >
+                                    {isEditingProfile ? 'Save' : 'Edit'}
+                                </button>
                             </div>
-                            <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6">
-                                <div><label className="text-sm text-gray-500">Full Name</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.fullName}</p></div>
-                                <div><label className="text-sm text-gray-500">Date of Birth</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.dob}</p></div>
-                                <div><label className="text-sm text-gray-500">Location</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.location}</p></div>
-                                <div><label className="text-sm text-gray-500">Gender</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.gender}</p></div>
-                                <div className="col-span-2"><label className="text-sm text-gray-500">Contact</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.phone}</p></div>
-                                <div className="col-span-2"><label className="text-sm text-gray-500">Email</label><p className="mt-1 font-semibold text-gray-900">{personalInfo.email}</p></div>
+                            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+                                <div>
+                                    <label className="text-sm text-gray-500 block mb-1">Full Name</label>
+                                    {isEditingProfile ? (
+                                        <input 
+                                            type="text" 
+                                            value={personalInfo.fullName} 
+                                            onChange={(e) => setPersonalInfo({...personalInfo, fullName: e.target.value})}
+                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                                        />
+                                    ) : (
+                                        <p className="font-semibold text-gray-900">{personalInfo.fullName}</p>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="text-sm text-gray-500 block mb-1">Date of Birth</label>
+                                    {isEditingProfile ? (
+                                        <input 
+                                            type="date" 
+                                            value={personalInfo.dob} 
+                                            onChange={(e) => setPersonalInfo({...personalInfo, dob: e.target.value})}
+                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                                        />
+                                    ) : (
+                                        <p className="font-semibold text-gray-900">{personalInfo.dob}</p>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="text-sm text-gray-500 block mb-1">Location</label>
+                                    {isEditingProfile ? (
+                                        <input 
+                                            type="text" 
+                                            value={personalInfo.location} 
+                                            onChange={(e) => setPersonalInfo({...personalInfo, location: e.target.value})}
+                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                                        />
+                                    ) : (
+                                        <p className="font-semibold text-gray-900">{personalInfo.location}</p>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="text-sm text-gray-500 block mb-1">Gender</label>
+                                    {isEditingProfile ? (
+                                        <select 
+                                            value={personalInfo.gender} 
+                                            onChange={(e) => setPersonalInfo({...personalInfo, gender: e.target.value})}
+                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                                        >
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                        </select>
+                                    ) : (
+                                        <p className="font-semibold text-gray-900">{personalInfo.gender}</p>
+                                    )}
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="text-sm text-gray-500 block mb-1">Contact</label>
+                                    {isEditingProfile ? (
+                                        <input 
+                                            type="tel" 
+                                            value={personalInfo.phone} 
+                                            onChange={(e) => setPersonalInfo({...personalInfo, phone: e.target.value})}
+                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                                        />
+                                    ) : (
+                                        <p className="font-semibold text-gray-900">{personalInfo.phone}</p>
+                                    )}
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="text-sm text-gray-500 block mb-1">Email</label>
+                                    {isEditingProfile ? (
+                                        <input 
+                                            type="email" 
+                                            value={personalInfo.email} 
+                                            onChange={(e) => setPersonalInfo({...personalInfo, email: e.target.value})}
+                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                                        />
+                                    ) : (
+                                        <p className="font-semibold text-gray-900">{personalInfo.email}</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
@@ -176,22 +265,71 @@ const MyDetails: React.FC<MyDetailsProps> = ({ addNotification, profileData }) =
                         <div className="bg-white p-6 rounded-lg shadow-sm">
                             <div className="flex justify-between items-center pb-4 border-b border-gray-200">
                                 <h3 className="text-lg font-semibold text-gray-900">Employment & Preferences</h3>
-                                <button onClick={() => setIsEditingPreferences(!isEditingPreferences)} className="px-4 py-1.5 text-sm font-medium text-blue-600 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors">{isEditingPreferences ? 'Cancel' : 'Edit'}</button>
+                                <button 
+                                    onClick={isEditingPreferences ? handlePreferencesUpdate : () => setIsEditingPreferences(true)} 
+                                    className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${isEditingPreferences ? 'text-white bg-green-600 hover:bg-green-700' : 'text-blue-600 bg-blue-100 hover:bg-blue-200'}`}
+                                >
+                                    {isEditingPreferences ? 'Save' : 'Edit'}
+                                </button>
                             </div>
-                            <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-6">
-                                <div><label className="text-sm text-gray-500">Current Role</label><p className="mt-1 font-semibold text-gray-900">{employmentInfo.role}</p></div>
-                                <div><label className="text-sm text-gray-500">Years of Experience</label><p className="mt-1 font-semibold text-gray-900">{employmentInfo.experience}</p></div>
-                                <div className="col-span-2">
-                                    <label className="text-sm text-gray-500">Desired Job Categories</label>
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                        {employmentInfo.categories.map(cat => <span key={cat} className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">{cat}</span>)}
-                                    </div>
+                            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+                                <div>
+                                    <label className="text-sm text-gray-500 block mb-1">Current Role</label>
+                                    {isEditingPreferences ? (
+                                        <input 
+                                            type="text" 
+                                            value={employmentInfo.role} 
+                                            onChange={(e) => setEmploymentInfo({...employmentInfo, role: e.target.value})}
+                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                                        />
+                                    ) : (
+                                        <p className="font-semibold text-gray-900">{employmentInfo.role}</p>
+                                    )}
                                 </div>
-                                <div className="col-span-2">
-                                    <label className="text-sm text-gray-500">Skills</label>
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                        {employmentInfo.skills.map(skill => <span key={skill} className="px-3 py-1 bg-blue-100 text-blue-600 text-sm rounded-full">{skill}</span>)}
-                                    </div>
+                                <div>
+                                    <label className="text-sm text-gray-500 block mb-1">Years of Experience</label>
+                                    {isEditingPreferences ? (
+                                        <input 
+                                            type="number" 
+                                            value={employmentInfo.experience} 
+                                            onChange={(e) => setEmploymentInfo({...employmentInfo, experience: e.target.value})}
+                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                                        />
+                                    ) : (
+                                        <p className="font-semibold text-gray-900">{employmentInfo.experience}</p>
+                                    )}
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="text-sm text-gray-500 block mb-1">Desired Job Categories</label>
+                                    {isEditingPreferences ? (
+                                        <input 
+                                            type="text" 
+                                            value={employmentInfo.categories.join(', ')} 
+                                            onChange={(e) => setEmploymentInfo({...employmentInfo, categories: e.target.value.split(',').map(s => s.trim())})}
+                                            placeholder="Comma separated values"
+                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                                        />
+                                    ) : (
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                            {employmentInfo.categories.map((cat, idx) => <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">{cat}</span>)}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="text-sm text-gray-500 block mb-1">Skills</label>
+                                    {isEditingPreferences ? (
+                                        <input 
+                                            type="text" 
+                                            value={employmentInfo.skills.join(', ')} 
+                                            onChange={(e) => setEmploymentInfo({...employmentInfo, skills: e.target.value.split(',').map(s => s.trim())})}
+                                            placeholder="Comma separated values"
+                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                                        />
+                                    ) : (
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                            {employmentInfo.skills.map((skill, idx) => <span key={idx} className="px-3 py-1 bg-blue-100 text-blue-600 text-sm rounded-full">{skill}</span>)}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
