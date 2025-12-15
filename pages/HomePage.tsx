@@ -465,7 +465,7 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
         <div id="smooth-content" className="will-change-transform">
 
           {/* HERO SECTION */}
-          <header className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
+          <header className="relative pt-32 pb-20 md:pt-28 md:pb-32 overflow-hidden">
             {/* Container Update: Wider Layout */}
             <div className="w-full max-w-[90%] 2xl:max-w-[1600px] mx-auto px-6 flex flex-col items-center text-center">
               
