@@ -1,299 +1,294 @@
+import axios from "axios";
 
-// Check multiple sources for the API key to be robust against different naming conventions
-const MANATAL_API_KEY = (import.meta as any).env?.VITE_MANATAL_API_KEY || process.env.MANATAL_API_KEY;
-const MANATAL_BASE_URL = 'https://api.manatal.com/open/v3';
+const MANATAL_API_KEY =
+  (import.meta as any).env?.VITE_MANATAL_API_KEY || process.env.MANATAL_API_KEY;
+const MANATAL_BASE_URL = "https://api.manatal.com/open/v3";
 
-const getHeaders = () => ({
-  'Authorization': `Token ${MANATAL_API_KEY}`,
-  'Accept': 'application/json',
-  'Content-Type': 'application/json'
+const api = axios.create({
+  baseURL: MANATAL_BASE_URL,
+  headers: {
+    Authorization: `Token ${MANATAL_API_KEY}`,
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
 });
 
+// ---- MOCK MODE CHECK ----
+const isMock = !MANATAL_API_KEY;
+
 export const manatalApi = {
-  async registerEmployer(data: {
-    name: string;
-    description?: string;
-    address?: string;
-    website?: string;
-    email?: string;
-    industry?: string;
-    location?: string;
-  }) {
-    if (!MANATAL_API_KEY) {
-      // Allow mock registration if no key for demo purposes
-      console.warn('Manatal API Key missing. Returning mock success. Check your .env file and restart the server.');
+  // ========================================================================
+  // REGISTER EMPLOYER
+  // ========================================================================
+  async registerEmployer(data: { email?: string , full_name?: string}) {
+    if (isMock) {
+      console.warn("Manatal API Key missing. Returning mock success.");
       return { success: true, data: { id: Date.now(), ...data } };
     }
 
     try {
+      // Check email exists
       if (data.email) {
-        const checkResponse = await fetch(
-          `${MANATAL_BASE_URL}/organizations/?external_id=${encodeURIComponent(data.email)}`,
-          { method: 'GET', headers: getHeaders() }
-        );
-        const checkData = await checkResponse.json();
-        
-        if (checkResponse.ok && checkData.results?.length > 0) {
-          return { success: false, error: 'An employer with this email already exists', existing: true };
+        const checkResponse = await api.get(`/organizations/`, {
+          params: { external_id: data.email },
+        });
+
+        if (checkResponse.data.results?.length > 0) {
+          return {
+            success: false,
+            error: "An employer with this email already exists",
+            existing: true,
+          };
         }
       }
 
-      // Combine extra fields into description for visibility on Manatal
-      const detailedDescription = `
-${data.description || ''}
+      const payload = {
+        external_id: data.email || null,
+        name: data.full_name || "Unnamed Employer",
+      };
 
---- Registration Details ---
-Email: ${data.email}
-Industry: ${data.industry || 'N/A'}
-Location: ${data.location || 'N/A'}
-Address: ${data.address || 'N/A'}
-      `.trim();
+      const response = await api.post(`/organizations/`, payload);
 
-      const response = await fetch(`${MANATAL_BASE_URL}/organizations/`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({
-          name: data.name,
-          description: detailedDescription,
-          address: data.address || data.location || '',
-          website: data.website || '',
-          industry: data.industry || '', // Maps if standard field exists
-          external_id: data.email || null,
-        })
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        return { success: false, error: result.detail || result.message || 'Failed to create organization' };
-      }
-
-      return { success: true, data: result };
-    } catch (error) {
-      console.error('Registration error:', error);
-      return { success: false, error: 'Network error. Please try again.' };
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      return {
+        success: false,
+        error:
+          error.response?.data?.detail ||
+          error.response?.data?.message ||
+          "Failed to create organization",
+      };
     }
   },
 
-  async registerCandidate(data: {
-    full_name: string;
-    email?: string;
-    phone?: string;
-    address?: string;
-    current_position?: string;
-    current_company?: string;
-    notice_period?: string;
-    current_salary?: string;
-    expected_salary?: string;
-  }) {
-    if (!MANATAL_API_KEY) {
-        console.warn('Manatal API Key missing. Returning mock success.');
-        return { success: true, data: { id: Date.now(), ...data } };
+  // ========================================================================
+  // REGISTER CANDIDATE
+  // ========================================================================
+  async registerCandidate(data: { email?: string, full_name?: string }) {
+    if (isMock) {
+      console.warn("Manatal API Key missing. Returning mock success.");
+      return { success: true, data: { id: Date.now(), ...data } };
     }
 
     try {
+      // Email exist check
       if (data.email) {
-        const checkResponse = await fetch(
-          `${MANATAL_BASE_URL}/candidates/?email=${encodeURIComponent(data.email)}`,
-          { method: 'GET', headers: getHeaders() }
-        );
-        const checkData = await checkResponse.json();
-        
-        if (checkResponse.ok && checkData.results?.length > 0) {
-          return { success: false, error: 'A candidate with this email already exists', existing: true };
+        const checkResponse = await api.get(`/candidates/`, {
+          params: { email: data.email },
+        });
+
+        if (checkResponse.data.results?.length > 0) {
+          return {
+            success: false,
+            error: "A candidate with this email already exists",
+            existing: true,
+          };
         }
       }
 
-      // Format extended fields into the description so they appear on the candidate profile
-      const detailedDescription = `
---- Professional Details ---
-Current Position: ${data.current_position || 'N/A'}
-Current Company: ${data.current_company || 'N/A'}
-Notice Period: ${data.notice_period || 'N/A'}
-Current Salary: ${data.current_salary || 'N/A'}
-Expected Salary: ${data.expected_salary || 'N/A'}
-      `.trim();
+      const payload = {
+        email: data.email || "",
+        full_name: data.full_name || "Unnamed Candidate",
+      };
 
-      const response = await fetch(`${MANATAL_BASE_URL}/candidates/`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({
-          full_name: data.full_name,
-          email: data.email || '',
-          phone_number: data.phone || '',
-          address: data.address || '',
-          description: detailedDescription,
-          position: data.current_position || '', // Try mapping to standard field
-          external_id: data.email || null
-        })
-      });
+      const response = await api.post(`/candidates/`, payload);
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        return { success: false, error: result.detail || result.message || 'Failed to create candidate' };
-      }
-
-      return { success: true, data: result };
-    } catch (error) {
-      console.error('Registration error:', error);
-      return { success: false, error: 'Network error. Please try again.' };
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      console.error("Candidate registration error:", error);
+      return {
+        success: false,
+        error:
+          error.response?.data?.detail ||
+          error.response?.data?.message ||
+          "Failed to create candidate",
+      };
     }
   },
 
-  async loginUser(email: string, userType: 'candidate' | 'employer') {
-    if (!MANATAL_API_KEY) {
-        // Mock Login for demo if no key
-        if (email === 'admin' || email === 'demo') return { success: false, error: 'Please use Admin Login for these credentials' };
-        return { success: true, user: { name: 'Demo User', email, id: 999 } };
+  // ========================================================================
+  // LOGIN USER
+  // ========================================================================
+  async loginUser(
+    email: string,
+    userType: "candidate" | "employer",
+    otp?: string
+  ) {
+    if (isMock) {
+      if (email === "admin" || email === "demo") {
+        return {
+          success: false,
+          error: "Please use Admin Login for these credentials",
+        };
+      }
+      // Check OTP from localStorage for mock
+      if (otp) {
+        const storedOtp = localStorage.getItem(`otp_${email}`);
+        if (!storedOtp || storedOtp !== otp) {
+          return { success: false, error: "Invalid OTP" };
+        }
+      }
+      return { success: true, user: { name: "Demo User", email, id: 999 } };
     }
 
     try {
-      if (userType === 'candidate') {
-        const response = await fetch(
-          `${MANATAL_BASE_URL}/candidates/?email=${encodeURIComponent(email)}`,
-          { method: 'GET', headers: getHeaders() }
-        );
-        const data = await response.json();
-        
-        if (response.ok && data.results?.length > 0) {
-          const candidate = data.results[0];
-          return { success: true, user: { name: candidate.full_name, email: candidate.email, id: candidate.id } };
+      if (userType === "candidate") {
+        const response = await api.get(`/candidates/`, {
+          params: { email },
+        });
+
+        if (response.data.results?.length > 0) {
+          const candidate = response.data.results[0];
+          return {
+            success: true,
+            user: {
+              name: candidate.full_name,
+              email: candidate.email,
+              id: candidate.id,
+            },
+          };
         }
-        return { success: false, error: 'No account found with this email. Please register first.' };
+        return {
+          success: false,
+          error: "No account found with this email. Please register first.",
+        };
       } else {
-        const response = await fetch(
-          `${MANATAL_BASE_URL}/organizations/?external_id=${encodeURIComponent(email)}`,
-          { method: 'GET', headers: getHeaders() }
-        );
-        const data = await response.json();
-        
-        if (response.ok && data.results?.length > 0) {
-          const org = data.results[0];
-          return { success: true, user: { name: org.name, email: email, id: org.id } };
+        const response = await api.get(`/organizations/`, {
+          params: { external_id: email },
+        });
+
+        if (response.data.results?.length > 0) {
+          const org = response.data.results[0];
+          return { success: true, user: { name: org.name, email, id: org.id } };
         }
-        return { success: false, error: 'No account found with this email. Please register first.' };
+
+        return {
+          success: false,
+          error: "No account found with this email. Please register first.",
+        };
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      return { success: false, error: 'Network error. Please try again.' };
+    } catch (error: any) {
+      console.error("Login error:", error);
+      return { success: false, error: "Network error. Please try again." };
     }
   },
 
+  // ========================================================================
+  // GET EMPLOYER JOBS
+  // ========================================================================
   async getEmployerJobs(email: string) {
-    if (!MANATAL_API_KEY) {
-      console.warn('Manatal API Key missing. Returning mock jobs.');
-      // Return mock data compatible with the expected structure
+    if (isMock) {
+      console.warn("Manatal API Key missing. Returning mock jobs.");
       const mockJobs = [
         {
-            id: 1,
-            position_name: 'Domestic Helper for Elderly Care',
-            status: 'published',
-            created_at: '2024-07-28T09:00:00Z',
-            department: 'Elderly Care',
-            location: 'Singapore',
-            description: 'Looking for a patient helper to assist with elderly care and general housekeeping.'
+          id: 1,
+          position_name: "Domestic Helper for Elderly Care",
+          status: "published",
+          created_at: "2024-07-28T09:00:00Z",
+          department: "Elderly Care",
+          location: "Singapore",
+          description:
+            "Looking for a patient helper to assist with elderly care and general housekeeping.",
         },
         {
-            id: 2,
-            position_name: 'Housekeeper & Cook',
-            status: 'draft',
-            created_at: '2024-07-25T14:30:00Z',
-            department: 'Housekeeping',
-            location: 'Singapore',
-            description: 'Need assistance with daily cooking and cleaning for a family of 4.'
+          id: 2,
+          position_name: "Housekeeper & Cook",
+          status: "draft",
+          created_at: "2024-07-25T14:30:00Z",
+          department: "Housekeeping",
+          location: "Singapore",
+          description:
+            "Need assistance with daily cooking and cleaning for a family of 4.",
         },
         {
-            id: 3,
-            position_name: 'Nanny for Toddler',
-            status: 'published',
-            created_at: '2024-07-29T11:00:00Z',
-            department: 'Childcare',
-            location: 'Jurong West, Singapore',
-            description: 'Experienced nanny needed for a 3-year-old child.'
-        }
+          id: 3,
+          position_name: "Nanny for Toddler",
+          status: "published",
+          created_at: "2024-07-29T11:00:00Z",
+          department: "Childcare",
+          location: "Jurong West, Singapore",
+          description: "Experienced nanny needed for a 3-year-old child.",
+        },
       ];
       return { success: true, jobs: mockJobs };
     }
 
     try {
-      const orgResponse = await fetch(
-        `${MANATAL_BASE_URL}/organizations/?external_id=${encodeURIComponent(email)}`,
-        { method: 'GET', headers: getHeaders() }
-      );
-      const orgData = await orgResponse.json();
+      const orgResponse = await api.get(`/organizations/`, {
+        params: { external_id: email },
+      });
 
-      if (!orgResponse.ok || !orgData.results?.length) {
-        return { success: true, jobs: [], message: 'No organization found' };
+      if (!orgResponse.data.results?.length) {
+        return { success: true, jobs: [], message: "No organization found" };
       }
 
-      const organizationId = orgData.results[0].id;
-      const jobsResponse = await fetch(
-        `${MANATAL_BASE_URL}/jobs/?organization_id=${organizationId}`,
-        { method: 'GET', headers: getHeaders() }
-      );
-      const jobsData = await jobsResponse.json();
+      const organizationId = orgResponse.data.results[0].id;
 
-      if (!jobsResponse.ok) {
-        return { success: false, error: 'Failed to fetch jobs', jobs: [] };
-      }
+      const jobsResponse = await api.get(`/jobs/`, {
+        params: { organization_id: organizationId },
+      });
 
-      return { success: true, jobs: jobsData.results || [], organization: orgData.results[0] };
-    } catch (error) {
-      console.error('Fetch jobs error:', error);
-      return { success: false, error: 'Network error. Please try again.', jobs: [] };
+      return {
+        success: true,
+        jobs: jobsResponse.data.results || [],
+        organization: orgResponse.data.results[0],
+      };
+    } catch (error: any) {
+      console.error("Fetch jobs error:", error);
+      return {
+        success: false,
+        error: "Network error. Please try again.",
+        jobs: [],
+      };
     }
   },
 
+  // ========================================================================
+  // CREATE JOB
+  // ========================================================================
   async createJob(jobData: any, employerEmail: string) {
-    if (!MANATAL_API_KEY) {
-        console.warn('Manatal API Key missing. Mocking job creation.');
-        return { success: true, data: { id: Date.now(), ...jobData } };
+    if (isMock) {
+      console.warn("Manatal API Key missing. Mocking job creation.");
+      return { success: true, data: { id: Date.now(), ...jobData } };
     }
 
     try {
-        // 1. Get Organization ID
-        const orgResponse = await fetch(
-            `${MANATAL_BASE_URL}/organizations/?external_id=${encodeURIComponent(employerEmail)}`,
-            { method: 'GET', headers: getHeaders() }
-        );
-        const orgData = await orgResponse.json();
+      // Get Org ID
+      const orgResponse = await api.get(`/organizations/`, {
+        params: { external_id: employerEmail },
+      });
 
-        if (!orgResponse.ok || !orgData.results?.length) {
-            return { success: false, error: 'Employer organization not found in Manatal.' };
-        }
-
-        const organizationId = orgData.results[0].id;
-
-        // 2. Create Job
-        const payload = {
-            position_name: jobData.title,
-            organization: organizationId,
-            description: jobData.description,
-            salary_min: jobData.salary?.min,
-            salary_max: jobData.salary?.max,
-            currency: jobData.salary?.currency,
-            address: jobData.location,
-            status: 'published' // or 'draft'
+      if (!orgResponse.data.results?.length) {
+        return {
+          success: false,
+          error: "Employer organization not found in Manatal.",
         };
+      }
 
-        const response = await fetch(`${MANATAL_BASE_URL}/jobs/`, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify(payload)
-        });
+      const organizationId = orgResponse.data.results[0].id;
 
-        const result = await response.json();
+      // Create Job Payload
+      const payload = {
+        position_name: jobData.title,
+        organization: organizationId,
+        description: jobData.description,
+        salary_min: jobData.salary?.min,
+        salary_max: jobData.salary?.max,
+        currency: jobData.salary?.currency,
+        address: jobData.location,
+        status: "published",
+      };
 
-        if (!response.ok) {
-            return { success: false, error: result.detail || 'Failed to create job.' };
-        }
+      const response = await api.post(`/jobs/`, payload);
 
-        return { success: true, data: result };
-
-    } catch (error) {
-        console.error('Create Job Error:', error);
-        return { success: false, error: 'Network error.' };
+      return { success: true, data: response.data };
+    } catch (error: any) {
+      console.error("Create Job Error:", error);
+      return {
+        success: false,
+        error: error.response?.data?.detail || "Failed to create job.",
+      };
     }
-  }
+  },
 };

@@ -13,6 +13,7 @@ import ContactPage from './pages/ContactPage';
 import PricingPage from './pages/PricingPage';
 import { StateProvider } from './contexts/StateContext';
 
+// Toast Component
 const Toast: React.FC<{ notification: Notification; onDismiss: (id: number) => void }> = ({ notification, onDismiss }) => {
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -140,13 +141,13 @@ const AppContent: React.FC = () => {
     navigate('/');
   };
   
-  const handleProfileComplete = () => {
-    setIsNewUser(false);
-    addNotification('Profile completed successfully! You have been auto-matched with relevant jobs.', 'success');
-  };
-
   const handleSetCountry = (selectedCountry: Country) => {
     setCountry(selectedCountry);
+  };
+
+  const handleProfileComplete = () => {
+    setIsNewUser(false);
+    addNotification('Profile completed successfully!', 'success');
   };
 
   return (
@@ -167,7 +168,7 @@ const AppContent: React.FC = () => {
                         onLogout={handleLogout} 
                         isNewUser={isNewUser} 
                         onProfileComplete={handleProfileComplete} 
-                        addNotification={addNotification} 
+                        addNotification={addNotification}
                     />
                 } />
             </Route>

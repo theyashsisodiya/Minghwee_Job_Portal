@@ -15,7 +15,7 @@ import { ProgressStatus, JobStatus, CandidateApplicationStatus, DocumentStatus, 
 export const NAV_LINKS: NavItem[] = [
   { label: 'For Employers', href: '#employers' },
   { label: 'For Helpers', href: '#helpers' },
-  { label: 'How It Works', href: '#how-it-works' },
+  { label: 'Frequently Asked Questions', href: '#faq' },
   { label: 'Stories', href: '#stories' },
 ];
 

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -22,30 +21,33 @@
             },
             colors: {
               brand: {
-                terracotta: '#D97757',
-                coral: '#E07A5F',
-                cream: '#FDFCDC',
-                beige: '#F4F1DE',
-                burgundy: '#6D2E46',
-                honey: '#F2CC8F',
+                terracotta: '#ff6b6b', /* Primary CTA: Red / Warm Coral */
+                coral: '#ff8fa3',      /* Secondary/Hover: Light Pink/Red */
+                cream: '#f8faff',      /* Background: Ambient Sky White */
+                beige: '#eef2ff',      /* Secondary Background: Cool Light Blue tint */
+                burgundy: '#051b3b',   /* Text & Base: Deep Midnight Navy */
+                honey: '#4fa3e0',      /* Accent & Blob: Soft Sky Blue */
+                purple: '#9d7fe3',     /* Ambient Blend: Lavender Bloom */
               }
             },
             boxShadow: {
               'ambient-blue': '0 10px 40px -10px rgba(59, 130, 246, 0.15)',
-              'ambient-green': '0 10px 40px -10px rgba(34, 197, 94, 0.15)',
-              'ambient-purple': '0 10px 40px -10px rgba(168, 85, 247, 0.15)',
-              'ambient-orange': '0 10px 40px -10px rgba(249, 115, 22, 0.15)',
-              'ambient-red': '0 10px 40px -10px rgba(239, 68, 68, 0.15)',
-              'glass': '0 4px 20px 0 rgba(0, 0, 0, 0.03)',
-              'glow': '0 0 15px rgba(255,255,255,0.4)',
-              'neon': '0 0 10px rgba(59, 130, 246, 0.3), 0 0 20px rgba(59, 130, 246, 0.1)',
+              'glass': '0 8px 32px rgba(5, 27, 59, 0.05)',
+              'glow': '0 0 15px rgba(79, 163, 224, 0.4)',
             },
-            backgroundImage: {
-              'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-              'glass-gradient': 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
+            animation: {
+              'blink-cursor': 'blink 1s step-end infinite',
+              'float': 'float 10s infinite alternate ease-in-out',
             },
-            backdropBlur: {
-              'xs': '2px',
+            keyframes: {
+              blink: {
+                '0%, 100%': { opacity: '1' },
+                '50%': { opacity: '0' },
+              },
+              float: {
+                '0%': { transform: 'translate(0, 0)' },
+                '100%': { transform: 'translate(20px, -20px)' },
+              }
             }
           }
         }
@@ -57,11 +59,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/TextPlugin.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollToPlugin.min.js"></script>
-    <!-- Note: ScrollSmoother is a Club GreenSock perk. Using a compatible fallback if CDN fails or trial version -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollSmoother.min.js"></script>
 
     <style>
-      /* Global Reset for Scrolling Compatibility */
+      :root {
+        --c-blob-blue: #4fa3e0; /* Soft Sky Blue */
+        --c-blob-warm: #ff6b6b; /* Red / Warm Coral */
+        --c-blob-purple: #9d7fe3; /* Lavender Bloom */
+        --c-bg: #f8faff;        /* Ambient Sky White */
+        --c-glass: rgba(255, 255, 255, 0.7);
+        --c-glass-border: rgba(255, 255, 255, 0.8);
+      }
+
+      /* Global Reset */
       html, body {
         width: 100%;
         height: auto;
@@ -69,16 +79,36 @@
         margin: 0;
         padding: 0;
         overflow-x: hidden;
-        background-color: #F8FAFC; /* slate-50 base */
+        background-color: var(--c-bg);
+        color: #051b3b; /* Deep Midnight Navy Base Text */
       }
       
       /* Input styles fix */
       input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="date"], input[type="number"], textarea, select {
-        color: #1f2937;
+        color: #051b3b; /* Deep Midnight Navy */
       }
       input::placeholder, textarea::placeholder {
-        color: #9ca3af;
+        color: #94a3b8;
       }
+
+      /* Ambient Blobs */
+      .blob-container {
+          position: fixed;
+          top: 0; left: 0; width: 100%; height: 100%;
+          z-index: -1;
+          overflow: hidden;
+          pointer-events: none;
+      }
+      .blob {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(80px);
+          opacity: 0.5;
+          animation: float 10s infinite alternate ease-in-out;
+      }
+      .blob-1 { top: -10%; right: -10%; width: 700px; height: 700px; background: var(--c-blob-blue); }
+      .blob-2 { bottom: -10%; left: -5%; width: 600px; height: 600px; background: var(--c-blob-warm); animation-delay: -5s; }
+      .blob-3 { top: 40%; left: 30%; width: 400px; height: 400px; background: var(--c-blob-purple); opacity: 0.3; }
 
       /* Lenis Specific Styles */
       html.lenis, html.lenis body {
@@ -97,7 +127,6 @@
         pointer-events: none;
       }
       
-      /* Scrollbar aesthetic for admin panels */
       ::-webkit-scrollbar {
         width: 6px;
         height: 6px;
@@ -111,19 +140,6 @@
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #94a3b8; 
-      }
-
-      /* Animations for Ambient Light - Slowed down and more subtle */
-      @keyframes float {
-        0% { transform: translate(0px, 0px); }
-        50% { transform: translate(-10px, 10px); }
-        100% { transform: translate(0px, 0px); }
-      }
-      .animate-float {
-        animation: float 15s ease-in-out infinite;
-      }
-      .animate-float-delayed {
-        animation: float 20s ease-in-out infinite reverse;
       }
     </style>
     <script type="importmap">
@@ -140,7 +156,10 @@
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
     "vite": "https://aistudiocdn.com/vite@^7.2.6",
     "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.10.1"
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.10.1",
+    "axios": "https://esm.sh/axios@^1.13.2",
+    "@emailjs/browser": "https://esm.sh/@emailjs/browser@^4.4.1",
+    "path": "https://esm.sh/path@^0.12.7"
   }
 }
 </script>
