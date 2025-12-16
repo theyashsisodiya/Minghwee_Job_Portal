@@ -425,13 +425,13 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
                     className="w-full h-auto object-cover md:min-h-[500px] max-h-[700px] transform transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                   />
                   
-                  <div className="absolute bottom-8 left-8 right-8 md:right-auto md:left-12 bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-lg z-20 max-w-sm border border-white/50 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
-                      <p className="text-gray-700 italic mb-2 font-medium text-lg leading-snug">"Since 1983, We’ve Nurtured Family Bonds."</p>
-                      <div className="flex items-center gap-2">
+                  <div className="absolute bottom-4 left-4 right-4 md:bottom-8 md:left-12 md:right-auto bg-white/95 backdrop-blur-md p-4 md:p-5 rounded-xl md:rounded-2xl shadow-lg z-20 max-w-[calc(100%-2rem)] md:max-w-sm border border-white/50 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
+                      <p className="text-gray-700 italic mb-2 font-medium text-sm md:text-lg leading-snug">"Since 1983, We’ve Nurtured Family Bonds."</p>
+                      <div className="flex items-center gap-2 flex-wrap">
                         <div className="flex gap-1 text-yellow-400">
-                          {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+                          {[...Array(5)].map((_, i) => <Star key={i} className="w-3 h-3 md:w-4 md:h-4 fill-current" />)}
                         </div>
-                        <span className="text-xs text-gray-400 font-bold uppercase tracking-wider ml-2">VERIFIED BY 10,000+ FAMILIES</span>
+                        <span className="text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-wider ml-1 md:ml-2">VERIFIED BY 10,000+ FAMILIES</span>
                       </div>
                   </div>
                 </div>
