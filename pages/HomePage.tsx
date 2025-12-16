@@ -364,10 +364,10 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
               <span>Request Consultation</span>
             </button>
 
-            {/* Main CTA */}
+            {/* Main CTA - HIDDEN ON MOBILE to fix overflow issues */}
             <button 
                 onClick={() => navigate('/login')}
-                className="bg-brand-terracotta text-white px-6 py-2.5 rounded-full hover:bg-brand-coral transition-all transform hover:scale-105 shadow-md text-sm font-bold whitespace-nowrap animate-pulse-slow"
+                className="hidden md:block bg-brand-terracotta text-white px-6 py-2.5 rounded-full hover:bg-brand-coral transition-all transform hover:scale-105 shadow-md text-sm font-bold whitespace-nowrap animate-pulse-slow"
             >
               Get Started Today
             </button>
@@ -441,15 +441,29 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
                     className="w-full h-[450px] md:h-auto object-cover object-top md:object-center md:min-h-[500px] max-h-[700px] transform transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                   />
                   
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%] md:w-auto md:left-12 md:translate-x-0 md:right-auto bg-white/95 backdrop-blur-md p-3 md:p-5 rounded-xl md:rounded-2xl shadow-lg z-20 md:max-w-sm border border-white/50 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
-                      <p className="text-gray-700 italic mb-1 md:mb-2 font-medium text-xs md:text-lg leading-snug text-center md:text-left">"Since 1983, We’ve Nurtured Family Bonds."</p>
-                      <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
+                  {/* DESKTOP CARD POSITION - Absolute Bottom Left */}
+                  <div className="hidden md:block absolute bottom-8 left-12 bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-lg z-20 max-w-sm border border-white/50 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
+                      <p className="text-gray-700 italic mb-2 font-medium text-lg leading-snug">"Since 1983, We’ve Nurtured Family Bonds."</p>
+                      <div className="flex items-center gap-2 flex-wrap">
                         <div className="flex gap-1 text-yellow-400">
-                          {[...Array(5)].map((_, i) => <Star key={i} className="w-3 h-3 md:w-4 md:h-4 fill-current" />)}
+                          {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
                         </div>
-                        <span className="text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-wider ml-1 md:ml-2">VERIFIED BY 10,000+ FAMILIES</span>
+                        <span className="text-xs text-gray-400 font-bold uppercase tracking-wider ml-2">VERIFIED BY 10,000+ FAMILIES</span>
                       </div>
                   </div>
+                </div>
+
+                {/* MOBILE CARD POSITION - Stacked Below Image */}
+                <div className="md:hidden mt-6 mx-4">
+                    <div className="bg-white p-5 rounded-2xl shadow-xl border border-gray-100 text-center relative z-20">
+                        <p className="text-gray-700 italic mb-2 font-medium text-lg leading-snug">"Since 1983, We’ve Nurtured Family Bonds."</p>
+                        <div className="flex items-center justify-center gap-2 flex-wrap">
+                        <div className="flex gap-1 text-yellow-400">
+                            {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+                        </div>
+                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider ml-1">VERIFIED BY 10,000+ FAMILIES</span>
+                        </div>
+                    </div>
                 </div>
               </MotionDiv>
 
