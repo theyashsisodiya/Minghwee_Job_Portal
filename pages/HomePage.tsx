@@ -2,9 +2,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { 
-  Menu, X, ArrowRight, CheckCircle, Star,
+  Menu, X, ArrowRight, Star,
   ShieldCheck, Target, Zap, HeartHandshake,
-  Home, Sparkles, Briefcase, TrendingUp, ChevronDown, MessageCircle, Bot, Phone
+  Home, Sparkles, Briefcase, TrendingUp, ChevronDown, MessageCircle, Bot, Phone,
+  Check
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Lenis from 'lenis';
@@ -91,7 +92,7 @@ const CUSTOM_NAV_CSS = `
   align-items: center;
   padding: 8px 16px;
   cursor: pointer;
-  color: #224;
+  color: #3D405B;
   font-weight: 500;
   transition: color 160ms;
   border-radius: 99em;
@@ -101,7 +102,7 @@ const CUSTOM_NAV_CSS = `
 }
 
 .glass-nav-item:hover {
-  color: #0052f5;
+  color: #E07A5F;
 }
 
 .glass-nav-item.active {
@@ -109,64 +110,6 @@ const CUSTOM_NAV_CSS = `
   font-weight: 600;
 }
 `;
-
-// --- Custom Typewriter Component ---
-const TypewriterTitle = () => {
-  const [stage, setStage] = useState(0); // 0: First part, 1: Highlight, 2: Last part
-  const [text1, setText1] = useState("");
-  const [text2, setText2] = useState("");
-  
-  const part1 = "Where Trust Meets ";
-  const highlight = "Care";
-  const part2 = " in Domestic Work.";
-
-  useEffect(() => {
-    // Type Part 1
-    if (stage === 0) {
-      if (text1.length < part1.length) {
-        const timeout = setTimeout(() => {
-          setText1(part1.slice(0, text1.length + 1));
-        }, 50); // Speed
-        return () => clearTimeout(timeout);
-      } else {
-        // Finished Part 1, move to highlight
-        const timeout = setTimeout(() => setStage(1), 200);
-        return () => clearTimeout(timeout);
-      }
-    }
-    
-    // Highlight Reveal (Handled by render opacity/scale), move to Part 2
-    if (stage === 1) {
-      const timeout = setTimeout(() => setStage(2), 600); // Wait for highlight animation
-      return () => clearTimeout(timeout);
-    }
-
-    // Type Part 2
-    if (stage === 2) {
-      if (text2.length < part2.length) {
-        const timeout = setTimeout(() => {
-          setText2(part2.slice(0, text2.length + 1));
-        }, 50);
-        return () => clearTimeout(timeout);
-      }
-    }
-  }, [stage, text1, text2]);
-
-  return (
-    <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold text-brand-burgundy leading-tight min-h-[1.2em]">
-      {text1}
-      <span 
-        className={`text-brand-terracotta italic inline-block transition-all duration-500 transform ${
-          stage >= 1 ? 'opacity-100 scale-100' : 'opacity-0 scale-90 w-0'
-        }`}
-      >
-        {highlight}
-      </span>
-      {text2}
-      <span className="w-[3px] h-[1em] bg-brand-terracotta inline-block ml-1 align-middle animate-blink-cursor"></span>
-    </h1>
-  );
-};
 
 // --- Glassmorphism SVG Filter ---
 const GlassFilter = () => (
@@ -339,7 +282,7 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-cream font-sans text-gray-800 selection:bg-brand-purple selection:text-white overflow-x-hidden relative">
+    <div className="min-h-screen bg-brand-cream font-sans text-brand-burgundy selection:bg-brand-sage selection:text-white overflow-x-hidden relative">
       <style>{CUSTOM_NAV_CSS}</style>
       <GlassFilter />
       
@@ -359,11 +302,7 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
           
           {/* Logo - Left */}
           <a href="#" className="flex-shrink-0 flex items-center pl-2" onClick={(e) => handleNavClick(e, '#')}>
-            <img 
-              src="https://ik.imagekit.io/ui4mpbzoy/removed-background.png?updatedAt=1764657414508" 
-              alt="MingHwee Logo" 
-              className="h-8 md:h-10 w-auto object-contain" 
-            />
+            <span className="text-xl md:text-2xl font-serif font-bold text-brand-burgundy tracking-tight">MingHwee</span>
           </a>
 
           {/* 
@@ -412,9 +351,9 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
             {/* Main CTA */}
             <button 
                 onClick={() => navigate('/login')}
-                className="bg-brand-terracotta text-white px-5 py-2.5 rounded-full hover:bg-brand-coral transition-all transform hover:scale-105 shadow-md text-sm font-bold whitespace-nowrap"
+                className="bg-brand-terracotta text-white px-6 py-2.5 rounded-full hover:bg-brand-coral transition-all transform hover:scale-105 shadow-md text-sm font-bold whitespace-nowrap animate-pulse-slow"
             >
-              Get Started
+              Get Started Today
             </button>
 
             {/* Mobile Menu Toggle */}
@@ -453,7 +392,7 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
             onClick={() => { setIsMobileMenuOpen(false); navigate('/login'); }}
             className="bg-brand-terracotta text-white px-8 py-3 rounded-full text-lg shadow-xl"
           >
-            Get Started
+            Get Started Today
           </button>
         </div>
       )}
@@ -465,7 +404,7 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
         <div id="smooth-content" className="will-change-transform">
 
           {/* HERO SECTION */}
-          <header className="relative pt-32 pb-20 md:pt-28 md:pb-32 overflow-hidden">
+          <header className="relative pt-24 pb-20 md:pt-32 md:pb-32 overflow-hidden">
             {/* Container Update: Wider Layout */}
             <div className="w-full max-w-[90%] 2xl:max-w-[1600px] mx-auto px-6 flex flex-col items-center text-center">
               
@@ -487,12 +426,12 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
                   />
                   
                   <div className="absolute bottom-8 left-8 right-8 md:right-auto md:left-12 bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-lg z-20 max-w-sm border border-white/50 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
-                      <p className="text-gray-700 italic mb-2 font-medium text-lg leading-snug">"Bringing harmony back to our home."</p>
+                      <p className="text-gray-700 italic mb-2 font-medium text-lg leading-snug">"Since 1983, We’ve Nurtured Family Bonds."</p>
                       <div className="flex items-center gap-2">
                         <div className="flex gap-1 text-yellow-400">
                           {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
                         </div>
-                        <span className="text-xs text-gray-400 font-bold uppercase tracking-wider ml-2">Verified Review</span>
+                        <span className="text-xs text-gray-400 font-bold uppercase tracking-wider ml-2">VERIFIED BY 10,000+ FAMILIES</span>
                       </div>
                   </div>
                 </div>
@@ -506,45 +445,47 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
                 className="max-w-4xl space-y-6 flex flex-col items-center z-10"
               >
                 {/* 1. Title */}
-                <TypewriterTitle />
+                <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl font-bold text-brand-burgundy leading-tight">
+                  Where Trust Meets Care. <br/>
+                  <span className="text-brand-terracotta italic">Bringing Harmony Back to Your Home.</span>
+                </h1>
                 
                 {/* 2. Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-4">
                   <button 
                     onClick={() => navigate('/login?type=employer')}
-                    className="bg-brand-terracotta text-white px-8 py-4 rounded-full font-bold hover:bg-brand-coral transition-all shadow-xl shadow-brand-terracotta/30 flex items-center justify-center gap-2 group text-lg"
+                    className="bg-brand-terracotta text-white px-8 py-4 rounded-full font-bold hover:bg-brand-coral transition-all shadow-xl shadow-brand-terracotta/30 flex items-center justify-center gap-2 group text-lg animate-pulse-slow"
                   >
-                    Find a Helper <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    FIND YOUR PERFECT MATCH TODAY <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </button>
                   <button 
-                    onClick={() => navigate('/login?type=candidate')}
-                    className="bg-white text-brand-terracotta border-2 border-brand-terracotta/20 px-8 py-4 rounded-full font-bold hover:bg-brand-beige transition-all flex items-center justify-center gap-2 text-lg hover:border-brand-terracotta/40"
+                    onClick={() => navigate('#stories')}
+                    className="bg-transparent text-brand-burgundy border-2 border-brand-burgundy/20 px-8 py-4 rounded-full font-bold hover:bg-brand-burgundy hover:text-white transition-all flex items-center justify-center gap-2 text-lg"
                   >
-                    Find a Job
+                    Explore Helper Stories
                   </button>
                 </div>
 
                 {/* 3. Subtitle */}
                 <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
-                  Connecting families with verified helpers through respect, safety, and heart. We believe every home deserves peace of mind.
+                  Connecting families with <span className="font-bold text-brand-burgundy">personally vetted</span> domestic helpers through respect, safety, and heart.
                 </p>
                 
-                {/* 4. Stats */}
-                <div className="flex flex-wrap justify-center gap-4 sm:gap-8 text-base font-semibold text-gray-500">
-                  <div className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full backdrop-blur-sm">
-                    <ShieldCheck className="w-5 h-5 text-brand-terracotta" />
-                    <span>100% Verified Helpers</span>
+                {/* 4. Stats / Trust Indicators */}
+                <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm font-bold text-gray-500 uppercase tracking-wide mt-4">
+                  <div className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full backdrop-blur-sm border border-white">
+                    <ShieldCheck className="w-4 h-4 text-brand-sage" />
+                    <span>Personally Vetted Since 1983</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full backdrop-blur-sm">
-                    <Home className="w-5 h-5 text-brand-terracotta" />
+                  <div className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full backdrop-blur-sm border border-white">
+                    <Home className="w-4 h-4 text-brand-sage" />
                     <span>10,000+ Happy Families</span>
                   </div>
+                  <div className="flex items-center gap-2 bg-white/50 px-4 py-2 rounded-full backdrop-blur-sm border border-white">
+                    <Star className="w-4 h-4 text-brand-sage" />
+                    <span>#1 Trusted Platform in SG</span>
+                  </div>
                 </div>
-
-                {/* 5. Tagline */}
-                <span className="inline-block px-4 py-1.5 bg-brand-terracotta/10 text-brand-terracotta rounded-full text-sm font-bold tracking-wide border border-brand-terracotta/20">
-                  #1 TRUSTED PLATFORM {selectedCountry ? `IN ${selectedCountry.toUpperCase()}` : ''}
-                </span>
                 
               </MotionDiv>
 
@@ -556,36 +497,36 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
             <div className="w-full max-w-[90%] 2xl:max-w-[1600px] mx-auto px-6">
               <div className="flex flex-col md:flex-row items-center gap-16">
                 <div className="flex-1 space-y-8">
-                  <h2 className="font-serif text-3xl md:text-4xl font-bold text-brand-burgundy">Your New Family Member Awaits</h2>
+                  <h2 className="font-serif text-3xl md:text-4xl font-bold text-brand-burgundy leading-tight">Your New Family Member Awaits Personally Chosen for Your Home</h2>
                   <p className="text-lg text-gray-600">
-                    We connect you with caring, verified domestic helpers who become part of your family. Hire with peace of mind.
+                    We don’t just <em>place</em> helpers — we welcome a <strong>new family member</strong> into your home. For <strong>40 years</strong>, our boutique matching process has united families with caring, dedicated helpers who become part of your daily life.
                   </p>
 
-                  <div className="space-y-8">
+                  <div className="space-y-6">
                     {[
-                      { Icon: ShieldCheck, title: "Verified & Trusted Helpers", desc: "Pre-screened professionals committed to quality care." },
-                      { Icon: Target, title: "Requirement-Based Matching", desc: "Candidates are shortlisted using your specific household details and job expectations." },
-                      { Icon: Zap, title: "Supported Hiring Experience", desc: "Clear steps, timely updates, and assistance throughout the process." },
-                      { Icon: HeartHandshake, title: "Ongoing Support", desc: "We're here to ensure a smooth, successful placement." }
+                      { title: "PERSONALLY VETTED BY OUR TEAM SINCE 1983", desc: "Every helper undergoes a 12‑step verification process background checks, reference calls, home visits & personality profiling. No algorithms. Just human care." },
+                      { title: "BOUQUET MATCHING: WE KNOW YOUR FAMILY & THEIRS", desc: "We don’t use generic filters. Our consultants spend time understanding your family’s rhythm, values, and needs — then hand‑select helpers whose hearts align." },
+                      { title: "HIRE WITH EASE, NOT HASSLE", desc: "We streamline the hiring process, ensuring a smooth journey from interview to placement. Your dedicated consultant will support you through every step, ensuring there are no confusing forms or unnecessary delays" },
+                      { title: "LIFELONG CARE: 24/7 COUNSELING & LOYALTY BONUSES", desc: "Our relationship doesn’t end at handover. Access 24/7 support, quarterly check‑ins, conflict resolution, AND loyalty bonuses for helpers who stay 2+ years." }
                     ].map((item, idx) => (
                       <div key={idx} className="flex gap-4 group">
-                        <div className="w-14 h-14 bg-white text-brand-terracotta rounded-2xl flex-shrink-0 flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">
-                          <item.Icon className="w-7 h-7" />
+                        <div className="w-8 h-8 rounded-full bg-brand-sage/20 text-brand-sage flex items-center justify-center shrink-0 mt-1">
+                          <Check className="w-5 h-5" />
                         </div>
                         <div>
-                          <h4 className="text-xl font-bold text-gray-800 group-hover:text-brand-terracotta transition-colors">{item.title}</h4>
-                          <p className="text-gray-600 text-lg mt-2 leading-relaxed">{item.desc}</p>
+                          <h4 className="text-lg font-bold text-brand-burgundy group-hover:text-brand-terracotta transition-colors">{item.title}</h4>
+                          <p className="text-gray-600 text-base mt-1 leading-relaxed">{item.desc}</p>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="pt-4 flex flex-col sm:flex-row gap-4">
+                  <div className="pt-6">
                       <button 
                         onClick={() => navigate('/login?type=employer')}
-                        className="bg-brand-terracotta text-white px-8 py-4 rounded-full font-bold hover:bg-brand-coral transition-all shadow-lg shadow-brand-terracotta/25"
+                        className="bg-brand-terracotta text-white px-8 py-4 rounded-full font-bold hover:bg-brand-coral transition-all shadow-lg shadow-brand-terracotta/25 uppercase tracking-wide text-sm"
                       >
-                        Find a Helper
+                        Find Your Family Match →
                       </button>
                   </div>
                 </div>
@@ -597,9 +538,12 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
                       className="rounded-[2rem] shadow-2xl object-cover h-[600px] w-full relative z-10 transform transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                   />
                   <div className="absolute bottom-8 right-8 bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-lg z-20 max-w-xs border border-white/50">
-                      <p className="text-gray-600 italic mb-2 font-medium text-lg">"I found someone my family trusts completely."</p>
-                      <div className="flex gap-1 text-yellow-400">
-                        {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+                      <p className="text-gray-600 italic mb-2 font-medium text-lg leading-snug">"After 3 failed agencies, MingHwee found someone my family trusts completely. She feels like family."</p>
+                      <div className="flex justify-between items-center mt-4">
+                        <span className="text-xs font-bold text-brand-burgundy uppercase">— The Lim Family, Singapore</span>
+                        <div className="flex gap-1 text-brand-honey">
+                          {[...Array(5)].map((_, i) => <Star key={i} className="w-3 h-3 fill-current" />)}
+                        </div>
                       </div>
                   </div>
                 </div>
@@ -615,48 +559,53 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
                   <img 
                     src="https://github.com/theyashsisodiya/MingHwee_Detailed_Workflow/blob/main/nano-edit-17641513130171.png?raw=true"
                     alt="Professional domestic cleaning"
-                    className="relative z-10 rounded-[2rem] shadow-2xl object-cover h-[500px] w-full transform transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                    className="relative z-10 rounded-[2rem] shadow-2xl object-cover h-[600px] w-full transform transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                   />
-                  <div className="absolute bottom-8 right-8 bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-lg z-20 max-w-xs">
-                    <p className="text-gray-600 italic mb-2 text-lg">"I found a family that respects me."</p>
-                    <div className="flex gap-1 text-yellow-400">
-                      {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+                  <div className="absolute bottom-8 left-8 bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-lg z-20 max-w-xs border border-white/50">
+                    <p className="text-gray-600 italic mb-2 text-lg leading-snug">"MingHwee didn’t just find me a job  they found me a family that respects me."</p>
+                    <div className="flex justify-between items-center mt-4">
+                        <span className="text-xs font-bold text-brand-burgundy uppercase">— Siti Rahma, Helper since 2021</span>
+                        <div className="flex gap-1 text-brand-honey">
+                          {[...Array(5)].map((_, i) => <Star key={i} className="w-3 h-3 fill-current" />)}
+                        </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex-1 space-y-8">
                   {/* Updated Text Copy */}
-                  <h2 className="font-serif text-3xl md:text-4xl font-bold text-brand-burgundy">Find a Family Who Values Your Care</h2>
+                  <h2 className="font-serif text-3xl md:text-4xl font-bold text-brand-burgundy leading-tight">Find a Family Who Values Your Care Not Just Your Work</h2>
                   <p className="text-lg text-gray-600">
-                    We connect you with families who value your skills and dedication. Build your career with dignity.
+                    You deserve respect, fairness, and a home where you’re truly appreciated. At MingHwee, we connect <strong>skilled, compassionate helpers</strong> with families committed to <strong>dignity, fair wages, and care</strong>.
                   </p>
 
-                  <div className="space-y-8">
+                  <div className="space-y-6">
                     {[
-                      { Icon: Home, title: "Verified Employers", desc: "Work with families committed to fair treatment." },
-                      { Icon: Sparkles, title: "Showcase Your Skills", desc: "Professional profiles that highlight your experience." },
-                      { Icon: Briefcase, title: "Fair Opportunities", desc: "Transparent salaries and clear expectations." },
-                      { Icon: TrendingUp, title: "Career Growth", desc: "Access training resources and career support." }
+                      { title: "VERIFIED EMPLOYERS", desc: "Every family is interviewed, vetted, and signed to our Fair Treatment Pledge guaranteeing respectful working conditions, clear contracts & timely payment." },
+                      { title: "SHOWCASE YOUR JOURNEY", desc: "Build a professional profile highlighting your skills, personality, and aspirations. We help you shine!" },
+                      { title: "FAIR OPPORTUNITIES & LOYALTY BONUSES", desc: "Transparent salaries (min. SGD $650+), clear expectations, AND a loyalty bonus when you reach 2 years with a family!" },
+                      { title: "GROW YOUR CAREER", desc: "Free access to our Career Advancement Hub: Professional training (first‑aid, childcare, elderly care), language classes, and promotion pathways." }
                     ].map((item, idx) => (
                       <div key={idx} className="flex gap-4 group">
-                        <div className="w-14 h-14 bg-brand-cream text-brand-burgundy rounded-2xl flex-shrink-0 flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">
-                          <item.Icon className="w-7 h-7" />
+                        <div className="w-8 h-8 rounded-full bg-brand-sage/20 text-brand-sage flex items-center justify-center shrink-0 mt-1">
+                          <Check className="w-5 h-5" />
                         </div>
                         <div>
-                          <h4 className="text-xl font-bold text-gray-800 group-hover:text-brand-terracotta transition-colors">{item.title}</h4>
-                          <p className="text-gray-600 text-lg mt-2 leading-relaxed">{item.desc}</p>
+                          <h4 className="text-lg font-bold text-brand-burgundy group-hover:text-brand-terracotta transition-colors">{item.title}</h4>
+                          <p className="text-gray-600 text-base mt-1 leading-relaxed">{item.desc}</p>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <button 
-                    onClick={() => navigate('/login?type=candidate')}
-                    className="bg-brand-honey text-white px-8 py-4 rounded-full font-bold hover:bg-brand-terracotta transition-colors shadow-lg"
-                  >
-                    Get a Job
-                  </button>
+                  <div className="pt-6">
+                    <button 
+                        onClick={() => navigate('/login?type=candidate')}
+                        className="bg-brand-terracotta text-white px-8 py-4 rounded-full font-bold hover:bg-brand-coral transition-colors shadow-lg uppercase tracking-wide text-sm"
+                    >
+                        Upload Your Profile & Find Your Home →
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -666,7 +615,8 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
           <section id="stories" className="py-24 bg-brand-cream rounded-t-[3rem] overflow-hidden z-30 -mt-12 pb-32 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.05)]">
             <div className="w-full max-w-[90%] 2xl:max-w-[1600px] mx-auto px-6">
               <div className="text-center mb-16">
-                <h2 className="font-serif text-3xl md:text-4xl font-bold text-brand-burgundy">Stories of Trust</h2>
+                <h2 className="font-serif text-3xl md:text-4xl font-bold text-brand-burgundy">Real Bonds, Real Stories</h2>
+                <p className="text-lg text-gray-600 mt-2">See how MingHwee brings harmony to homes.</p>
               </div>
               
               <div className="grid md:grid-cols-3 gap-8">
@@ -674,29 +624,35 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
                   <MotionDiv 
                     key={story.id}
                     whileHover={{ y: -10 }}
-                    className="bg-white p-8 rounded-3xl shadow-sm border border-brand-beige flex flex-col items-center text-center"
+                    className="bg-white p-8 rounded-3xl shadow-sm border border-brand-beige flex flex-col items-center text-center relative overflow-hidden group"
                   >
-                    <div className="w-20 h-20 rounded-full overflow-hidden mb-6 border-4 border-brand-cream">
-                      <img src={story.image} alt={story.author} className="w-full h-full object-cover" />
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-sage to-brand-honey"></div>
+                    <div className="w-20 h-20 rounded-full overflow-hidden mb-6 border-4 border-brand-cream shadow-md">
+                      <img src={story.image} alt={story.author} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
                     </div>
-                    <p className="text-gray-600 italic mb-6 text-lg">"{story.quote}"</p>
-                    <div>
-                      <h4 className="font-bold text-brand-burgundy">{story.author}</h4>
-                      <span className="text-sm text-brand-terracotta font-medium uppercase tracking-wide">{story.role}</span>
+                    <p className="text-gray-600 italic mb-6 text-lg leading-relaxed">"{story.quote}"</p>
+                    <div className="mt-auto">
+                      <h4 className="font-bold text-brand-burgundy text-lg">{story.author}</h4>
+                      <span className="text-xs text-brand-terracotta font-bold uppercase tracking-wide">{story.role}</span>
                     </div>
                   </MotionDiv>
                 ))}
               </div>
+              
+              <div className="mt-12 text-center">
+                <button className="text-brand-terracotta font-bold hover:text-brand-burgundy transition-colors text-sm uppercase tracking-wide border-b-2 border-transparent hover:border-brand-burgundy pb-1">
+                    Read More Stories →
+                </button>
+              </div>
             </div>
           </section>
 
-          {/* FAQ Section with Messenger Style Animation */}
+          {/* FAQ Section */}
           <section id="faq" className="py-24 bg-white/90 backdrop-blur-sm rounded-t-[3rem] overflow-hidden z-40 -mt-12 pb-32 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.05)]">
-            <div className="w-full max-w-[90%] 2xl:max-w-[1600px] mx-auto px-6">
+            <div className="w-full max-w-[90%] 2xl:max-w-[1200px] mx-auto px-6">
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-brand-burgundy mb-12 text-center">Frequently Asked Questions</h2>
               
-              {/* FAQ Grid: 2 Columns */}
-              <div className="grid md:grid-cols-2 gap-6 lg:gap-8 items-start">
+              <div className="grid md:grid-cols-1 gap-4 max-w-3xl mx-auto">
                 {FAQS.map((faq, i) => {
                   const isOpen = openFaqIndex === i;
                   
@@ -705,61 +661,28 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
                       key={i} 
                       className={`rounded-2xl p-6 transition-all cursor-pointer border ${
                         isOpen 
-                          ? 'bg-blue-50/50 border-blue-100 shadow-md scale-[1.01]' 
-                          : 'bg-white border-gray-100 hover:bg-gray-50 hover:border-gray-200'
+                          ? 'bg-brand-beige border-brand-sage/30 shadow-md' 
+                          : 'bg-white border-gray-100 hover:bg-gray-50'
                       }`}
                       onClick={() => toggleFaq(i)}
                       layout
                     >
-                      {/* Question Header */}
                       <div className="flex items-center justify-between font-semibold text-gray-800">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-full transition-colors ${isOpen ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-400 border border-gray-200'}`}>
-                            <MessageCircle className="w-5 h-5" />
-                          </div>
-                          <span className={`text-lg transition-colors ${isOpen ? 'text-blue-700' : 'text-gray-700'}`}>{faq.question}</span>
-                        </div>
-                        <MotionSpan
-                          animate={{ rotate: isOpen ? 180 : 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <ChevronDown className={`w-5 h-5 ${isOpen ? 'text-blue-600' : 'text-gray-400'}`} />
+                        <span className={`text-lg ${isOpen ? 'text-brand-burgundy' : 'text-gray-700'}`}>{faq.question}</span>
+                        <MotionSpan animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                          <ChevronDown className={`w-5 h-5 ${isOpen ? 'text-brand-terracotta' : 'text-gray-400'}`} />
                         </MotionSpan>
                       </div>
 
-                      {/* Chat Bubble Answer Animation */}
                       <AnimatePresence>
                         {isOpen && (
                           <MotionDiv
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.4, ease: "easeInOut" }}
-                            className="overflow-hidden"
+                            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                            animate={{ opacity: 1, height: "auto", marginTop: 16 }}
+                            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                            className="overflow-hidden text-gray-600 leading-relaxed text-base"
                           >
-                            <div className="mt-6 flex gap-4 pl-2 items-start">
-                              {/* Bot Avatar */}
-                              <MotionDiv 
-                                initial={{ scale: 0, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-                                className="w-8 h-8 rounded-full bg-brand-terracotta text-white flex items-center justify-center shrink-0 mt-1 shadow-sm border border-white"
-                              >
-                                <Bot className="w-5 h-5" />
-                              </MotionDiv>
-
-                              {/* Message Bubble */}
-                              <MotionDiv 
-                                initial={{ opacity: 0, x: -20, scale: 0.95 }}
-                                animate={{ opacity: 1, x: 0, scale: 1 }}
-                                transition={{ delay: 0.2, type: 'spring', stiffness: 300, damping: 20 }}
-                                className="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 text-gray-600 leading-relaxed text-base relative"
-                              >
-                                {faq.answer}
-                                {/* Tiny tail for the bubble */}
-                                <div className="absolute top-0 -left-[8px] w-0 h-0 border-t-[10px] border-t-white border-l-[10px] border-l-transparent transform rotate-0 drop-shadow-sm" style={{ filter: 'drop-shadow(-1px 1px 1px rgba(0,0,0,0.05))' }} />
-                              </MotionDiv>
-                            </div>
+                            {faq.answer}
                           </MotionDiv>
                         )}
                       </AnimatePresence>
@@ -767,42 +690,48 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
                   );
                 })}
               </div>
+              
+              <div className="mt-12 text-center">
+                <button className="text-gray-500 hover:text-brand-burgundy transition-colors text-sm font-medium">
+                    View Full FAQ →
+                </button>
+              </div>
             </div>
           </section>
 
           {/* Call to Action */}
-          <section className="py-24 bg-brand-terracotta text-white relative overflow-hidden rounded-t-[3rem] z-0 -mt-12 pb-48">
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+          <section className="py-24 bg-brand-burgundy text-white relative overflow-hidden rounded-t-[3rem] z-0 -mt-12 pb-48">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#F2CC8F_1px,transparent_1px)] [background-size:16px_16px]"></div>
             <div className="w-full max-w-[90%] 2xl:max-w-[1600px] mx-auto px-6 text-center relative z-10">
-              <h2 className="font-serif text-4xl md:text-5xl font-bold mb-6">Ready to find your match?</h2>
-              <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto">Join thousands of families and helpers building better lives together.</p>
+              <h2 className="font-serif text-4xl md:text-5xl font-bold mb-6">Ready to Build a Relationship That Lasts?</h2>
+              <p className="text-xl text-brand-cream/80 mb-10 max-w-2xl mx-auto">Join <strong>10,000+ families and helpers</strong> who found harmony, respect, and trust with MingHwee.</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button 
                     onClick={() => navigate('/login')}
-                    className="bg-white text-brand-terracotta px-10 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-colors shadow-xl"
+                    className="bg-brand-terracotta text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-brand-coral transition-colors shadow-xl uppercase tracking-wide transform hover:scale-105"
                 >
-                  Get Started Today
+                  Get Started Today →
                 </button>
                 <button 
                     onClick={() => navigate('/contact')}
-                    className="bg-transparent border-2 border-white/30 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/10 transition-colors"
+                    className="bg-transparent border-2 border-brand-cream/30 text-brand-cream px-10 py-4 rounded-full font-bold text-lg hover:bg-brand-cream/10 transition-colors uppercase tracking-wide"
                 >
-                  Contact Support
+                  Speak to a Consultant
                 </button>
               </div>
             </div>
           </section>
 
           {/* Footer */}
-          <footer className="bg-gray-900 text-gray-300 py-16 rounded-t-[3rem] overflow-hidden z-10 -mt-24 relative shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.5)]">
+          <footer className="bg-[#2d3047] text-gray-400 py-16 rounded-t-[3rem] overflow-hidden z-10 -mt-24 relative shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.5)]">
             <div className="w-full max-w-[90%] 2xl:max-w-[1600px] mx-auto px-6">
-              <div className="grid md:grid-cols-4 gap-12 border-b border-gray-800 pb-12 mb-12">
+              <div className="grid md:grid-cols-4 gap-12 border-b border-gray-700 pb-12 mb-12">
                 <div className="space-y-4">
-                  <span className="font-serif text-2xl font-bold text-white block">MingHwee</span>
-                  <p className="text-sm text-gray-400">Restoring dignity and trust to domestic work, one connection at a time.</p>
+                  <span className="font-serif text-3xl font-bold text-white block tracking-tight">MingHwee</span>
+                  <p className="text-sm text-gray-400 italic leading-relaxed">Restoring dignity and trust to domestic work, one family bond at a time since 1983.</p>
                 </div>
                 <div>
-                  <h4 className="text-white font-bold mb-4">For Employers</h4>
+                  <h4 className="text-white font-bold mb-4 uppercase tracking-wider text-xs">For Employers</h4>
                   <ul className="space-y-2 text-sm">
                     <li><a href="#" className="hover:text-brand-terracotta transition-colors">Browse Helpers</a></li>
                     <li><a href="#" className="hover:text-brand-terracotta transition-colors">Pricing</a></li>
@@ -810,15 +739,15 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="text-white font-bold mb-4">For Helpers</h4>
+                  <h4 className="text-white font-bold mb-4 uppercase tracking-wider text-xs">For Helpers</h4>
                   <ul className="space-y-2 text-sm">
                     <li><a href="#" className="hover:text-brand-terracotta transition-colors">Find Jobs</a></li>
                     <li><a href="#" className="hover:text-brand-terracotta transition-colors">Upload Profile</a></li>
-                    <li><a href="#" className="hover:text-brand-terracotta transition-colors">Training</a></li>
+                    <li><a href="#" className="hover:text-brand-terracotta transition-colors">Training Hub</a></li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="text-white font-bold mb-4">Contact</h4>
+                  <h4 className="text-white font-bold mb-4 uppercase tracking-wider text-xs">Contact</h4>
                   <ul className="space-y-2 text-sm">
                     <li>support@minghwee.com</li>
                     <li>+65 1234 5678</li>
@@ -828,10 +757,17 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
               </div>
               <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
                 <p>&copy; 2024 MingHwee. All rights reserved.</p>
-                <div className="flex gap-6 mt-4 md:mt-0">
-                  <a href="#" className="hover:text-white">Privacy</a>
-                  <a href="#" className="hover:text-white">Terms</a>
+                <div className="flex gap-6 mt-4 md:mt-0 mb-4 md:mb-0">
+                  <a href="#" className="hover:text-white">Privacy Policy</a>
+                  <a href="#" className="hover:text-white">Terms of Service</a>
                 </div>
+              </div>
+              
+              {/* Trust Badges */}
+              <div className="flex flex-wrap justify-center gap-6 mt-8 pt-8 border-t border-gray-700/50 text-xs font-bold uppercase tracking-widest text-gray-500">
+                <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-brand-honey rounded-full"></div> 🏆 Est. 1983</span>
+                <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-brand-honey rounded-full"></div> 🔒 100% Secure Process</span>
+                <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-brand-honey rounded-full"></div> 📜 Fair Treatment Pledge Signed</span>
               </div>
             </div>
           </footer>

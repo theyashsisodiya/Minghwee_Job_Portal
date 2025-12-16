@@ -15,30 +15,30 @@ import { ProgressStatus, JobStatus, CandidateApplicationStatus, DocumentStatus, 
 export const NAV_LINKS: NavItem[] = [
   { label: 'For Employers', href: '#employers' },
   { label: 'For Helpers', href: '#helpers' },
-  { label: 'Frequently Asked Questions', href: '#faq' },
   { label: 'Stories', href: '#stories' },
+  { label: 'FAQ', href: '#faq' },
 ];
 
 export const TESTIMONIALS: Testimonial[] = [
   {
     id: 1,
-    quote: "MingHwee helped me find not just an employer, but a family who truly values my work. I feel respected and supported every day.",
+    quote: "For 5 years, the Tan family has treated me like family. MingHwee checked everything — even called my mother! I feel safe, respected, and happy.",
     author: "Maria Santos",
-    role: "Domestic Helper",
+    role: "Helper, Philippines",
     image: "https://github.com/theyashsisodiya/MingHwee_Detailed_Workflow/blob/main/nano-edit-17641513130172.png?raw=true"
   },
   {
     id: 2,
-    quote: "The peace of mind knowing our helper was thoroughly vetted made all the difference. Our family feels complete now.",
+    quote: "Other agencies felt transactional. MingHwee spent hours understanding our toddler’s needs. Our helper isn’t staff — she’s part of our family.",
     author: "The Tan Family",
     role: "Employers",
     image: "https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?auto=format&fit=crop&q=80&w=200&h=200"
   },
   {
     id: 3,
-    quote: "Professional, transparent, and kind. The training resources provided helped me secure a better salary.",
-    author: "Siti Rahma",
-    role: "Caregiver",
+    quote: "The free childcare course MingHwee offered helped me earn a higher salary. They invest in US!",
+    author: "Ahmad",
+    role: "Helper, Indonesia",
     image: "https://plus.unsplash.com/premium_photo-1661775756810-82dbd209fc95?q=80&w=200&h=200&auto=format&fit=crop"
   }
 ];
@@ -46,51 +46,23 @@ export const TESTIMONIALS: Testimonial[] = [
 export const FAQS: FaqItem[] = [
   {
     question: "How long does the hiring process take?",
-    answer: "Typically 2–4 weeks from candidate shortlisting to handover. Timeline breakdown:\n\n• Matching & one-way video review: 24–72 hours\n• Live interviews & decision: 2–7 days (depends on availability)\n• Payment & document collection: 1–3 days after payment confirmation\n• Regulatory processing, visa/work permit & travel: varies by country (admin will update timeline)"
+    answer: "With our Bouquet Matching process, most families are matched in 2–3 weeks — from consultation to handover."
   },
   {
     question: "What background checks do you perform?",
-    answer: "We perform multi-step checks:\n\n• Employment history & reference verification.\n• Criminal record check / police clearance (country-specific).\n• Identity verification (passport/ID).\n• Skills & certifications validation (when submitted).\n\nAll checks are logged; results shared with employer only after payment/activation where required."
+    answer: "We conduct a 12‑step vetting process including National Crime Records Check, employment & reference verification (5+ years), health screening, home visit & personality interview, and identity & work permit validation."
   },
   {
     question: "Are there fees for helpers?",
-    answer: "No — domestic workers (candidates) are not charged placement fees. Employers pay service and processing fees; helpers are never charged by MingHwee."
+    answer: "Absolutely NOT. We believe domestic workers deserve zero placement fees. Families pay a one‑time matching fee (covers our intensive vetting & support)."
   },
   {
     question: "What payment options do you accept?",
-    answer: "We accept credit/debit cards (Stripe) and local fast-pay options (PayNow or local PSP where supported). Booking fee and full-payment flows supported; receipts issued automatically."
+    answer: "We accept Credit/Debit Card (Stripe), PayNow, and Bank Transfer."
   },
   {
     question: "What is the difference between booking fee and full payment?",
-    answer: "Booking fee: Small refundable fee to reserve a candidate for 7 days. If you proceed to full payment within 7 days it’s deducted from the balance. If you cancel within policy window, it’s refunded.\n\nFull payment: Activates the hiring process immediately — document collection and regulatory workflows start."
-  },
-  {
-    question: "What documents are required from the employer?",
-    answer: "Minimum at signup: name, contact. After candidate selection/payment we request:\n\n• Valid ID / passport copy\n• Proof of residence / address\n• Proof of salary budget or bank details (as needed for regulatory forms)\n\nAll documents are uploaded securely and reviewed by admin."
-  },
-  {
-    question: "What documents are required from the candidate?",
-    answer: "Collected after payment (only when hiring is activated):\n\n• Passport copy\n• Police clearance (NBI or country-equivalent)\n• Medical certificate / health check as required\n• Employment references / certificates (if any)"
-  },
-  {
-    question: "Can I view candidate videos before payment?",
-    answer: "Yes — after the sales consultation step (or after the platform grants access), employers can view one-way intro videos and general candidate info (name, age, nationality, years of experience). Sensitive documents are shared only after payment."
-  },
-  {
-    question: "What if I’m unhappy with the candidate after hiring?",
-    answer: "We offer a replacement & support policy (terms apply):\n\n• Immediate post-handover check-ins (1 week, 1 month, 3 months).\n• If issues are raised under policy, MingHwee support and admin will mediate and provide replacement options or remediation steps per the service agreement."
-  },
-  {
-    question: "How does MingHwee ensure the safety of both parties?",
-    answer: "Safety measures we enforce:\n\n• Verified employer & candidate profiles.\n• Background checks and document verification.\n• Secure document storage & access controls (only authorized staff after payment).\n• Clear code of conduct & placement support (mediation & channels for complaints)."
-  },
-  {
-    question: "Do you help with visa / work permit applications?",
-    answer: "Yes — once payment is confirmed, admin will guide and prepare regulatory submissions (work permit / IPA / embassy steps) and coordinate with overseas agents as required for the candidate’s country."
-  },
-  {
-    question: "How does refunds work?",
-    answer: "Booking fee refunds: Processed if cancellation falls within policy window (usually within 7 days), handled automatically — expect 3–5 business days for bank/card refunds.\n\nFull payment refunds: Handled per the service agreement and case basis (e.g., regulatory rejection). All refunds are logged and visible in your account."
+    answer: "Booking Fee (SGD $150): Reserves your chosen helper. Full Payment: Activates the matching process, contract drafting & handover support."
   }
 ];
 

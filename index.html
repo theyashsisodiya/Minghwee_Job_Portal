@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -21,23 +22,25 @@
             },
             colors: {
               brand: {
-                terracotta: '#ff6b6b', /* Primary CTA: Red / Warm Coral */
-                coral: '#ff8fa3',      /* Secondary/Hover: Light Pink/Red */
-                cream: '#f8faff',      /* Background: Ambient Sky White */
-                beige: '#eef2ff',      /* Secondary Background: Cool Light Blue tint */
-                burgundy: '#051b3b',   /* Text & Base: Deep Midnight Navy */
-                honey: '#4fa3e0',      /* Accent & Blob: Soft Sky Blue */
-                purple: '#9d7fe3',     /* Ambient Blend: Lavender Bloom */
+                terracotta: '#E07A5F', /* Warm Terracotta - Primary */
+                coral: '#ff8fa3',      /* Keep for compatibility or hover states */
+                cream: '#F4F1DE',      /* Cream - Background */
+                beige: '#eef2ff',      /* Keep for compatibility */
+                burgundy: '#3D405B',   /* Charcoal - Text Base (Replaces old Navy) */
+                honey: '#F2CC8F',      /* Gold - Accent */
+                sage: '#81B29A',       /* Sage Green - Secondary */
+                purple: '#9d7fe3',     /* Ambient Blend */
               }
             },
             boxShadow: {
               'ambient-blue': '0 10px 40px -10px rgba(59, 130, 246, 0.15)',
-              'glass': '0 8px 32px rgba(5, 27, 59, 0.05)',
-              'glow': '0 0 15px rgba(79, 163, 224, 0.4)',
+              'glass': '0 8px 32px rgba(61, 64, 91, 0.05)',
+              'glow': '0 0 15px rgba(224, 122, 95, 0.4)',
             },
             animation: {
               'blink-cursor': 'blink 1s step-end infinite',
               'float': 'float 10s infinite alternate ease-in-out',
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             },
             keyframes: {
               blink: {
@@ -63,10 +66,10 @@
 
     <style>
       :root {
-        --c-blob-blue: #4fa3e0; /* Soft Sky Blue */
-        --c-blob-warm: #ff6b6b; /* Red / Warm Coral */
-        --c-blob-purple: #9d7fe3; /* Lavender Bloom */
-        --c-bg: #f8faff;        /* Ambient Sky White */
+        --c-blob-blue: #81B29A; /* Sage */
+        --c-blob-warm: #E07A5F; /* Terracotta */
+        --c-blob-purple: #F2CC8F; /* Gold */
+        --c-bg: #F4F1DE;        /* Cream */
         --c-glass: rgba(255, 255, 255, 0.7);
         --c-glass-border: rgba(255, 255, 255, 0.8);
       }
@@ -80,15 +83,15 @@
         padding: 0;
         overflow-x: hidden;
         background-color: var(--c-bg);
-        color: #051b3b; /* Deep Midnight Navy Base Text */
+        color: #3D405B; /* Charcoal Base Text */
       }
       
       /* Input styles fix */
       input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="date"], input[type="number"], textarea, select {
-        color: #051b3b; /* Deep Midnight Navy */
+        color: #3D405B; /* Charcoal */
       }
       input::placeholder, textarea::placeholder {
-        color: #94a3b8;
+        color: #9ca3af;
       }
 
       /* Ambient Blobs */
@@ -103,7 +106,7 @@
           position: absolute;
           border-radius: 50%;
           filter: blur(80px);
-          opacity: 0.5;
+          opacity: 0.4;
           animation: float 10s infinite alternate ease-in-out;
       }
       .blob-1 { top: -10%; right: -10%; width: 700px; height: 700px; background: var(--c-blob-blue); }
@@ -135,11 +138,11 @@
         background: transparent; 
       }
       ::-webkit-scrollbar-thumb {
-        background: #cbd5e1; 
+        background: #81B29A; 
         border-radius: 10px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8; 
+        background: #3D405B; 
       }
     </style>
     <script type="importmap">
