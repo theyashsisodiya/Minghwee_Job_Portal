@@ -27,16 +27,13 @@ const Header: React.FC<HeaderProps> = ({ setCountry, selectedCountry }) => {
     <header className="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-brand-beige shadow-sm">
       <nav className="container mx-auto px-6 py-6 flex items-center justify-between">
         <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
-           <div className="bg-brand-burgundy text-white p-2 rounded-xl shadow-lg shadow-brand-burgundy/20 group-hover:scale-105 transition-transform">
-               <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.28-1.25-.743-1.659M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.28-1.25.743-1.659M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 0c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79-4-4-1.79-4-4-4z" /></svg>
-           </div>
-           <span className="text-2xl font-bold text-brand-burgundy tracking-tight font-serif">MingHwee</span>
+           <img src="https://ik.imagekit.io/ui4mpbzoy/removed-background.png?updatedAt=1764657414508" alt="MingHwee" className="h-12 w-auto object-contain transform group-hover:scale-105 transition-transform" />
         </div>
         
         <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
             <a onClick={() => navigate('/')} className={`${linkBaseClass} ${inactiveLinkClass}`}>Home</a>
             <a onClick={() => navigate('/about')} className={`${linkBaseClass} ${inactiveLinkClass}`}>About Us</a>
-            <a onClick={() => navigate('/pricing')} className={`${linkBaseClass} ${activeLinkClass}`}>Pricing</a>
+            <a onClick={() => navigate('/pricing')} className={`${linkBaseClass} ${inactiveLinkClass}`}>Pricing</a>
             <a onClick={() => navigate('/contact')} className={`${linkBaseClass} ${inactiveLinkClass}`}>Contact</a>
         </div>
 
@@ -69,9 +66,7 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-16">
                     <div className="md:col-span-2 pr-8">
                         <div className="flex items-center gap-2 mb-6">
-                             <div className="bg-white text-brand-burgundy p-1 rounded-lg">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.28-1.25-.743-1.659M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.28-1.25.743-1.659M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 0c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79-4-4-1.79-4-4-4z" /></svg>
-                           </div>
+                             <img src="https://ik.imagekit.io/ui4mpbzoy/removed-background.png?updatedAt=1764657414508" alt="MingHwee" className="h-8 w-auto bg-white rounded-lg p-1" />
                            <span className="text-2xl font-bold font-serif">MingHwee</span>
                         </div>
                         <p className="text-gray-300 mb-4">This MingHwee platform is partnered with the following employment agencies:</p>

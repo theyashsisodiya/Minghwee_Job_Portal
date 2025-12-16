@@ -276,7 +276,7 @@ const AdminSignIn = async () => {
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-brand-beige">
         <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <img src="https://ik.imagekit.io/ui4mpbzoy/removed-background.png" alt="MingHwee Logo" className="h-12 w-auto object-contain cursor-pointer" onClick={() => navigate("/")} />
+          <img src="https://ik.imagekit.io/ui4mpbzoy/removed-background.png?updatedAt=1764657414508" alt="MingHwee Logo" className="h-12 w-auto object-contain cursor-pointer" onClick={() => navigate("/")} />
           <div className="flex items-center space-x-4">
             <span className="text-gray-600 hidden md:inline">{initialCountry ? `Country: ${initialCountry}` : "No Country Selected"}</span>
             <div className="relative">

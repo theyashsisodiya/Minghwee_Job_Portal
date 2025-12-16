@@ -49,7 +49,7 @@ const AdminSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogou
   return (
     <div className="w-72 bg-white border-r border-gray-200 min-h-screen flex flex-col shadow-xl z-20 transition-all duration-300">
       <div className="p-8 border-b border-gray-200">
-        <div className="text-3xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-600 tracking-tight">MingHwee</div>
+        <img src="https://ik.imagekit.io/ui4mpbzoy/removed-background.png?updatedAt=1764657414508" alt="MingHwee" className="h-12 w-auto mb-2" />
         <p className="text-xs text-gray-500 mt-2 font-medium tracking-widest uppercase">Admin Portal</p>
       </div>
       

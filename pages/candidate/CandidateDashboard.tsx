@@ -34,7 +34,7 @@ const CandidateSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onL
   return (
     <div className="w-72 bg-white/80 backdrop-blur-xl border-r border-gray-200 min-h-screen flex flex-col shadow-2xl z-20 relative">
       <div className="p-8 border-b border-gray-100">
-        <div className="text-3xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-cyan-600 tracking-tight">MingHwee</div>
+        <img src="https://ik.imagekit.io/ui4mpbzoy/removed-background.png?updatedAt=1764657414508" alt="MingHwee" className="h-12 w-auto mb-2" />
         <p className="text-[10px] text-gray-400 mt-2 font-bold tracking-[0.2em] uppercase">Candidate Portal</p>
       </div>
       

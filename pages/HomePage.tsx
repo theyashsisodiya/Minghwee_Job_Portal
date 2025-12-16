@@ -318,7 +318,7 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
           
           {/* Logo - Left */}
           <a href="#" className="flex-shrink-0 flex items-center pl-2" onClick={(e) => handleNavClick(e, '#')}>
-            <span className="text-xl md:text-2xl font-serif font-bold text-brand-burgundy tracking-tight">MingHwee</span>
+            <img src="https://ik.imagekit.io/ui4mpbzoy/removed-background.png?updatedAt=1764657414508" alt="MingHwee" className="h-8 md:h-10 w-auto object-contain" />
           </a>
 
           {/* 
@@ -438,12 +438,12 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
                   <img 
                     src="https://ik.imagekit.io/ui4mpbzoy/f615f450-e572-4d98-a385-1db1213e3b4e-1764685317.jpg?updatedAt=1764685521004"
                     alt="Happy family and helper in a trusting environment" 
-                    className="w-full h-auto object-cover md:min-h-[500px] max-h-[700px] transform transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                    className="w-full h-[450px] md:h-auto object-cover object-top md:object-center md:min-h-[500px] max-h-[700px] transform transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                   />
                   
-                  <div className="absolute bottom-4 left-4 right-4 md:bottom-8 md:left-12 md:right-auto bg-white/95 backdrop-blur-md p-4 md:p-5 rounded-xl md:rounded-2xl shadow-lg z-20 max-w-[calc(100%-2rem)] md:max-w-sm border border-white/50 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
-                      <p className="text-gray-700 italic mb-2 font-medium text-sm md:text-lg leading-snug">"Since 1983, We’ve Nurtured Family Bonds."</p>
-                      <div className="flex items-center gap-2 flex-wrap">
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%] md:w-auto md:left-12 md:translate-x-0 md:right-auto bg-white/95 backdrop-blur-md p-3 md:p-5 rounded-xl md:rounded-2xl shadow-lg z-20 md:max-w-sm border border-white/50 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
+                      <p className="text-gray-700 italic mb-1 md:mb-2 font-medium text-xs md:text-lg leading-snug text-center md:text-left">"Since 1983, We’ve Nurtured Family Bonds."</p>
+                      <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
                         <div className="flex gap-1 text-yellow-400">
                           {[...Array(5)].map((_, i) => <Star key={i} className="w-3 h-3 md:w-4 md:h-4 fill-current" />)}
                         </div>
