@@ -107,6 +107,7 @@
           border-radius: 50%;
           filter: blur(80px);
           opacity: 0.4;
+          will-change: transform; /* Performance fix for mobile animation jitter */
           animation: float 10s infinite alternate ease-in-out;
       }
       .blob-1 { top: -10%; right: -10%; width: 700px; height: 700px; background: var(--c-blob-blue); }

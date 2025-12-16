@@ -170,6 +170,22 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
   }, []);
   
   useEffect(() => {
+    // Detect mobile/tablet devices to prevent smooth scroll jitter
+    // We check for touch capability or small screen width
+    const isMobile = window.matchMedia("(max-width: 1024px)").matches || 
+                     ('ontouchstart' in window) ||
+                     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (isMobile) {
+        // Native scroll behavior for mobile - No Lenis or GSAP ScrollSmoother
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 20);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }
+
+    // --- Desktop Only: Initialize Smooth Scroll ---
     const gsap = getGsap();
     const ScrollSmoother = getScrollSmoother();
     const ScrollTrigger = getScrollTrigger();
@@ -401,7 +417,7 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
 
       {/* SMOOTH WRAPPER */}
       <div id="smooth-wrapper">
-        <div id="smooth-content" className="will-change-transform">
+        <div id="smooth-content">
 
           {/* HERO SECTION */}
           <header className="relative pt-24 pb-20 md:pt-32 md:pb-32 overflow-hidden">
