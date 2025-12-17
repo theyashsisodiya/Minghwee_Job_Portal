@@ -6,6 +6,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import emailjs from "@emailjs/browser";
 import axios from "axios";
 import { AIRTABLE_CONFIG } from "../services/airtable";
+import { Navbar } from "../components/Navbar";
 
 const SettingsIcon = () => (
   <svg
@@ -270,33 +271,36 @@ const AdminSignIn = async () => {
     }
   };
 
+  const AdminLoginButton = (
+    <div className="relative">
+      <button onClick={() => setShowAdminMenu(!showAdminMenu)} className="p-2 rounded-full hover:bg-white/50 transition-colors text-brand-burgundy" title="Staff Login">
+        <SettingsIcon />
+      </button>
+      {showAdminMenu && (
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 animate-in fade-in zoom-in-95">
+          <button onClick={() => { setAdminLoginType("sales"); setShowAdminMenu(false); setIsRegisterMode(false); }} className={`w-full text-left px-4 py-2 hover:bg-brand-beige text-brand-burgundy ${adminLoginType === "sales" ? "bg-brand-beige text-brand-terracotta" : ""}`}>Login as Sales</button>
+          <button onClick={() => { setAdminLoginType("admin"); setShowAdminMenu(false); setIsRegisterMode(false); }} className={`w-full text-left px-4 py-2 hover:bg-brand-beige text-brand-burgundy ${adminLoginType === "admin" ? "bg-brand-beige text-brand-terracotta" : ""}`}>Login as Admin</button>
+          {adminLoginType && <button onClick={() => { setAdminLoginType(null); setShowAdminMenu(false); }} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-500 border-t border-gray-100 mt-1">Back to Normal Login</button>}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-cream font-sans">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-brand-beige">
-        <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <img src="https://ik.imagekit.io/ui4mpbzoy/removed-background.png?updatedAt=1764657414508" alt="MingHwee Logo" className="h-12 w-auto object-contain cursor-pointer" onClick={() => navigate("/")} />
-          <div className="flex items-center space-x-4">
-            <span className="text-gray-600 hidden md:inline">{initialCountry ? `Country: ${initialCountry}` : "No Country Selected"}</span>
-            <div className="relative">
-              <button onClick={() => setShowAdminMenu(!showAdminMenu)} className="p-2 rounded-full hover:bg-gray-100 transition-colors text-brand-burgundy" title="Staff Login">
-                <SettingsIcon />
-              </button>
-              {showAdminMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 animate-in fade-in zoom-in-95">
-                  <button onClick={() => { setAdminLoginType("sales"); setShowAdminMenu(false); setIsRegisterMode(false); }} className={`w-full text-left px-4 py-2 hover:bg-brand-beige text-brand-burgundy ${adminLoginType === "sales" ? "bg-brand-beige text-brand-terracotta" : ""}`}>Login as Sales</button>
-                  <button onClick={() => { setAdminLoginType("admin"); setShowAdminMenu(false); setIsRegisterMode(false); }} className={`w-full text-left px-4 py-2 hover:bg-brand-beige text-brand-burgundy ${adminLoginType === "admin" ? "bg-brand-beige text-brand-terracotta" : ""}`}>Login as Admin</button>
-                  {adminLoginType && <button onClick={() => { setAdminLoginType(null); setShowAdminMenu(false); }} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-500 border-t border-gray-100 mt-1">Back to Normal Login</button>}
-                </div>
-              )}
+      {/* Reused Navbar with Admin Actions injected */}
+      <Navbar 
+        hideCta={true} 
+        extraActions={
+            <div className="flex items-center gap-4">
+                <span className="text-gray-600 hidden md:inline text-sm font-medium">{initialCountry ? `Country: ${initialCountry}` : ""}</span>
+                {AdminLoginButton}
             </div>
-          </div>
-        </nav>
-      </header>
+        } 
+      />
 
-      {/* Main Form */}
-      <main className="flex-grow flex items-center justify-center bg-brand-cream p-6 relative overflow-hidden">
+      {/* Main Form - Added pt-32 for fixed navbar offset */}
+      <main className="flex-grow flex items-center justify-center bg-brand-cream p-6 relative overflow-hidden pt-32">
         {/* Ambient Blobs */}
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-brand-honey/10 rounded-full blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-brand-terracotta/5 rounded-full blur-[100px] pointer-events-none"></div>

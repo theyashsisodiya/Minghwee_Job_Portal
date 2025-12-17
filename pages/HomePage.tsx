@@ -9,8 +9,9 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Lenis from 'lenis';
-import { NAV_LINKS, TESTIMONIALS, FAQS } from '../constants';
+import { TESTIMONIALS, FAQS } from '../constants';
 import { Assistant } from '../components/Assistant';
+import { Navbar } from '../components/Navbar';
 import { UserType, Country } from '../types';
 
 // Access global GSAP objects from CDN
@@ -22,105 +23,6 @@ const getScrollTrigger = () => (window as any).ScrollTrigger;
 const MotionDiv = motion.div as any;
 const MotionSpan = motion.span as any;
 
-// --- Custom CSS for Glass Nav Switcher ---
-const CUSTOM_NAV_CSS = `
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,100..1000&display=swap');
-
-/* Main Navigation Bar Container - The "Liquid Glass" Body */
-.glass-nav-container {
-  --c-glass: #bbbbbc;
-  --c-light: #fff;
-  --c-dark: #000;
-  
-  --c-content: #224;
-  --c-action: #0052f5;
-  
-  --glass-reflex-dark: 1;
-  --glass-reflex-light: 1;
-  
-  --saturation: 150%;
-  
-  font-family: "DM Sans", sans-serif;
-  
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* Ensure spacing between logo, links, buttons */
-  
-  /* Fixed height/padding for the bar */
-  padding: 8px 12px;
-  border-radius: 99em;
-  background-color: color-mix(in srgb, var(--c-glass) 12%, transparent);
-  backdrop-filter: blur(12px) saturate(var(--saturation));
-  -webkit-backdrop-filter: blur(12px) saturate(var(--saturation));
-  
-  /* Complex Glass Shadows */
-  box-shadow: 
-    inset 0 0 0 1px color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 10%), transparent),
-    inset 1.8px 3px 0px -2px color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 90%), transparent), 
-    inset -2px -2px 0px -2px color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 80%), transparent), 
-    inset -3px -8px 1px -6px color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 60%), transparent), 
-    inset -0.3px -1px 4px 0px color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 12%), transparent), 
-    inset -1.5px 2.5px 0px -2px color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 20%), transparent), 
-    inset 0px 3px 4px -2px color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 20%), transparent), 
-    inset 2px -6.5px 1px -4px color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent), 
-    0px 1px 5px 0px color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent), 
-    0px 6px 16px 0px color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 8%), transparent);
-    
-  transition: 
-    background-color 400ms cubic-bezier(1, 0.0, 0.4, 1),
-    box-shadow 400ms cubic-bezier(1, 0.0, 0.4, 1);
-}
-
-/* Active Item Style - The "Pill" inside the glass */
-.glass-nav-active-bg {
-  border-radius: 99em;
-  background-color: color-mix(in srgb, var(--c-glass) 36%, transparent);
-  box-shadow: 
-    inset 0 0 0 1px color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 10%), transparent),
-    inset 2px 1px 0px -1px color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 90%), transparent), 
-    inset -1.5px -1px 0px -1px color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 80%), transparent), 
-    inset -2px -6px 1px -5px color-mix(in srgb, var(--c-light) calc(var(--glass-reflex-light) * 60%), transparent), 
-    inset -1px 2px 3px -1px color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 20%), transparent), 
-    inset 0px -4px 1px -2px color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 10%), transparent), 
-    0px 3px 6px 0px color-mix(in srgb, var(--c-dark) calc(var(--glass-reflex-dark) * 8%), transparent);
-}
-
-.glass-nav-item {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 8px 16px;
-  cursor: pointer;
-  color: #3D405B;
-  font-weight: 500;
-  transition: color 160ms;
-  border-radius: 99em;
-  z-index: 1;
-  font-size: 0.95rem;
-  white-space: nowrap; /* Prevent breaking on overlap */
-}
-
-.glass-nav-item:hover {
-  color: #E07A5F;
-}
-
-.glass-nav-item.active {
-  color: #000;
-  font-weight: 600;
-}
-`;
-
-// --- Glassmorphism SVG Filter ---
-const GlassFilter = () => (
-  <svg style={{ position: 'absolute', width: 0, height: 0, pointerEvents: 'none' }}>
-    <filter id="displacementFilter">
-        <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="2" result="turbulence" />
-        <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="15" xChannelSelector="R" yChannelSelector="G" />
-    </filter>
-  </svg>
-);
-
 interface HomePageProps {
   setCountry: (country: Country) => void;
   selectedCountry: Country | null;
@@ -128,7 +30,6 @@ interface HomePageProps {
 
 const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
   const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   
@@ -261,7 +162,6 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
   // Smooth Scroll Handler
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
-    setIsMobileMenuOpen(false);
     setActiveSection(href); // Immediate feedback
 
     // 1. Handle "Home" or top of page
@@ -297,10 +197,62 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
     }
   };
 
+  // CSS for the Frosted Glass Effect
+  const FROSTED_GLASS_CSS = `
+    .frosted-glass-card {
+      /* Strong Frosted glass effect */
+      background: rgba(255, 255, 255, 0.70);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      
+      /* Subtle shadow for depth */
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      
+      /* Ensure text readability */
+      color: #003049; /* brand-burgundy */
+    }
+  `;
+
+  // Generic Reusable Segmented Card Component
+  interface SegmentedCardProps {
+    quote: string;
+    author: string;
+  }
+
+  // Updated to have NO spacing and true frosted transparency
+  const SegmentedCard: React.FC<SegmentedCardProps> = ({ quote, author }) => (
+    <div className="flex flex-col items-start max-w-[85vw] md:max-w-[400px] text-left">
+        <style>{FROSTED_GLASS_CSS}</style>
+        
+        {/* Unified container look, but split for content */}
+        <div className="flex flex-col">
+            {/* Box 1: Top (Quote) - No bottom margin, rounded top corners */}
+            <div className="frosted-glass-card px-7 py-4 w-fit rounded-t-[28px] rounded-br-[28px] rounded-bl-none z-30">
+                <p className="text-[17px] leading-[1.4] font-semibold text-brand-burgundy font-serif tracking-tight">
+                    "{quote}"
+                </p>
+            </div>
+
+            {/* Box 2: Middle (Stars) - No margins, connects perfectly */}
+            <div className="frosted-glass-card px-7 py-1.5 w-fit rounded-r-[28px] rounded-l-none flex items-center z-20 -mt-[1px] border-t-0 border-b-0">
+                <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="w-3.5 h-3.5 fill-[#ffce31] stroke-[#d4a017] stroke-[1px]" />
+                    ))}
+                </div>
+            </div>
+
+            {/* Box 3: Bottom (Author) - No top margin, rounded bottom corners */}
+            <div className="frosted-glass-card px-7 py-3 w-fit rounded-b-[28px] rounded-tr-[28px] rounded-tl-none z-10 -mt-[1px]">
+                <span className="text-[12px] font-bold uppercase tracking-wider text-brand-terracotta">{author}</span>
+            </div>
+        </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-brand-cream font-sans text-brand-burgundy selection:bg-brand-sage selection:text-white overflow-x-hidden relative">
-      <style>{CUSTOM_NAV_CSS}</style>
-      <GlassFilter />
+    <div className="min-h-screen bg-white font-sans text-brand-burgundy selection:bg-brand-sage selection:text-white overflow-x-hidden relative">
       
       {/* --- AMBIENT BLOBS CONTAINER --- */}
       <div className="blob-container">
@@ -309,109 +261,7 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
         <div className="blob blob-3"></div>
       </div>
 
-      {/* 
-        UPDATED NAVBAR - FULL GLASS BAR 
-      */}
-      <nav className="fixed top-[15px] left-0 right-0 z-50 flex justify-center px-4">
-        {/* The glass container now wraps the ENTIRE nav content */}
-        <div className="glass-nav-container w-full max-w-[1200px] gap-2 md:gap-8">
-          
-          {/* Logo - Left */}
-          <a href="#" className="flex-shrink-0 flex items-center pl-2" onClick={(e) => handleNavClick(e, '#')}>
-            <img src="https://ik.imagekit.io/ui4mpbzoy/removed-background.png?updatedAt=1764657414508" alt="MingHwee" className="h-8 md:h-10 w-auto object-contain" />
-          </a>
-
-          {/* 
-            Center Navigation Links - Hidden on Mobile 
-          */}
-          <div className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map(link => {
-              const isActive = activeSection === link.href;
-              
-              return (
-                <a 
-                  key={link.label} 
-                  href={link.href} 
-                  onClick={(e) => handleNavClick(e, link.href)}
-                  className={`glass-nav-item ${isActive ? 'active' : ''}`}
-                >
-                  {(isActive) && (
-                    <MotionDiv
-                      layoutId="glass-nav-bg"
-                      className="glass-nav-active-bg absolute inset-0 z-[-1]"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                  <span className="relative z-10 text-sm font-semibold">
-                      {link.label}
-                  </span>
-                </a>
-              );
-            })}
-          </div>
-
-          {/* Right Action Buttons */}
-          <div className="flex items-center gap-2 pr-1">
-            {/* Desktop Button: Request Consultation */}
-            <button 
-                onClick={() => navigate('/contact')}
-                className="hidden lg:flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-wider text-brand-burgundy transition-all duration-300 hover:bg-white/40 border border-transparent hover:border-white/50"
-            >
-              <Phone className="w-3.5 h-3.5" />
-              <span>Request Consultation</span>
-            </button>
-
-            {/* Main CTA - HIDDEN ON MOBILE to fix overflow issues */}
-            <button 
-                onClick={() => navigate('/login')}
-                className="hidden md:block bg-brand-terracotta text-white px-6 py-2.5 rounded-full hover:bg-brand-coral transition-all transform hover:scale-105 shadow-md text-sm font-bold whitespace-nowrap animate-pulse-slow"
-            >
-              Get Started Today
-            </button>
-
-            {/* Mobile Menu Toggle */}
-            <button className="md:hidden p-2 text-gray-700 ml-1" onClick={() => setIsMobileMenuOpen(true)}>
-                <Menu className="w-6 h-6" />
-            </button>
-          </div>
-
-        </div>
-      </nav>
-
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-[60] bg-white/95 backdrop-blur-xl p-6 flex flex-col items-center justify-center space-y-8 animate-in fade-in slide-in-from-top-10 duration-200">
-          <button className="absolute top-6 right-6 p-2 text-gray-500 hover:text-red-500" onClick={() => setIsMobileMenuOpen(false)}>
-            <X className="w-8 h-8" />
-          </button>
-          {NAV_LINKS.map(link => (
-            <a 
-                key={link.label} 
-                href={link.href} 
-                onClick={(e) => handleNavClick(e, link.href)}
-                className="text-2xl font-serif text-brand-burgundy hover:text-brand-terracotta font-medium"
-            >
-              {link.label}
-            </a>
-          ))}
-          <div className="w-16 h-1 bg-gray-100 rounded-full my-4"></div>
-          <button 
-            onClick={() => { setIsMobileMenuOpen(false); navigate('/contact'); }}
-            className="text-xl font-bold text-brand-burgundy flex items-center gap-2"
-          >
-            <Phone className="w-5 h-5" /> Request Consultation
-          </button>
-          <button 
-            onClick={() => { setIsMobileMenuOpen(false); navigate('/login'); }}
-            className="bg-brand-terracotta text-white px-8 py-3 rounded-full text-lg shadow-xl"
-          >
-            Get Started Today
-          </button>
-        </div>
-      )}
+      <Navbar activeSection={activeSection} onNavClick={handleNavClick} />
 
       <Assistant />
 
@@ -440,30 +290,14 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
                     alt="Happy family and helper in a trusting environment" 
                     className="w-full h-[450px] md:h-auto object-cover object-top md:object-center md:min-h-[500px] max-h-[700px] transform transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                   />
-                  
-                  {/* DESKTOP CARD POSITION - Absolute Bottom Left */}
-                  <div className="hidden md:block absolute bottom-8 left-12 bg-white/95 backdrop-blur-md p-5 rounded-2xl shadow-lg z-20 max-w-sm border border-white/50 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
-                      <p className="text-gray-700 italic mb-2 font-medium text-lg leading-snug">"Since 1983, We’ve Nurtured Family Bonds."</p>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <div className="flex gap-1 text-yellow-400">
-                          {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
-                        </div>
-                        <span className="text-xs text-gray-400 font-bold uppercase tracking-wider ml-2">VERIFIED BY 10,000+ FAMILIES</span>
-                      </div>
-                  </div>
-                </div>
 
-                {/* MOBILE CARD POSITION - Stacked Below Image */}
-                <div className="md:hidden mt-6 mx-4">
-                    <div className="bg-white p-5 rounded-2xl shadow-xl border border-gray-100 text-center relative z-20">
-                        <p className="text-gray-700 italic mb-2 font-medium text-lg leading-snug">"Since 1983, We’ve Nurtured Family Bonds."</p>
-                        <div className="flex items-center justify-center gap-2 flex-wrap">
-                        <div className="flex gap-1 text-yellow-400">
-                            {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
-                        </div>
-                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider ml-1">VERIFIED BY 10,000+ FAMILIES</span>
-                        </div>
-                    </div>
+                  {/* CARD POSITION - INSIDE CORNER (Bottom Left) */}
+                  <div className="absolute bottom-0 left-0 z-30 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
+                      <SegmentedCard 
+                        quote="Since 1983, We’ve Nurtured Family Bonds." 
+                        author="VERIFIED BY 10,000+ FAMILIES" 
+                      />
+                  </div>
                 </div>
               </MotionDiv>
 
@@ -484,7 +318,7 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-4">
                   <button 
                     onClick={() => navigate('/login?type=employer')}
-                    className="bg-brand-terracotta text-white px-8 py-4 rounded-full font-bold hover:bg-brand-coral transition-all shadow-xl shadow-brand-terracotta/30 flex items-center justify-center gap-2 group text-lg animate-pulse-slow"
+                    className="bg-gradient-to-r from-brand-red-light to-brand-red text-white px-8 py-4 rounded-full font-bold hover:to-brand-red-dark transition-all shadow-xl shadow-brand-red/20 flex items-center justify-center gap-2 group text-lg animate-pulse-slow border border-white/20"
                   >
                     FIND YOUR PERFECT MATCH TODAY <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </button>
@@ -562,19 +396,20 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
                 </div>
 
                 <div className="flex-1 relative will-change-transform group">
-                  <img 
-                      src="https://github.com/theyashsisodiya/MingHwee_Detailed_Workflow/blob/main/nano-edit-17641512802620.png?raw=true"
-                      alt="Caregiver helping elderly"
-                      className="rounded-[2rem] shadow-2xl object-cover h-[600px] w-full relative z-10 transform transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-                  />
-                  <div className="absolute bottom-8 right-8 bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-lg z-20 max-w-xs border border-white/50">
-                      <p className="text-gray-600 italic mb-2 font-medium text-lg leading-snug">"After 3 failed agencies, MingHwee found someone my family trusts completely. She feels like family."</p>
-                      <div className="flex justify-between items-center mt-4">
-                        <span className="text-xs font-bold text-brand-burgundy uppercase">— The Lim Family, Singapore</span>
-                        <div className="flex gap-1 text-brand-honey">
-                          {[...Array(5)].map((_, i) => <Star key={i} className="w-3 h-3 fill-current" />)}
-                        </div>
-                      </div>
+                  <div className="relative rounded-[2rem] overflow-hidden aspect-square">
+                    <img 
+                        src="https://github.com/theyashsisodiya/MingHwee_Detailed_Workflow/blob/main/nano-edit-17641512802620.png?raw=true"
+                        alt="Caregiver helping elderly"
+                        className="shadow-2xl object-cover h-full w-full transform transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                    />
+                    
+                    {/* Absolute Positioned Card - Inside Bottom Left Corner */}
+                    <div className="absolute bottom-0 left-0 z-20">
+                        <SegmentedCard 
+                          quote="After 3 failed agencies, MingHwee found someone my family trusts completely. She feels like family." 
+                          author="— The Lim Family, Singapore" 
+                        />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -586,18 +421,19 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
             <div className="w-full max-w-[90%] 2xl:max-w-[1600px] mx-auto px-6">
               <div className="flex flex-col-reverse md:flex-row items-center gap-16">
                 <div className="flex-1 relative will-change-transform group">
-                  <img 
-                    src="https://github.com/theyashsisodiya/MingHwee_Detailed_Workflow/blob/main/nano-edit-17641513130171.png?raw=true"
-                    alt="Professional domestic cleaning"
-                    className="relative z-10 rounded-[2rem] shadow-2xl object-cover h-[600px] w-full transform transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-                  />
-                  <div className="absolute bottom-8 left-8 bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-lg z-20 max-w-xs border border-white/50">
-                    <p className="text-gray-600 italic mb-2 text-lg leading-snug">"MingHwee didn’t just find me a job  they found me a family that respects me."</p>
-                    <div className="flex justify-between items-center mt-4">
-                        <span className="text-xs font-bold text-brand-burgundy uppercase">— Siti Rahma, Helper since 2021</span>
-                        <div className="flex gap-1 text-brand-honey">
-                          {[...Array(5)].map((_, i) => <Star key={i} className="w-3 h-3 fill-current" />)}
-                        </div>
+                  <div className="relative rounded-[2rem] overflow-hidden aspect-square">
+                    <img 
+                      src="https://github.com/theyashsisodiya/MingHwee_Detailed_Workflow/blob/main/nano-edit-17641513130171.png?raw=true"
+                      alt="Professional domestic cleaning"
+                      className="shadow-2xl object-cover h-full w-full transform transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                    />
+                    
+                    {/* Absolute Positioned Card - Inside Bottom Left Corner */}
+                    <div className="absolute bottom-0 left-0 z-20">
+                      <SegmentedCard 
+                          quote="MingHwee didn’t just find me a job they found me a family that respects me." 
+                          author="— Siti Rahma, Helper since 2021" 
+                      />
                     </div>
                   </div>
                 </div>
@@ -642,7 +478,7 @@ const HomePage: React.FC<HomePageProps> = ({ selectedCountry, setCountry }) => {
           </section>
 
           {/* Stories Section */}
-          <section id="stories" className="py-24 bg-brand-cream rounded-t-[3rem] overflow-hidden z-30 -mt-12 pb-32 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.05)]">
+          <section id="stories" className="py-24 bg-brand-beige rounded-t-[3rem] overflow-hidden z-30 -mt-12 pb-32 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.05)]">
             <div className="w-full max-w-[90%] 2xl:max-w-[1600px] mx-auto px-6">
               <div className="text-center mb-16">
                 <h2 className="font-serif text-3xl md:text-4xl font-bold text-brand-burgundy">Real Bonds, Real Stories</h2>
